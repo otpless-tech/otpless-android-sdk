@@ -1,3 +1,3 @@
 include ':otpless-android-sdk'
 include ':app'
-rootProject.name = "OtpLessLib"
+rootProject.name = "OTPless"
