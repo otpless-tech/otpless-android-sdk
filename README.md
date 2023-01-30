@@ -1,7 +1,6 @@
 # android-sdk-otpless
-**version-1.0.0**
 
-![](https://otpless.com/static/media/logo.b902588b.svg)
+[![](https://jitpack.io/v/otpless-tech/otpless-android-sdk.svg)](https://jitpack.io/#otpless-tech/otpless-android-sdk)
 
 
 ## Download
