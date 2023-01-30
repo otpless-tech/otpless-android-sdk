@@ -17,7 +17,7 @@ public class Utility {
     private static final String APP_VERSION_NAME = "appVersionName";
     private static final String APP_VERSION_CODE = "appVersionCode";
     private static final String SDKVERSION = "sdkVersion";
-    private static final String SDKVERSIONVALUE = "1.0.2";
+    private static final String SDKVERSIONVALUE = "1.0.3";
 
 
     public static boolean isAppInstalled(final PackageManager packageManager, final String packageName) {
