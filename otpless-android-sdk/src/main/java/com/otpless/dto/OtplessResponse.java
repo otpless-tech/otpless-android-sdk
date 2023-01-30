@@ -1,22 +1,12 @@
 package com.otpless.dto;
 
-
-import com.google.gson.annotations.SerializedName;
-
 import java.io.Serializable;
 
 public class OtplessResponse implements Serializable {
 
-    @SerializedName("status")
     private String status;
-
-    @SerializedName("message")
     private String message;
-
-    @SerializedName("waId")
     private String waId;
-
-    @SerializedName("userNumber")
     private String userNumber;
 
     public String getStatus() {
