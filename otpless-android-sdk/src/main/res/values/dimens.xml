@@ -1,20 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="textSizeSmall">12sp</dimen>
-    <dimen name="textSizeMedium">14sp</dimen>
-    <dimen name="textSizeLarge">16sp</dimen>
-    <dimen name="textSizeExtraLarge">18sp</dimen>
-
-    <dimen name="edu_selected_dot">16dp</dimen>
-    <dimen name="edu_unselected_dot">10dp</dimen>
 
     <dimen name="dim_20">20dp</dimen>
-
     <dimen name="progress_bar_size">80dp</dimen>
-
     <dimen name="button_padding_horizontal">10dp</dimen>
     <dimen name="button_padding_vertical">2dp</dimen>
-
     <dimen name="otpless_whatsapp_dim">32dp</dimen>
     <dimen name="otpless_btn_top_margin">14dp</dimen>
 </resources>
