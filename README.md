@@ -5,7 +5,7 @@
 
 [![](https://jitpack.io/v/otpless-tech/otpless-android-sdk.svg)](https://jitpack.io/#otpless-tech/otpless-android-sdk)
 
-### android-sdk-otpless
+# android-sdk-otpless
 Otpless authentication sdk for android
 
 
