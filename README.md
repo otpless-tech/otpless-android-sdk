@@ -1,3 +1,7 @@
+
+<p align="center">
+  <img src="https://github.com/otpless-tech/otpless-android-sdk/blob/Images-and-readme-changes/otpless.svg" height="220"/>
+</p>
 # android-sdk-otpless
 
 [![](https://jitpack.io/v/otpless-tech/otpless-android-sdk.svg)](https://jitpack.io/#otpless-tech/otpless-android-sdk)
@@ -11,7 +15,7 @@ repository {
 }
 
 dependency {
-    implementation 'com.otplesslabs:otpless-android-sdk:1.0.0'
+    implementation 'com.otplesslabs:otpless-android-sdk:LATEST-TAG'
 }
 
 ```
