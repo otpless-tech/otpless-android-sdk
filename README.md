@@ -2,7 +2,7 @@
 <p align="center">
   <img src="https://github.com/otpless-tech/otpless-android-sdk/blob/Images-and-readme-changes/otpless.svg" height="220"/>
 </p>
-# android-sdk-otpless
+### android-sdk-otpless
 
 [![](https://jitpack.io/v/otpless-tech/otpless-android-sdk.svg)](https://jitpack.io/#otpless-tech/otpless-android-sdk)
 
