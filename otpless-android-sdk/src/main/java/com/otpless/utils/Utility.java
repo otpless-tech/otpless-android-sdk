@@ -5,6 +5,9 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.provider.Settings;
+
+import com.otpless.BuildConfig;
+
 import org.json.JSONObject;
 
 public class Utility {
@@ -17,7 +20,7 @@ public class Utility {
     private static final String APP_VERSION_NAME = "appVersionName";
     private static final String APP_VERSION_CODE = "appVersionCode";
     private static final String SDKVERSION = "sdkVersion";
-    private static final String SDKVERSIONVALUE = "1.0.3";
+    private static final String SDKVERSIONVALUE = BuildConfig.OTPLESS_VERSION_NAME;
 
 
     public static boolean isAppInstalled(final PackageManager packageManager, final String packageName) {
