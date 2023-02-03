@@ -16,7 +16,9 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -30,6 +32,8 @@ import com.otpless.network.ApiManager;
 import com.otpless.utils.Utility;
 
 import org.json.JSONObject;
+
+import java.util.List;
 
 public class WhatsappLoginButton extends ConstraintLayout implements View.OnClickListener, LifecycleObserver {
 
@@ -140,13 +144,17 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
             this.setVisibility(View.GONE);
             return;
         }
-
-        if (getContext() instanceof FragmentActivity) {
+        final Fragment fragment = getCurrentFragment();
+        if (fragment != null) {
+            launcher = fragment.registerForActivityResult(new OtplessResultContract(), this::onOtplessResult);
+        } else if (getContext() instanceof FragmentActivity) {
             FragmentActivity activity = (FragmentActivity) getContext();
             launcher = activity.registerForActivityResult(new OtplessResultContract(), this::onOtplessResult);
         }
         // if context is instance of lifecycle
-        if (getContext() instanceof LifecycleOwner) {
+        if (fragment != null) {
+            fragment.getViewLifecycleOwner().getLifecycle().addObserver(this);
+        } else if (getContext() instanceof LifecycleOwner) {
             final LifecycleOwner owner = (LifecycleOwner) getContext();
             owner.getLifecycle().addObserver(this);
         }
@@ -197,6 +205,22 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
                 exception.printStackTrace();
             }
         }
+    }
+
+    /**
+     * top fragment will be visible fragment
+     * */
+    @Nullable
+    private Fragment getCurrentFragment() {
+        if (getContext() instanceof FragmentActivity) {
+            final FragmentActivity activity = (FragmentActivity) getContext();
+            final FragmentManager manager = activity.getSupportFragmentManager();
+            final List<Fragment> fragments = manager.getFragments();
+            if (fragments.size() > 0) {
+                return fragments.get(fragments.size() -1);
+            }
+        }
+        return null;
     }
 
     public final void setResultCallback(final OtplessUserDetailCallback callback) {
