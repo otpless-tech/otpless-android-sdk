@@ -1,18 +1,18 @@
 package com.otpless.views;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
@@ -26,7 +26,7 @@ import androidx.lifecycle.OnLifecycleEvent;
 
 import com.otpless.R;
 import com.otpless.dto.OtplessResponse;
-import com.otpless.main.OtplessResultContract;
+import com.otpless.main.OtplessLauncher;
 import com.otpless.network.ApiCallback;
 import com.otpless.network.ApiManager;
 import com.otpless.utils.Utility;
@@ -42,9 +42,10 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
 
     private String otplessLink = null;
     private TextView mTextView;
+    private int mTextSize = 20;
 
     private OtplessUserDetailCallback mUserCallback;
-    private ActivityResultLauncher<Uri> launcher;
+    private OtplessLauncher mOtplessLauncher;
 
     public WhatsappLoginButton(Context context) {
         super(context);
@@ -66,15 +67,17 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
         if (attrs != null) {
             TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.WhatsappLoginButton);
             this.otplessLink = a.getString(R.styleable.WhatsappLoginButton_otpless_link);
-            this.otplessLink =  Utility.getUrlWithDeviceParams(getContext().getApplicationContext(),this.otplessLink);
-            // parsing host name
-            try {
-                final Uri uri = Uri.parse(this.otplessLink);
-                // base url created
-                ApiManager.getInstance().baseUrl = uri.getScheme() + "://" + uri.getHost() + "/";
-            } catch (Exception ignore) {
-            }
             a.recycle();
+            TypedArray ad = getContext().obtainStyledAttributes(attrs, R.styleable.TextAppearance);
+            if (ad != null) {
+                String size = ad.getString(R.styleable.TextAppearance_android_textSize);
+                try {
+                    mTextSize = getIntFromAttr(size);
+                } catch (IllegalArgumentException ignore) {
+                }
+
+                ad.recycle();
+            }
         }
         addInternalViews(attrs);
         // setting background and style
@@ -86,6 +89,15 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
         this.setOnClickListener(this);
     }
 
+    private int getIntFromAttr(final String str) throws IllegalArgumentException {
+        if (str == null) {
+            throw new IllegalArgumentException("no value supplied");
+        }
+        final String trimmed = str.replace("sp", "").replace("dp", "");
+        float f = Float.parseFloat(trimmed);
+        return  (int) f;
+    }
+
     private void addInternalViews(final AttributeSet attr) {
         mTextView = new TextView(getContext(), attr);
         mTextView.setId(View.generateViewId());
@@ -94,7 +106,7 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
         mTextView.setTextColor(Color.WHITE);
         final Typeface typeface = mTextView.getTypeface();
         mTextView.setTypeface(typeface, Typeface.BOLD);
-        mTextView.setTextSize(20);
+        mTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, mTextSize);
         mTextView.setAllCaps(false);
         final ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
                 LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT
@@ -146,10 +158,10 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
         }
         final Fragment fragment = getCurrentFragment();
         if (fragment != null) {
-            launcher = fragment.registerForActivityResult(new OtplessResultContract(), this::onOtplessResult);
+            this.mOtplessLauncher = new OtplessLauncher(getContext(), fragment, this.otplessLink, this::onOtplessResult);
         } else if (getContext() instanceof FragmentActivity) {
             FragmentActivity activity = (FragmentActivity) getContext();
-            launcher = activity.registerForActivityResult(new OtplessResultContract(), this::onOtplessResult);
+            this.mOtplessLauncher = new OtplessLauncher(getContext(), activity, this.otplessLink, this::onOtplessResult);
         }
         // if context is instance of lifecycle
         if (fragment != null) {
@@ -197,27 +209,37 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
 
     @Override
     public void onClick(View v) {
-        if (otplessLink != null && otplessLink.length() > 0) {
-            try {
-                final Uri uri = Uri.parse(otplessLink);
-                launcher.launch(uri);
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-        }
+        mOtplessLauncher.launch();
     }
 
     /**
      * top fragment will be visible fragment
-     * */
+     */
     @Nullable
     private Fragment getCurrentFragment() {
-        if (getContext() instanceof FragmentActivity) {
-            final FragmentActivity activity = (FragmentActivity) getContext();
+        final FragmentActivity activity = getFragmentActivity();
+        if (activity != null) {
             final FragmentManager manager = activity.getSupportFragmentManager();
             final List<Fragment> fragments = manager.getFragments();
             if (fragments.size() > 0) {
-                return fragments.get(fragments.size() -1);
+                return fragments.get(fragments.size() - 1);
+            }
+        }
+        return null;
+    }
+
+    private FragmentActivity getFragmentActivity() {
+        Context context = getContext();
+        if (context == null) return null;
+        if (context instanceof FragmentActivity) {
+            return (FragmentActivity) context;
+        }
+        // check if context has been wrapped in hilt context wrapper (dagger.hilt.android.internal.managers.ViewComponentManager.FragmentContextWrapper)
+        // which extents wrapper, but we can not class check this as r8 can obfuscate, just context wrapper check will work
+        if (context instanceof ContextWrapper) {
+            context = ((ContextWrapper)context).getBaseContext();
+            if (context instanceof FragmentActivity) {
+                return (FragmentActivity) context;
             }
         }
         return null;
