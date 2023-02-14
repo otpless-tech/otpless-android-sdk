@@ -29,6 +29,7 @@ import com.otpless.dto.OtplessResponse;
 import com.otpless.main.OtplessLauncher;
 import com.otpless.network.ApiCallback;
 import com.otpless.network.ApiManager;
+import com.otpless.utils.FragmentLauncherProvider;
 import com.otpless.utils.Utility;
 
 import org.json.JSONObject;
@@ -46,6 +47,8 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
 
     private OtplessUserDetailCallback mUserCallback;
     private OtplessLauncher mOtplessLauncher;
+
+    private Fragment mAttachedFragment = null;
 
     public WhatsappLoginButton(Context context) {
         super(context);
@@ -67,17 +70,12 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
         if (attrs != null) {
             TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.WhatsappLoginButton);
             this.otplessLink = a.getString(R.styleable.WhatsappLoginButton_otpless_link);
-            a.recycle();
-            TypedArray ad = getContext().obtainStyledAttributes(attrs, R.styleable.TextAppearance);
-            if (ad != null) {
-                String size = ad.getString(R.styleable.TextAppearance_android_textSize);
-                try {
-                    mTextSize = getIntFromAttr(size);
-                } catch (IllegalArgumentException ignore) {
-                }
-
-                ad.recycle();
+            String size = a.getString(R.styleable.WhatsappLoginButton_textSize);
+            try {
+                mTextSize = getIntFromAttr(size);
+            } catch (IllegalArgumentException ignore) {
             }
+            a.recycle();
         }
         addInternalViews(attrs);
         // setting background and style
@@ -158,7 +156,13 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
         }
         final Fragment fragment = getCurrentFragment();
         if (fragment != null) {
-            this.mOtplessLauncher = new OtplessLauncher(getContext(), fragment, this.otplessLink, this::onOtplessResult);
+            mAttachedFragment = fragment;
+            OtplessLauncher launcher = FragmentLauncherProvider.getInstance().getLauncher(fragment);
+            if (launcher == null) {
+                launcher = new OtplessLauncher(getContext(), fragment, this.otplessLink, this::onOtplessResult);
+                FragmentLauncherProvider.getInstance().addLauncher(fragment, launcher);
+            }
+            this.mOtplessLauncher = launcher;
         } else if (getContext() instanceof FragmentActivity) {
             FragmentActivity activity = (FragmentActivity) getContext();
             this.mOtplessLauncher = new OtplessLauncher(getContext(), activity, this.otplessLink, this::onOtplessResult);
@@ -251,5 +255,8 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     public void onDestroyed() {
+        if (mAttachedFragment != null) {
+            FragmentLauncherProvider.getInstance().removeLauncher(mAttachedFragment);
+        }
     }
 }
