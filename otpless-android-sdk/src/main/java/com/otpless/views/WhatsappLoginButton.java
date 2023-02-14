@@ -1,5 +1,6 @@
 package com.otpless.views;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
@@ -7,6 +8,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
@@ -16,25 +18,15 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.OnLifecycleEvent;
 
 import com.otpless.R;
 import com.otpless.dto.OtplessResponse;
-import com.otpless.main.OtplessLauncher;
 import com.otpless.network.ApiCallback;
 import com.otpless.network.ApiManager;
-import com.otpless.utils.FragmentLauncherProvider;
 import com.otpless.utils.Utility;
 
 import org.json.JSONObject;
-
-import java.util.List;
 
 public class WhatsappLoginButton extends ConstraintLayout implements View.OnClickListener, LifecycleObserver {
 
@@ -46,9 +38,6 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
     private int mTextSize = 20;
 
     private OtplessUserDetailCallback mUserCallback;
-    private OtplessLauncher mOtplessLauncher;
-
-    private Fragment mAttachedFragment = null;
 
     public WhatsappLoginButton(Context context) {
         super(context);
@@ -93,7 +82,7 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
         }
         final String trimmed = str.replace("sp", "").replace("dp", "");
         float f = Float.parseFloat(trimmed);
-        return  (int) f;
+        return (int) f;
     }
 
     private void addInternalViews(final AttributeSet attr) {
@@ -154,25 +143,12 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
             this.setVisibility(View.GONE);
             return;
         }
-        final Fragment fragment = getCurrentFragment();
-        if (fragment != null) {
-            mAttachedFragment = fragment;
-            OtplessLauncher launcher = FragmentLauncherProvider.getInstance().getLauncher(fragment);
-            if (launcher == null) {
-                launcher = new OtplessLauncher(getContext(), fragment, this.otplessLink, this::onOtplessResult);
-                FragmentLauncherProvider.getInstance().addLauncher(fragment, launcher);
-            }
-            this.mOtplessLauncher = launcher;
-        } else if (getContext() instanceof FragmentActivity) {
-            FragmentActivity activity = (FragmentActivity) getContext();
-            this.mOtplessLauncher = new OtplessLauncher(getContext(), activity, this.otplessLink, this::onOtplessResult);
-        }
-        // if context is instance of lifecycle
-        if (fragment != null) {
-            fragment.getViewLifecycleOwner().getLifecycle().addObserver(this);
-        } else if (getContext() instanceof LifecycleOwner) {
-            final LifecycleOwner owner = (LifecycleOwner) getContext();
-            owner.getLifecycle().addObserver(this);
+        // base url
+        String baseUrl = ApiManager.getInstance().baseUrl;
+        if (baseUrl == null || baseUrl.length() == 0) {
+            final Uri uri = Uri.parse(this.otplessLink);
+            baseUrl = uri.getScheme() + "://" + uri.getHost() + "/";
+            ApiManager.getInstance().baseUrl = baseUrl;
         }
         checkForWaid();
     }
@@ -213,50 +189,17 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
 
     @Override
     public void onClick(View v) {
-        mOtplessLauncher.launch();
-    }
-
-    /**
-     * top fragment will be visible fragment
-     */
-    @Nullable
-    private Fragment getCurrentFragment() {
-        final FragmentActivity activity = getFragmentActivity();
-        if (activity != null) {
-            final FragmentManager manager = activity.getSupportFragmentManager();
-            final List<Fragment> fragments = manager.getFragments();
-            if (fragments.size() > 0) {
-                return fragments.get(fragments.size() - 1);
-            }
-        }
-        return null;
-    }
-
-    private FragmentActivity getFragmentActivity() {
         Context context = getContext();
-        if (context == null) return null;
-        if (context instanceof FragmentActivity) {
-            return (FragmentActivity) context;
+        // case of hilt dependency injection, it will point to wrapper object not activity context
+        if (!(context instanceof Activity) && context instanceof ContextWrapper) {
+            context = ((ContextWrapper) getContext()).getBaseContext();
         }
-        // check if context has been wrapped in hilt context wrapper (dagger.hilt.android.internal.managers.ViewComponentManager.FragmentContextWrapper)
-        // which extents wrapper, but we can not class check this as r8 can obfuscate, just context wrapper check will work
-        if (context instanceof ContextWrapper) {
-            context = ((ContextWrapper)context).getBaseContext();
-            if (context instanceof FragmentActivity) {
-                return (FragmentActivity) context;
-            }
-        }
-        return null;
+        OtplessManager.getInstance().launch(
+                context, this.otplessLink, this::onOtplessResult
+        );
     }
 
     public final void setResultCallback(final OtplessUserDetailCallback callback) {
         this.mUserCallback = callback;
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    public void onDestroyed() {
-        if (mAttachedFragment != null) {
-            FragmentLauncherProvider.getInstance().removeLauncher(mAttachedFragment);
-        }
     }
 }
