@@ -3,8 +3,11 @@ package com.otpless.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.provider.Settings;
+
+import androidx.annotation.Nullable;
 
 import com.otpless.BuildConfig;
 
@@ -79,4 +82,12 @@ public class Utility {
         return url;
     }
 
+    @Nullable
+    public static Integer parseColor(String color) {
+        try {
+            return Color.parseColor(color);
+        } catch (Exception exception) {
+            return null;
+        }
+    }
 }

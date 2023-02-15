@@ -1,22 +1,29 @@
 package com.otpless.main;
 
+import static com.otpless.utils.Utility.isNotEmpty;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.otpless.R;
 import com.otpless.config.Configuration;
 import com.otpless.network.ApiCallback;
 import com.otpless.network.ApiManager;
 import com.otpless.utils.Utility;
+import com.otpless.views.OtplessManager;
 
 import org.json.JSONObject;
 
@@ -58,6 +65,7 @@ public class OtplessLoginActivity extends AppCompatActivity {
         mCancelTv.setOnClickListener((v) ->
             returnWithError("user cancelled")
         );
+        setupUiFromConfig();
 
         final String waid = getSharedPreferences("otpless_storage_manager", Context.MODE_PRIVATE).getString("otpless_waid", null);
         if (waid != null) {
@@ -83,6 +91,52 @@ public class OtplessLoginActivity extends AppCompatActivity {
             );
         } else {
             openActionView();
+        }
+    }
+
+    private void setupUiFromConfig() {
+        final String[] config = OtplessManager.getInstance().getConfiguration(this);
+        if (isNotEmpty(config[0])) {
+            // setup background color
+            Integer color = Utility.parseColor(config[0]);
+            if (color != null) {
+                final ConstraintLayout cl = findViewById(R.id.otpless_parent_cl);
+                cl.setBackgroundColor(color);
+            }
+        }
+        if (isNotEmpty(config[1])) {
+            // setup loader color
+            Integer color = Utility.parseColor(config[2]);
+            if (color != null) {
+                ProgressBar bar = findViewById(R.id.otpless_progress_bar);
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT_WATCH) {
+                    bar.setIndeterminateTintList(ColorStateList.valueOf(color));
+                }
+            }
+        }
+
+        final TextView textView = findViewById(R.id.otpless_msg_tv);
+        if (isNotEmpty(config[2])) {
+            // setup loader text
+            textView.setText(config[2]);
+        }
+        if (isNotEmpty(config[3])) {
+            Integer color = Utility.parseColor(config[3]);
+            if (color != null) {
+                textView.setTextColor(color);
+            }
+        }
+
+        if (isNotEmpty(config[4])) {
+            // setup cancel button text
+            mCancelTv.setText(config[4]);
+        }
+        if (isNotEmpty(config[5])) {
+            // setup cancel button color
+            Integer color = Utility.parseColor(config[5]);
+            if (color != null) {
+                mCancelTv.setTextColor(color);
+            }
         }
     }
 
