@@ -8,6 +8,8 @@ import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
+import com.otpless.utils.Utility;
+
 public class OtplessManager {
 
     private static OtplessManager sInstance = null;
@@ -63,6 +65,13 @@ public class OtplessManager {
             editor.putString("cancel_btn_color", cancelButtonColor);
         }
         editor.apply();
+    }
+
+    /**
+     * NOT RECOMMENDED until and unless these is a specific requirement to clear all session
+     */
+    public void signOut(final Context context){
+        Utility.deleteWaId(context));
     }
 
     /**

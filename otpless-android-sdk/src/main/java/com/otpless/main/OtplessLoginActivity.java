@@ -106,7 +106,7 @@ public class OtplessLoginActivity extends AppCompatActivity {
         }
         if (isNotEmpty(config[1])) {
             // setup loader color
-            Integer color = Utility.parseColor(config[2]);
+            Integer color = Utility.parseColor(config[1]);
             if (color != null) {
                 ProgressBar bar = findViewById(R.id.otpless_progress_bar);
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT_WATCH) {
