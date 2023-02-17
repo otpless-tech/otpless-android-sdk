@@ -53,7 +53,7 @@ public class OtplessLoginActivity extends AppCompatActivity {
         }
         Intent intent = getIntent();
         Uri uri = intent.getData();
-        if (!Utility.isAppInstalled(getPackageManager(), Configuration.WHATSAPP_PACKAGE_NAME)) {
+        if (!Utility.isAppInstalled(getPackageManager(), Configuration.WHATSAPP_PACKAGE_NAME) && !Utility.isAppInstalled(getPackageManager(), Configuration.WHATSAPP_BUSINESS_PACKAGE)) {
             returnWithError("whatsapp not installed");
             return;
         }
