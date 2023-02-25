@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.otpless.dto.OtplessResponse;
 import com.otpless.utils.Utility;
+import com.otpless.views.OtplessManager;
 import com.otpless.views.WhatsappLoginButton;
 
 public class MainActivity extends AppCompatActivity {
@@ -18,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        OtplessManager.getInstance().init(this);
         WhatsappLoginButton button = (WhatsappLoginButton) findViewById(R.id.whatsapp_login);
         button.setResultCallback((data) -> {
             if (Utility.isNotEmpty(data.getWaId())) {

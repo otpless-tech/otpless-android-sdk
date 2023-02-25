@@ -57,10 +57,6 @@ public class OtplessLoginActivity extends AppCompatActivity {
             returnWithError("whatsapp not installed");
             return;
         }
-        if (uri != null && "otpless".equals(uri.getScheme())) {
-            checkVerifyOtpless(intent);
-            return;
-        }
         // setting cancel callback
         mCancelTv.setOnClickListener((v) ->
             returnWithError("user cancelled")
@@ -160,11 +156,22 @@ public class OtplessLoginActivity extends AppCompatActivity {
     }
 
     private void checkVerifyOtpless(Intent intent) {
-        if (intent == null) return;
+        if (intent == null){
+            returnWithError("Intent is nil");
+            return;
+        }
+
         Uri uri = intent.getData();
-        if (uri == null) return;
-        if (!"otpless".equals(uri.getScheme())) return;
+        if (uri == null){
+            returnWithError("Uri is nil");
+            return;
+        }
+
         String waId = uri.getQueryParameter("waId");
+        if (waId == null || waId.length() == 0){
+            returnWithError("Waid is nil");
+            return;
+        }
         mCancelTv.setVisibility(View.GONE);
         // check the validity of waId with otpless
         ApiManager.getInstance().verifyWaId(
