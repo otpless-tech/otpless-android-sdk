@@ -153,7 +153,7 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
             OtplessManager.getInstance().redirectUrl = this.otplessLink;
             OtplessManager.getInstance().apiURl = baseUrl;
         } else {
-            ApiManager.getInstance().baseUrl = OtplessManager.getInstance().getApiURl(getContext()) + "/";
+            ApiManager.getInstance().baseUrl = OtplessManager.getInstance().getApiURl(getContext());
         }
         checkForWaid();
     }

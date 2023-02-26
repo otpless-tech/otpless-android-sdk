@@ -79,14 +79,16 @@ public class OtplessManager {
         }
     }
     public void launch(final Context context, final String link, final OtplessUserDetailCallback callback) {
-        this.redirectUrl = link;
-        String baseUrl = ApiManager.getInstance().baseUrl;
-        if (baseUrl == null || baseUrl.length() == 0 && link != null) {
-            final Uri uri = Uri.parse(link);
-            baseUrl = uri.getScheme() + "://" + uri.getHost();
-            ApiManager.getInstance().baseUrl = baseUrl;
-            this.apiURl = uri.getScheme() + "://" + uri.getHost();
-        }
+       if (this.redirectUrl != link){
+           this.redirectUrl = link;
+           String baseUrl = ApiManager.getInstance().baseUrl;
+           if (link != null) {
+               final Uri uri = Uri.parse(link);
+               baseUrl = uri.getScheme() + "://" + uri.getHost();
+               ApiManager.getInstance().baseUrl = baseUrl;
+               this.apiURl = uri.getScheme() + "://" + uri.getHost();
+           }
+       }
         this.mOtpImpl.launch(context, link, callback);
     }
     public void launch(final Context context, final OtplessUserDetailCallback callback) {
