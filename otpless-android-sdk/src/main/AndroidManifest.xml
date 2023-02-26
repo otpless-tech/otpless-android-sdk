@@ -6,5 +6,21 @@
         <package android:name="com.whatsapp"/>
         <package android:name="com.whatsapp.w4b"/>
     </queries>
-
+    <application>
+        <activity
+            android:name="com.otpless.main.OtplessLoginActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="otpless"
+                    android:scheme= "${applicationId}.otpless"/>
+            </intent-filter>
+        </activity>
+        <meta-data android:value="${applicationId}.otpless" android:name="otpless.deeplink.scheme"/>
+        <meta-data android:value="otpless" android:name="otpless.deeplink.host"/>
+    </application>
 </manifest>
