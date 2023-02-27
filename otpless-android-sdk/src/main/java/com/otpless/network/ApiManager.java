@@ -25,7 +25,7 @@ public class ApiManager {
 
     public String baseUrl = "";
 
-    private final  String META_VERSE = "metaverse";
+    private final  String META_VERSE = "/metaverse";
 
     private ApiManager() {
         mNetworkThread = new HandlerThread("OtplessNetworkThread");

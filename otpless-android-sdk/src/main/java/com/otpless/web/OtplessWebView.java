@@ -66,9 +66,17 @@ public class OtplessWebView extends WebView {
     }
 
     private void injectJavaScript() {
+        // inserting androidObj
+        final String androidObjScript = "javascript: window.androidObj = function AndroidClass() { };";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            evaluateJavascript(androidObjScript, null);
+        } else {
+            loadUrl(androidObjScript);
+        }
+        // inserting webNativeAssist function
         final String jsStr = "javascript: " +
-                "window.androidObj.nativeSupport = function(message) { " +
-                JAVASCRIPT_OBJ + ".nativeSupport(message) }";
+                "window.androidObj.webNativeAssist = function(message) { " +
+                JAVASCRIPT_OBJ + ".webNativeAssist(message) }";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             evaluateJavascript(jsStr, null);
         } else {
@@ -82,11 +90,15 @@ public class OtplessWebView extends WebView {
         loadUrl(url);
     }
 
+    public String getLoadedUrl() {
+        return mLoadingUrl;
+    }
+
     public void callWebJs(final String methodName, final Object... params) {
         final StringBuilder builder = new StringBuilder();
         for (Object obj : params) {
             if (obj instanceof String) {
-                final String quotedString = "\\'" + obj + "\\'";
+                final String quotedString = "'" + obj + "'";
                 builder.append(quotedString);
             } else {
                 builder.append(obj);
@@ -100,9 +112,13 @@ public class OtplessWebView extends WebView {
         final String paramStr = builder.toString();
         final String script = "javascript: " + methodName + "(" + paramStr + ")";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            evaluateJavascript(script, null);
+            post(() -> {
+                evaluateJavascript(script, null);
+            });
         } else {
-            loadUrl(script);
+            post(() -> {
+                loadUrl(script);
+            });
         }
     }
 
@@ -122,7 +138,7 @@ public class OtplessWebView extends WebView {
             super.onPageFinished(view, url);
             if (hasUrlLoadFailed) {
                 if (webLoaderCallback != null) {
-                    webLoaderCallback.showLoader();
+                    webLoaderCallback.showLoader("Please wait...");
                 }
             } else {
                 // inject java script object here

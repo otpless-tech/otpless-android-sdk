@@ -139,12 +139,12 @@ public class OtplessLoginActivity extends AppCompatActivity {
     private void openActionView() {
         final Intent intent = getIntent();
         Parcelable parcelable = intent.getParcelableExtra("otpless_request");
-        if (parcelable instanceof Uri) {
+        if (parcelable != null && parcelable instanceof Uri) {
             Uri request = (Uri) parcelable;
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, request);
             startActivity(browserIntent);
         } else {
-            finish();
+            returnWithError("redirecturi is null");
         }
     }
 
@@ -157,19 +157,19 @@ public class OtplessLoginActivity extends AppCompatActivity {
 
     private void checkVerifyOtpless(Intent intent) {
         if (intent == null){
-            returnWithError("Intent is nil");
+            returnWithError("Intent is null");
             return;
         }
 
         Uri uri = intent.getData();
         if (uri == null){
-            returnWithError("Uri is nil");
+            returnWithError("Uri is null");
             return;
         }
 
         String waId = uri.getQueryParameter("waId");
         if (waId == null || waId.length() == 0){
-            returnWithError("Waid is nil");
+            returnWithError("Waid is null");
             return;
         }
         mCancelTv.setVisibility(View.GONE);

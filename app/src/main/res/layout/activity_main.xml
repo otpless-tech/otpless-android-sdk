@@ -39,7 +39,16 @@
         android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/info"
-        app:otpless_link="https://anubhav.authlink.me?redirectUri=otpless://dgotpless" />
+        app:layout_constraintTop_toBottomOf="@+id/info" />
+
+    <Button
+        android:id="@+id/whatsapp_web_btn"
+        app:layout_constraintTop_toBottomOf="@id/whatsapp_login"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Open Whatsapp Web"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

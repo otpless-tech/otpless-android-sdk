@@ -29,6 +29,16 @@ public class WebJsInterface {
     }
 
     @Nullable
+    private Boolean getBoolean(final JSONObject obj, final String key) {
+        try {
+            return obj.getBoolean(key);
+        } catch (JSONException exception) {
+            exception.printStackTrace();
+            return null;
+        }
+    }
+
+    @Nullable
     private Double getDouble(final JSONObject obj, final String key) {
         try {
             return obj.getDouble(key);
@@ -53,13 +63,52 @@ public class WebJsInterface {
     }
 
     @JavascriptInterface
-    public void nativeSupport(final String jsObjStr) {
+    public void webNativeAssist(final String jsObjStr) {
         try {
             final JSONObject jsonObject = new JSONObject(jsObjStr);
-            final Integer action = getInt(jsonObject, "actionCode");
-            if (action == null) return;
-            switch (action) {
+            final Integer actionCode = getInt(jsonObject, "key");
+            if (actionCode == null) return;
 
+            switch (actionCode) {
+                // to show loader
+                case 1:
+                    final String message = getString(jsonObject, "message");
+                    this.mListener.showLoader(message);
+                    break;
+                // to hide loader
+                case 2:
+                    this.mListener.hideLoader();
+                    break;
+                // to subscribe backpress
+                case 3:
+                    final Boolean subscribe = getBoolean(jsonObject, "subscribe");
+                    if (subscribe == null) break;
+                    this.mListener.subscribeBackPress(subscribe);
+                    break;
+                // save string
+                case 4:
+                    final String infoKey = getString(jsonObject, "infoKey");
+                    if (infoKey.length() == 0) break;
+                    final String infoValue = getString(jsonObject, "infoValue");
+                    if (infoValue.length() == 0) break;
+                    this.mListener.saveString(infoKey, infoValue);
+                    break;
+                // get string
+                case 5:
+                    final String infKey = getString(jsonObject, "infoKey");
+                    if (infKey.length() == 0) break;
+                    this.mListener.getString(infKey);
+                    break;
+                // parse deeplink
+                case 7:
+                    final String deeplink = getString(jsonObject, "deeplink");
+                    if (deeplink.length() == 0) return;
+                    this.mListener.openDeeplink(deeplink);
+                    break;
+                // get app info
+                case 8:
+                    this.mListener.appInfo();
+                    break;
             }
         } catch (JSONException e) {
             e.printStackTrace();

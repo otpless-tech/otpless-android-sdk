@@ -3,6 +3,7 @@ package com.otpless.views;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -145,10 +146,14 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
         }
         // base url
         String baseUrl = ApiManager.getInstance().baseUrl;
-        if (baseUrl == null || baseUrl.length() == 0) {
+        if (baseUrl == null || baseUrl.length() == 0 && this.otplessLink != null) {
             final Uri uri = Uri.parse(this.otplessLink);
-            baseUrl = uri.getScheme() + "://" + uri.getHost() + "/";
+            baseUrl = uri.getScheme() + "://" + uri.getHost();
             ApiManager.getInstance().baseUrl = baseUrl;
+            OtplessManager.getInstance().redirectUrl = this.otplessLink;
+            OtplessManager.getInstance().apiURl = baseUrl;
+        } else {
+            ApiManager.getInstance().baseUrl = OtplessManager.getInstance().getApiURl(getContext());
         }
         checkForWaid();
     }
@@ -194,9 +199,20 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
         if (!(context instanceof Activity) && context instanceof ContextWrapper) {
             context = ((ContextWrapper) getContext()).getBaseContext();
         }
-        OtplessManager.getInstance().launch(
-                context, this.otplessLink, this::onOtplessResult
-        );
+        if(this.otplessLink != null) {
+            OtplessManager.getInstance().launch(
+                    context, this.otplessLink, this::onOtplessResult
+            );
+        }
+        else if (OtplessManager.getInstance().redirectUrl != null && OtplessManager.getInstance().redirectUrl.length() > 0){
+            OtplessManager.getInstance().launch(
+                    context, OtplessManager.getInstance().redirectUrl, this::onOtplessResult
+            );
+        } else {
+            OtplessManager.getInstance().launch(
+                    context, "", this::onOtplessResult
+            );
+        }
     }
 
     public final void setResultCallback(final OtplessUserDetailCallback callback) {
