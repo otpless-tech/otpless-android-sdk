@@ -107,14 +107,8 @@ public class Utility {
             final ApplicationInfo info = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
             String host = info.metaData.getString("otpless.deeplink.host");
             String scheme = info.metaData.getString("otpless.deeplink.scheme");
-            if (Utility.isValid(host, scheme)) {
-                return new SchemeHostMetaInfo(scheme, host);
-            }
-            // if scheme and host is not defined in manifest, default host will be otpless
-            // default scheme will be packagename.otpless
-            return new SchemeHostMetaInfo(
-                    String.format("%s.otpless", context.getPackageName()), "otpless"
-            );
+            // host and scheme will always be
+            return new SchemeHostMetaInfo(scheme, host);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
             return null;

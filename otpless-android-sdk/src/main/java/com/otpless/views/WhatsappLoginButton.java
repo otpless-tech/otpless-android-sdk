@@ -64,16 +64,16 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
             // redirectUrl=packagename://otpless, scheme is application package name and host is otpless
             try {
                 final Uri otplessUri = Uri.parse(otplessLink);
-                if (otplessUri.getQueryParameter("redirectUri") == null) {
-                    final Uri.Builder builder = otplessUri.buildUpon();
-                    final SchemeHostMetaInfo schemeHostMetaInfo = Utility.getSchemeHost(getContext());
-                    if (schemeHostMetaInfo != null) {
-                        final String redirectUri = String.format("%s://%s", schemeHostMetaInfo.getScheme(), schemeHostMetaInfo.getHost());
-                        builder.appendQueryParameter("redirectUri", redirectUri);
-                        otplessLink = builder.build().toString();
-                    }
+                final Uri.Builder builder = otplessUri.buildUpon();
+                builder.clearQuery();
+                final SchemeHostMetaInfo schemeHostMetaInfo = Utility.getSchemeHost(getContext());
+                if (schemeHostMetaInfo != null) {
+                    final String redirectUri = String.format("%s://%s", schemeHostMetaInfo.getScheme(), schemeHostMetaInfo.getHost());
+                    builder.appendQueryParameter("redirectUri", redirectUri);
+                    otplessLink = builder.build().toString();
                 }
-            } catch (Exception ignore) {
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
             String size = a.getString(R.styleable.WhatsappLoginButton_textSize);
             try {
@@ -166,7 +166,6 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
             baseUrl = uri.getScheme() + "://" + uri.getHost();
             ApiManager.getInstance().baseUrl = baseUrl;
             OtplessManager.getInstance().redirectUrl = this.otplessLink;
-            OtplessManager.getInstance().apiURl = baseUrl;
         }
         checkForWaid();
     }

@@ -19,7 +19,6 @@ public class OtplessManager {
     private static OtplessManager sInstance = null;
     private static final String URL_PATTERN = "https://%s.authlink.me";
     public String redirectUrl = "";
-    public String apiURl = "";
 
     public static OtplessManager getInstance() {
         if (sInstance == null) {
@@ -45,16 +44,16 @@ public class OtplessManager {
     }
 
     private void setUrlRedirectURI(FragmentActivity activity) {
-        if (Utility.isValid(redirectUrl, apiURl)) {
+        if (Utility.isValid(redirectUrl, ApiManager.getInstance().baseUrl)) {
             return;
         }
         String packageName = activity.getApplicationContext().getPackageName();
         String domainHost = packageName.replace(".", "-");
-        apiURl = String.format(URL_PATTERN, domainHost);
+        final String apiURl = String.format(URL_PATTERN, domainHost);
         ApiManager.getInstance().baseUrl = apiURl;
         final SchemeHostMetaInfo info = getSchemeHost(activity);
         if (info != null) {
-            redirectUrl = this.apiURl + "?redirectUri=" + info.getScheme() + "://" + info.getHost();
+            redirectUrl = apiURl + "?redirectUri=" + info.getScheme() + "://" + info.getHost();
         }
     }
 
@@ -63,8 +62,7 @@ public class OtplessManager {
             this.redirectUrl = link;
             if (link != null) {
                 final Uri uri = Uri.parse(link);
-                apiURl = uri.getScheme() + "://" + uri.getHost();
-                ApiManager.getInstance().baseUrl = apiURl;
+                ApiManager.getInstance().baseUrl = uri.getScheme() + "://" + uri.getHost();
             }
         }
         this.mOtpImpl.launch(context, link, callback);
