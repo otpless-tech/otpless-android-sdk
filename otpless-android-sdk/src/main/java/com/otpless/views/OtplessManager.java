@@ -58,14 +58,25 @@ public class OtplessManager {
     }
 
     public void launch(final Context context, final String link, final OtplessUserDetailCallback callback) {
+        // if redirectUri is invalid or passed link do not match with redirectUri
+        // create redirectUri and apiUrl from passed link
         if (!Utility.isValid(redirectUrl) || !this.redirectUrl.equals(link)) {
-            this.redirectUrl = link;
-            if (link != null) {
-                final Uri uri = Uri.parse(link);
-                ApiManager.getInstance().baseUrl = uri.getScheme() + "://" + uri.getHost();
+            try {
+                final Uri otplessUri = Uri.parse(link);
+                final Uri.Builder builder = otplessUri.buildUpon();
+                builder.clearQuery();
+                final SchemeHostMetaInfo schemeHostMetaInfo = Utility.getSchemeHost(context);
+                if (schemeHostMetaInfo != null) {
+                    final String redirectUri = String.format("%s://%s", schemeHostMetaInfo.getScheme(), schemeHostMetaInfo.getHost());
+                    builder.appendQueryParameter("redirectUri", redirectUri);
+                    this.redirectUrl = builder.build().toString();
+                }
+                ApiManager.getInstance().baseUrl = otplessUri.getScheme() + "://" + otplessUri.getHost();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
-        this.mOtpImpl.launch(context, link, callback);
+        this.mOtpImpl.launch(context, redirectUrl, callback);
     }
 
     public void setConfiguration(@NonNull final Context context, String backgroundColor,
