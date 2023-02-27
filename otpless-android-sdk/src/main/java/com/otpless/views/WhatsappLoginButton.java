@@ -3,7 +3,6 @@ package com.otpless.views;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -25,6 +24,7 @@ import com.otpless.R;
 import com.otpless.dto.OtplessResponse;
 import com.otpless.network.ApiCallback;
 import com.otpless.network.ApiManager;
+import com.otpless.utils.SchemeHostMetaInfo;
 import com.otpless.utils.Utility;
 
 import org.json.JSONObject;
@@ -60,6 +60,21 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
         if (attrs != null) {
             TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.WhatsappLoginButton);
             this.otplessLink = a.getString(R.styleable.WhatsappLoginButton_otpless_link);
+            // check redirectUri query in [otplessLink] if not present then new redirection url is added
+            // redirectUrl=packagename://otpless, scheme is application package name and host is otpless
+            try {
+                final Uri otplessUri = Uri.parse(otplessLink);
+                if (otplessUri.getQueryParameter("redirectUri") == null) {
+                    final Uri.Builder builder = otplessUri.buildUpon();
+                    final SchemeHostMetaInfo schemeHostMetaInfo = Utility.getSchemeHost(getContext());
+                    if (schemeHostMetaInfo != null) {
+                        final String redirectUri = String.format("%s://%s", schemeHostMetaInfo.getScheme(), schemeHostMetaInfo.getHost());
+                        builder.appendQueryParameter("redirectUri", redirectUri);
+                        otplessLink = builder.build().toString();
+                    }
+                }
+            } catch (Exception ignore) {
+            }
             String size = a.getString(R.styleable.WhatsappLoginButton_textSize);
             try {
                 mTextSize = getIntFromAttr(size);
@@ -152,8 +167,6 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
             ApiManager.getInstance().baseUrl = baseUrl;
             OtplessManager.getInstance().redirectUrl = this.otplessLink;
             OtplessManager.getInstance().apiURl = baseUrl;
-        } else {
-            ApiManager.getInstance().baseUrl = OtplessManager.getInstance().getApiURl(getContext());
         }
         checkForWaid();
     }
@@ -204,7 +217,7 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
                     context, this.otplessLink, this::onOtplessResult
             );
         }
-        else if (OtplessManager.getInstance().redirectUrl != null && OtplessManager.getInstance().redirectUrl.length() > 0){
+        else if (Utility.isValid(OtplessManager.getInstance().redirectUrl)){
             OtplessManager.getInstance().launch(
                     context, OtplessManager.getInstance().redirectUrl, this::onOtplessResult
             );
