@@ -8,8 +8,13 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RoundRectShape;
+import android.graphics.drawable.shapes.Shape;
 import android.net.Uri;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
@@ -37,6 +42,7 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
     private String otplessLink = null;
     private TextView mTextView;
     private int mTextSize = 20;
+    private int mCornerRadiusInDp = 12;
 
     private OtplessUserDetailCallback mUserCallback;
 
@@ -75,17 +81,27 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
-            String size = a.getString(R.styleable.WhatsappLoginButton_textSize);
+            String size = a.getString(R.styleable.WhatsappLoginButton_otplessTextSize);
             try {
                 mTextSize = getIntFromAttr(size);
             } catch (IllegalArgumentException ignore) {
             }
+            String radiusStr = a.getString(R.styleable.WhatsappLoginButton_otplessCornerRadius);
+
+            try {
+                mCornerRadiusInDp = getIntFromAttr(radiusStr);
+            } catch (Exception ignore) {}
             a.recycle();
         }
         addInternalViews(attrs);
         // setting background and style
-        final Drawable background = ContextCompat.getDrawable(getContext(), R.drawable.whatsapp_btn_bg);
-        setBackground(background);
+        final GradientDrawable drawable = new GradientDrawable();
+        drawable.setColor(ContextCompat.getColor(getContext(), R.color.otpless_primary));
+        // convert corner radius from dp to float
+        final DisplayMetrics matrics = getContext().getResources().getDisplayMetrics();
+        final float radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, mCornerRadiusInDp, matrics);
+        drawable.setCornerRadius(radius);
+        setBackground(drawable);
         final int horPad = getResources().getDimensionPixelSize(R.dimen.button_padding_horizontal);
         final int verPad = getResources().getDimensionPixelSize(R.dimen.button_padding_vertical);
         setPadding(horPad, verPad, horPad, verPad);
@@ -140,7 +156,7 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
         // setting up layout params
         whatsappIv.setLayoutParams(imgParam);
         // setting drawable
-        final Drawable whatsappBg = ContextCompat.getDrawable(getContext(), R.drawable.icons8_whatsapp_48);
+        final Drawable whatsappBg = ContextCompat.getDrawable(getContext(), R.drawable.otpless_whatsapp_icons);
         whatsappIv.setBackground(whatsappBg);
         // adding view in constraint layout
         addView(whatsappIv);

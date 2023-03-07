@@ -2,6 +2,7 @@
 <resources>
     <declare-styleable name="WhatsappLoginButton">
         <attr name="otpless_link" format="string" />
-        <attr name="textSize" format="string"/>
+        <attr name="otplessTextSize" format="string"/>
+        <attr name="otplessCornerRadius" format="string"/>
     </declare-styleable>
 </resources>
