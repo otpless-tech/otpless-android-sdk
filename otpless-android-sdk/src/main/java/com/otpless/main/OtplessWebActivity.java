@@ -75,26 +75,7 @@ public class OtplessWebActivity extends AppCompatActivity {
             return;
         }
         // check the validity of waId with otpless
-        ApiManager.getInstance().verifyWaId(
-                waId, new ApiCallback<JSONObject>() {
-                    @Override
-                    public void onSuccess(JSONObject data) {
-                        // save waId in share pref
-                        SharedPreferences sp = getSharedPreferences("otpless_storage_manager", Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sp.edit();
-                        editor.putString("otpless_waid", waId);
-                        editor.apply();
-                        reloadWithWaid(waId);
-                    }
-
-                    @Override
-                    public void onError(Exception exception) {
-                        exception.printStackTrace();
-                        Utility.deleteWaId(OtplessWebActivity.this);
-                        returnWithError(exception.getMessage());
-                    }
-                }
-        );
+        mWebView.callWebJs("onWaidReceived", waId);
     }
 
     @Override
@@ -105,14 +86,6 @@ public class OtplessWebActivity extends AppCompatActivity {
         } else {
             super.onBackPressed();
         }
-    }
-
-    private void reloadWithWaid(final String waid) {
-        final String loadedUrl = mWebView.getLoadedUrl();
-        if (loadedUrl == null) return;
-        final Uri.Builder builder = Uri.parse(loadedUrl).buildUpon();
-        builder.appendQueryParameter("waid", waid);
-        mWebView.loadWebUrl(builder.build().toString());
     }
 
     private void returnWithError(String message) {
