@@ -31,10 +31,11 @@ import org.json.JSONObject;
 public class OtplessLoginActivity extends AppCompatActivity {
 
     private TextView mCancelTv;
-
+    private Bundle mOnCreateBundle = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mOnCreateBundle = savedInstanceState;
         setContentView(R.layout.activity_otpless_login);
         initView();
     }
@@ -51,8 +52,6 @@ public class OtplessLoginActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
-        Intent intent = getIntent();
-        Uri uri = intent.getData();
         if (!Utility.isAppInstalled(getPackageManager(), Configuration.WHATSAPP_PACKAGE_NAME) && !Utility.isAppInstalled(getPackageManager(), Configuration.WHATSAPP_BUSINESS_PACKAGE)) {
             returnWithError("whatsapp not installed");
             return;
@@ -85,7 +84,8 @@ public class OtplessLoginActivity extends AppCompatActivity {
                         }
                     }
             );
-        } else {
+        } else if (mOnCreateBundle == null) {
+            // activity is not restored and on new intent will not be called
             openActionView();
         }
     }
