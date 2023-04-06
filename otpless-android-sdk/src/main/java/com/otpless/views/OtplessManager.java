@@ -43,8 +43,8 @@ public class OtplessManager {
     public void init(final FragmentActivity activity) {
 
         this.setUrlRedirectURI(activity);
-        this.mOtpImpl.add(activity
-        );
+        this.mOtpImpl.add(activity);
+        this.mOtpImpl.initWebLauncher(activity);
     }
     private void setUrlRedirectURI(FragmentActivity activity){
         if (this.redirectUrl != null && this.redirectUrl.length() > 0 && this.apiURl != null && this.apiURl.length() > 0){
@@ -93,6 +93,10 @@ public class OtplessManager {
     }
     public void launch(final Context context, final OtplessUserDetailCallback callback) {
         this.mOtpImpl.launch(context,this.redirectUrl,callback);
+    }
+
+    public void launchOtplessWeb(final OtplessUserDetailCallback callback) {
+        this.mOtpImpl.launchOtplessWeb(callback);
     }
 
     public void setConfiguration(@NonNull final Context context, String backgroundColor,

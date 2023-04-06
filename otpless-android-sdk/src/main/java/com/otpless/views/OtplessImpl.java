@@ -13,6 +13,7 @@ import androidx.lifecycle.OnLifecycleEvent;
 
 import com.otpless.dto.OtplessResponse;
 import com.otpless.main.OtplessResultContract;
+import com.otpless.main.OtplessWebResultContract;
 import com.otpless.utils.Utility;
 
 import java.util.HashMap;
@@ -21,6 +22,7 @@ class OtplessImpl {
 
     private final HashMap<Activity, ActivityResultLauncher<Uri>> mLauncherMap = new HashMap<>();
     private OtplessUserDetailCallback mAfterLaunchCallback = null;
+    private ActivityResultLauncher<Void> mWebLaunch;
 
     OtplessImpl() {
     }
@@ -31,6 +33,12 @@ class OtplessImpl {
         );
         mLauncherMap.put(activity, launcher);
         activity.getLifecycle().addObserver(new OtplessObserver(activity));
+    }
+
+    void initWebLauncher(final FragmentActivity activity) {
+        mWebLaunch = activity.registerForActivityResult(
+                new OtplessWebResultContract(), this::onOtplessResult
+        );
     }
 
     private void onOtplessResult(@Nullable OtplessResponse userDetail) {
@@ -48,6 +56,11 @@ class OtplessImpl {
             mAfterLaunchCallback = callback;
             launcher.launch(uri);
         }
+    }
+
+    void launchOtplessWeb(final OtplessUserDetailCallback callback) {
+        mAfterLaunchCallback = callback;
+        mWebLaunch.launch(null);
     }
 
     class OtplessObserver implements LifecycleObserver {

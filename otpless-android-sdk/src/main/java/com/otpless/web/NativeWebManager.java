@@ -1,5 +1,6 @@
 package com.otpless.web;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
 import com.otpless.BuildConfig;
+import com.otpless.dto.OtplessResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -125,5 +127,42 @@ public class NativeWebManager implements OtplessWebListener {
         );
         map.put("deviceId", androidId);
         return map;
+    }
+
+    /**
+     * status 0 = error, status 2 = success, status 1 = in progress
+     */
+    @Override
+    public void waidVerificationStatus(@NonNull JSONObject json) {
+        final int status = json.optInt("state", -1);
+        if (status < 0 || status > 3) return;
+        switch (status) {
+            case 0: {
+                String message = json.optString("message");
+                if (message.length() == 0) {
+                    message = "Something went wrong.";
+                }
+                final Intent intent = new Intent();
+                intent.putExtra("success", false);
+                intent.putExtra("error", message);
+                mActivity.setResult(Activity.RESULT_OK, intent);
+                mActivity.finish();
+            }
+            break;
+            case 1:
+                // todo for future event
+                break;
+            case 2:
+                // send success response
+                final Intent intent = new Intent();
+                intent.putExtra("success", true);
+                final String waid = json.optString("waId");
+                final String userNumber = json.optString("userNumber");
+                intent.putExtra("waId", waid);
+                intent.putExtra("userNumber", userNumber);
+                mActivity.setResult(Activity.RESULT_OK, intent);
+                mActivity.finish();
+                break;
+        }
     }
 }

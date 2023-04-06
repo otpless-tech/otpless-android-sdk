@@ -17,6 +17,8 @@ import com.otpless.views.WhatsappLoginButton;
 
 public class MainActivity extends AppCompatActivity {
 
+    private Button mWhatsappWebBtn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,10 +30,9 @@ public class MainActivity extends AppCompatActivity {
                 afterSessionId();
             }
         });
-        final Button btn = findViewById(R.id.whatsapp_web_btn);
-        btn.setOnClickListener(v -> {
-            final Intent webIntent = new Intent(this, OtplessWebActivity.class);
-            startActivity(webIntent);
+        mWhatsappWebBtn = findViewById(R.id.whatsapp_web_btn);
+        mWhatsappWebBtn.setOnClickListener(v -> {
+            OtplessManager.getInstance().launchOtplessWeb(this::onOtplessResult);
         });
     }
 
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         message = userDetail.getWaId() + "\n" + message;
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         Log.d("MainActivity", message);
+        mWhatsappWebBtn.setText(userDetail.getUserNumber());
     }
 
 

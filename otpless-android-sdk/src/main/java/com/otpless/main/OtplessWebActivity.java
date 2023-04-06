@@ -74,8 +74,12 @@ public class OtplessWebActivity extends AppCompatActivity {
             returnWithError("Waid is null");
             return;
         }
-        // check the validity of waId with otpless
-        mWebView.callWebJs("onWaidReceived", waId);
+        if (mWebView.isUrlLoaded()) {
+            // check the validity of waId with otpless
+            mWebView.callWebJs("onWaidReceived", waId);
+        } else {
+            mWebView.enqueueWaid(waId);
+        }
     }
 
     @Override

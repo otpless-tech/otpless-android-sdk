@@ -109,6 +109,12 @@ public class WebJsInterface {
                 case 8:
                     this.mListener.appInfo();
                     break;
+                // verification status call key 11
+                case 11:
+                    final JSONObject json = getJson(jsonObject, "response");
+                    if (json == null) break;
+                    this.mListener.waidVerificationStatus(json);
+                    break;
             }
         } catch (JSONException e) {
             e.printStackTrace();

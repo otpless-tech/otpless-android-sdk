@@ -19,8 +19,9 @@ public class OtplessWebView extends WebView {
 
     public static final String JAVASCRIPT_OBJ = "javascript_obj";
 
-    private boolean hasUrlLoadFailed = false;
+    private LoadingStatus mLoadingState = LoadingStatus.InProgress;
     WebLoaderCallback webLoaderCallback = null;
+    private String mEnqueuedWaid = null;
     private String mLoadingUrl = null;
 
     public OtplessWebView(@NonNull Context context) {
@@ -82,11 +83,13 @@ public class OtplessWebView extends WebView {
         } else {
             loadUrl(jsStr);
         }
+        pushEnqueuedWaid();
     }
 
     public void loadWebUrl(String url) {
         if (url == null) return;
         mLoadingUrl = url;
+        mLoadingState = LoadingStatus.InProgress;
         loadUrl(url);
     }
 
@@ -136,11 +139,12 @@ public class OtplessWebView extends WebView {
         @Override
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
-            if (hasUrlLoadFailed) {
+            if (mLoadingState == LoadingStatus.Failed) {
                 if (webLoaderCallback != null) {
                     webLoaderCallback.showLoader("Please wait...");
                 }
             } else {
+                mLoadingState = LoadingStatus.Success;
                 // inject java script object here
                 if (webLoaderCallback != null) {
                     webLoaderCallback.hideLoader();
@@ -154,7 +158,7 @@ public class OtplessWebView extends WebView {
         public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
             super.onReceivedError(view, request, error);
             if (request.getUrl() != null && request.getUrl().toString().equals(mLoadingUrl)) {
-                hasUrlLoadFailed = true;
+                mLoadingState = LoadingStatus.Failed;
             }
         }
 
@@ -162,8 +166,28 @@ public class OtplessWebView extends WebView {
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
             super.onReceivedError(view, errorCode, description, failingUrl);
             if (failingUrl != null && failingUrl.equals(mLoadingUrl)) {
-                hasUrlLoadFailed = true;
+                mLoadingState = LoadingStatus.Failed;
             }
         }
     }
+
+    public boolean isUrlLoaded() {
+        return mLoadingState == LoadingStatus.Success;
+    }
+
+    public final void enqueueWaid(final String waid) {
+        this.mEnqueuedWaid = waid;
+    }
+
+    final void pushEnqueuedWaid() {
+        if (mEnqueuedWaid == null) return;
+        callWebJs("onWaidReceived", mEnqueuedWaid);
+        mEnqueuedWaid = null;
+    }
+}
+
+enum LoadingStatus {
+    InProgress,
+    Success,
+    Failed
 }
