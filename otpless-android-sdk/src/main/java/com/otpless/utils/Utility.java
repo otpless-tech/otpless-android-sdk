@@ -47,13 +47,6 @@ public class Utility {
         return str != null && str.length() > 0;
     }
 
-    public static void deleteWaId(final Context context) {
-        SharedPreferences sp = context.getSharedPreferences("otpless_storage_manager", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-        editor.remove("otpless_waid");
-        editor.apply();
-    }
-
     public static String getUrlWithDeviceParams(Context context, String url){
         if (url == null)
             return url;

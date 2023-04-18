@@ -3,9 +3,7 @@ package com.otpless.main;
 import static com.otpless.utils.Utility.isNotEmpty;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Build;
@@ -15,6 +13,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
@@ -62,31 +61,17 @@ public class OtplessLoginActivity extends AppCompatActivity {
         );
         setupUiFromConfig();
 
-        final String waid = getSharedPreferences("otpless_storage_manager", Context.MODE_PRIVATE).getString("otpless_waid", null);
-        if (waid != null) {
-            ApiManager.getInstance().verifyWaId(
-                    waid, new ApiCallback<JSONObject>() {
-                        @Override
-                        public void onSuccess(JSONObject data) {
-                            Intent resultIntent = new Intent();
-                            resultIntent.putExtra("waId", waid);
-                            String userNumber = Utility.parseUserNumber(data);
-                            resultIntent.putExtra("userNumber", userNumber);
-                            setResult(Activity.RESULT_OK, resultIntent);
-                            finish();
-                        }
-
-                        @Override
-                        public void onError(Exception exception) {
-                            exception.printStackTrace();
-                            Utility.deleteWaId(OtplessLoginActivity.this);
-                            openActionView();
-                        }
-                    }
-            );
-        } else if (mOnCreateBundle == null) {
-            // activity is not restored and on new intent will not be called
-            openActionView();
+        // check deeplink has waId in query and
+        final Uri actionUri = getActionUri();
+        if (actionUri != null) {
+            // open whats app uri
+            if (mOnCreateBundle == null) {
+                // activity is not restored and on new intent will not be called
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, actionUri);
+                startActivity(browserIntent);
+            }
+        } else {
+            returnWithError("redirecturi is null");
         }
     }
 
@@ -136,16 +121,14 @@ public class OtplessLoginActivity extends AppCompatActivity {
         }
     }
 
-    private void openActionView() {
+    @Nullable
+    private Uri getActionUri() {
         final Intent intent = getIntent();
         Parcelable parcelable = intent.getParcelableExtra("otpless_request");
         if (parcelable != null && parcelable instanceof Uri) {
-            Uri request = (Uri) parcelable;
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, request);
-            startActivity(browserIntent);
-        } else {
-            returnWithError("redirecturi is null");
+            return (Uri) parcelable;
         }
+        return null;
     }
 
     private void returnWithError(String message) {
@@ -183,18 +166,12 @@ public class OtplessLoginActivity extends AppCompatActivity {
                         String userNumber = Utility.parseUserNumber(data);
                         resultIntent.putExtra("userNumber", userNumber);
                         setResult(Activity.RESULT_OK, resultIntent);
-                        // save waId in share pref
-                        SharedPreferences sp = getSharedPreferences("otpless_storage_manager", Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sp.edit();
-                        editor.putString("otpless_waid", waId);
-                        editor.apply();
                         finish();
                     }
 
                     @Override
                     public void onError(Exception exception) {
                         exception.printStackTrace();
-                        Utility.deleteWaId(OtplessLoginActivity.this);
                         returnWithError(exception.getMessage());
                     }
                 }

@@ -9,9 +9,6 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.RoundRectShape;
-import android.graphics.drawable.shapes.Shape;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -27,12 +24,9 @@ import androidx.lifecycle.LifecycleObserver;
 
 import com.otpless.R;
 import com.otpless.dto.OtplessResponse;
-import com.otpless.network.ApiCallback;
 import com.otpless.network.ApiManager;
 import com.otpless.utils.SchemeHostMetaInfo;
 import com.otpless.utils.Utility;
-
-import org.json.JSONObject;
 
 public class WhatsappLoginButton extends ConstraintLayout implements View.OnClickListener, LifecycleObserver {
 
@@ -183,31 +177,6 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
             ApiManager.getInstance().baseUrl = baseUrl;
             OtplessManager.getInstance().redirectUrl = this.otplessLink;
         }
-        checkForWaid();
-    }
-
-    private void checkForWaid() {
-        final String waid = getContext().getSharedPreferences("otpless_storage_manager", Context.MODE_PRIVATE).getString("otpless_waid", null);
-        if (waid == null) {
-            return;
-        }
-        ApiManager.getInstance().verifyWaId(
-                waid, new ApiCallback<JSONObject>() {
-                    @Override
-                    public void onSuccess(JSONObject data) {
-                        final String userNumber = Utility.parseUserNumber(data);
-                        if (Utility.isNotEmpty(userNumber)) {
-                            setText(userNumber);
-                        }
-                    }
-
-                    @Override
-                    public void onError(Exception exception) {
-                        exception.printStackTrace();
-                        Utility.deleteWaId(getContext());
-                    }
-                }
-        );
     }
 
     private void onOtplessResult(@Nullable OtplessResponse userDetail) {
