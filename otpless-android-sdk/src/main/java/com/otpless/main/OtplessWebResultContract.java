@@ -3,6 +3,7 @@ package com.otpless.main;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
@@ -14,7 +15,8 @@ public class OtplessWebResultContract extends ActivityResultContract<Void, Otple
     @NonNull
     @Override
     public Intent createIntent(@NonNull Context context, Void input) {
-        return new Intent(context, OtplessWebActivity.class);
+        final Intent intent = new Intent(context, OtplessWebActivity.class);
+        return intent;
     }
 
     @Override

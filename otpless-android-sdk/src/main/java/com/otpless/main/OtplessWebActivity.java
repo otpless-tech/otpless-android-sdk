@@ -50,11 +50,20 @@ public class OtplessWebActivity extends AppCompatActivity {
         mWebView.attachNativeWebManager(mNativeManager);
         // parse uri from data
         final Uri uri = getIntent().getData();
+        // get loading intent
+        final String packageName = this.getApplicationContext().getPackageName();
+        final String loginUrl = packageName + ".otpless://otpless";
         if (uri != null) {
-            mWebView.loadWebUrl(uri.toString());
+            // adding loading url and package name
+            final Uri.Builder urlToLoad = uri.buildUpon();
+            urlToLoad.appendQueryParameter("login_uri", loginUrl);
+            urlToLoad.appendQueryParameter("package", packageName);
+            mWebView.loadWebUrl(urlToLoad.build().toString());
         } else {
-            // default loading of url
-            mWebView.loadWebUrl("https://otpless.com/android/index.html");
+            final Uri.Builder builder = Uri.parse("https://web-uat.otpless.com").buildUpon();
+            builder.appendQueryParameter("login_uri", loginUrl);
+            builder.appendQueryParameter("package", packageName);
+            mWebView.loadWebUrl(builder.build().toString());
         }
         // add slide up animation
         final Animation animation = AnimationUtils.loadAnimation(this, R.anim.otpless_slide_up_anim);
