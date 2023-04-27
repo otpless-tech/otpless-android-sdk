@@ -3,21 +3,17 @@ package com.otpless.otplesssample;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.otpless.dto.OtplessResponse;
-import com.otpless.main.OtplessWebActivity;
 import com.otpless.utils.Utility;
 import com.otpless.views.OtplessManager;
 import com.otpless.views.WhatsappLoginButton;
 
 public class MainActivity extends AppCompatActivity {
-
-    private Button mWhatsappWebBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,10 +25,6 @@ public class MainActivity extends AppCompatActivity {
             if (Utility.isNotEmpty(data.getWaId())) {
                 afterSessionId();
             }
-        });
-        mWhatsappWebBtn = findViewById(R.id.whatsapp_web_btn);
-        mWhatsappWebBtn.setOnClickListener(v -> {
-            OtplessManager.getInstance().launchOtplessWeb(this::onOtplessResult);
         });
     }
 
@@ -48,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
         message = userDetail.getWaId() + "\n" + message;
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         Log.d("MainActivity", message);
-        mWhatsappWebBtn.setText(userDetail.getUserNumber());
     }
 
 

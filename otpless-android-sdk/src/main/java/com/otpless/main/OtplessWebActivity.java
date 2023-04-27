@@ -14,14 +14,9 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import com.otpless.R;
-import com.otpless.network.ApiCallback;
-import com.otpless.network.ApiManager;
-import com.otpless.utils.Utility;
 import com.otpless.web.NativeWebManager;
 import com.otpless.web.OtplessWebView;
 import com.otpless.web.OtplessWebViewWrapper;
-
-import org.json.JSONObject;
 
 public class OtplessWebActivity extends AppCompatActivity {
 

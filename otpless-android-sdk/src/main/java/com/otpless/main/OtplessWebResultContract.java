@@ -16,6 +16,7 @@ public class OtplessWebResultContract extends ActivityResultContract<Void, Otple
     @Override
     public Intent createIntent(@NonNull Context context, Void input) {
         final Intent intent = new Intent(context, OtplessWebActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         return intent;
     }
 

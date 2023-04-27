@@ -194,25 +194,7 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
 
     @Override
     public void onClick(View v) {
-        Context context = getContext();
-        // case of hilt dependency injection, it will point to wrapper object not activity context
-        if (!(context instanceof Activity) && context instanceof ContextWrapper) {
-            context = ((ContextWrapper) getContext()).getBaseContext();
-        }
-        if(this.otplessLink != null) {
-            OtplessManager.getInstance().launch(
-                    context, this.otplessLink, this::onOtplessResult
-            );
-        }
-        else if (OtplessManager.getInstance().redirectUrl != null && OtplessManager.getInstance().redirectUrl.length() > 0){
-            OtplessManager.getInstance().launch(
-                    context, OtplessManager.getInstance().redirectUrl, this::onOtplessResult
-            );
-        } else {
-            OtplessManager.getInstance().launch(
-                    context, "", this::onOtplessResult
-            );
-        }
+        OtplessManager.getInstance().launchOtplessWeb(this::onOtplessResult);
     }
 
     public final void setResultCallback(final OtplessUserDetailCallback callback) {
