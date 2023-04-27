@@ -1,8 +1,6 @@
 package com.otpless.views;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -191,25 +189,7 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
 
     @Override
     public void onClick(View v) {
-        Context context = getContext();
-        // case of hilt dependency injection, it will point to wrapper object not activity context
-        if (!(context instanceof Activity) && context instanceof ContextWrapper) {
-            context = ((ContextWrapper) getContext()).getBaseContext();
-        }
-        if(this.otplessLink != null) {
-            OtplessManager.getInstance().launch(
-                    context, this.otplessLink, this::onOtplessResult
-            );
-        }
-        else if (Utility.isValid(OtplessManager.getInstance().redirectUrl)){
-            OtplessManager.getInstance().launch(
-                    context, OtplessManager.getInstance().redirectUrl, this::onOtplessResult
-            );
-        } else {
-            OtplessManager.getInstance().launch(
-                    context, "", this::onOtplessResult
-            );
-        }
+        OtplessManager.getInstance().launchOtplessWeb(this::onOtplessResult);
     }
 
     public final void setResultCallback(final OtplessUserDetailCallback callback) {

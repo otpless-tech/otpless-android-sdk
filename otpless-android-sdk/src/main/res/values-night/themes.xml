@@ -9,4 +9,9 @@
     <style name="OtplessTextVWTheme">
         <item name="android:textColor">@color/white</item>
     </style>
+
+    <style name="Theme.Otpless.NoActionBar" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="colorPrimary">#23D366</item>
+        <item name="colorPrimaryDark">#23D366</item>
+    </style>
 </resources>

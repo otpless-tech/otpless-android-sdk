@@ -30,21 +30,6 @@ dependency {
 ## How to implement OTPless
 
 **AndroidManifest.xml**
-```
-<activity
-    android:name="com.otpless.main.OtplessLoginActivity"
-    android:exported="true"
-    android:launchMode="singleTop">
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data
-                android:host="otpless-provided-host"
-                android:scheme="otpless" />
-        </intent-filter>
-</activity>
-```
 
 To add OTPless authentication in Activity named as **LoginActivity.java** with xml file **activity_login.xml**.
 

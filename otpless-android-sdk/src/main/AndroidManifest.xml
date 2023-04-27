@@ -7,10 +7,13 @@
         <package android:name="com.whatsapp.w4b"/>
     </queries>
     <application>
+        <meta-data android:value="${applicationId}.otpless" android:name="otpless.deeplink.scheme"/>
+        <meta-data android:value="otpless" android:name="otpless.deeplink.host"/>
         <activity
-            android:name="com.otpless.main.OtplessLoginActivity"
-            android:exported="true"
-            android:launchMode="singleTop">
+            android:name=".main.OtplessWebActivity"
+            android:theme="@style/Theme.Otpless.NoActionBar"
+            android:launchMode="singleTop"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -20,7 +23,5 @@
                     android:scheme= "${applicationId}.otpless"/>
             </intent-filter>
         </activity>
-        <meta-data android:value="${applicationId}.otpless" android:name="otpless.deeplink.scheme"/>
-        <meta-data android:value="otpless" android:name="otpless.deeplink.host"/>
     </application>
 </manifest>
