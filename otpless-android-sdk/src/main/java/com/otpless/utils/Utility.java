@@ -5,14 +5,19 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.otpless.BuildConfig;
 
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Utility {
 
@@ -47,28 +52,28 @@ public class Utility {
         return str != null && str.length() > 0;
     }
 
-    public static String getUrlWithDeviceParams(Context context, String url){
+    public static String getUrlWithDeviceParams(Context context, String url) {
         if (url == null)
             return url;
-        try{
+        try {
             StringBuffer urlBuffer = new StringBuffer(url);
             String deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-            urlBuffer.append("&"+DEVICE_ID+"="+deviceId);
+            urlBuffer.append("&" + DEVICE_ID + "=" + deviceId);
             String packageName = context.getPackageName();
-            urlBuffer.append("&"+PACKAGENAME+"="+packageName);
+            urlBuffer.append("&" + PACKAGENAME + "=" + packageName);
             String platform = "android";
-            urlBuffer.append("&"+PLATFORM+"="+platform);
+            urlBuffer.append("&" + PLATFORM + "=" + platform);
             String osVersion = String.valueOf(Build.VERSION.SDK_INT);
-            urlBuffer.append("&"+OSVERSION+"="+osVersion);
+            urlBuffer.append("&" + OSVERSION + "=" + osVersion);
             String manufacturer = Build.MANUFACTURER;
-            urlBuffer.append("&"+MANUFACTURER+"="+manufacturer);
+            urlBuffer.append("&" + MANUFACTURER + "=" + manufacturer);
             String versionName = context.getPackageManager()
                     .getPackageInfo(context.getPackageName(), 0).versionName;
-            urlBuffer.append("&"+APP_VERSION_NAME+"="+versionName);
-            String versionCode = String.valueOf( context.getPackageManager()
-                     .getPackageInfo(context.getPackageName(), 0).versionCode);
-            urlBuffer.append("&"+APP_VERSION_CODE+"="+versionCode);
-            urlBuffer.append("&"+SDKVERSION+"="+SDKVERSIONVALUE);
+            urlBuffer.append("&" + APP_VERSION_NAME + "=" + versionName);
+            String versionCode = String.valueOf(context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0).versionCode);
+            urlBuffer.append("&" + APP_VERSION_CODE + "=" + versionCode);
+            urlBuffer.append("&" + SDKVERSION + "=" + SDKVERSIONVALUE);
             return urlBuffer.toString();
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -86,7 +91,7 @@ public class Utility {
     }
 
     public static boolean isValid(String... args) {
-        for (String str: args) {
+        for (String str : args) {
             if (str == null || str.length() == 0) {
                 return false;
             }
@@ -106,5 +111,31 @@ public class Utility {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static Uri combineQueries(@NonNull final Uri mainUri, @NonNull final Uri secondUri) {
+        final HashMap<String, String> queryMap = new HashMap<>();
+        // add queries from main uri
+        for (final String key : mainUri.getQueryParameterNames()) {
+            final String value = mainUri.getQueryParameter(key);
+            if (value == null || value.length() == 0) continue;
+            queryMap.put(key, value);
+        }
+        // add queries from second uri
+        for (final String key : secondUri.getQueryParameterNames()) {
+            final String value = secondUri.getQueryParameter(key);
+            if (value == null || value.length() == 0) continue;
+            queryMap.put(key, value);
+        }
+        final Uri.Builder builder = mainUri.buildUpon().clearQuery();
+        for (final Map.Entry<String, String> entry : queryMap.entrySet()) {
+            if ("login_uri".equals(entry.getKey())) continue;
+            builder.appendQueryParameter(entry.getKey(), entry.getValue());
+        }
+        // check and add login_uri at last
+        if (queryMap.containsKey("login_uri")) {
+            builder.appendQueryParameter("login_uri", queryMap.get("login_uri"));
+        }
+        return builder.build();
     }
 }

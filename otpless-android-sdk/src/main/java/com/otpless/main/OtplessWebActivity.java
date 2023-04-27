@@ -5,15 +5,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import com.otpless.R;
+import com.otpless.utils.Utility;
 import com.otpless.web.NativeWebManager;
 import com.otpless.web.OtplessWebView;
 import com.otpless.web.OtplessWebViewWrapper;
@@ -49,15 +48,16 @@ public class OtplessWebActivity extends AppCompatActivity {
         final String packageName = this.getApplicationContext().getPackageName();
         final String loginUrl = packageName + ".otpless://otpless";
         if (uri != null) {
-            // adding loading url and package name
+            // adding loading url and package name, add login uri at last
             final Uri.Builder urlToLoad = uri.buildUpon();
-            urlToLoad.appendQueryParameter("login_uri", loginUrl);
             urlToLoad.appendQueryParameter("package", packageName);
+            urlToLoad.appendQueryParameter("login_uri", loginUrl);
             mWebView.loadWebUrl(urlToLoad.build().toString());
         } else {
             final Uri.Builder builder = Uri.parse("https://web-uat.otpless.com").buildUpon();
-            builder.appendQueryParameter("login_uri", loginUrl);
+            // add login uri at last
             builder.appendQueryParameter("package", packageName);
+            builder.appendQueryParameter("login_uri", loginUrl);
             mWebView.loadWebUrl(builder.build().toString());
         }
         // add slide up animation
@@ -72,18 +72,19 @@ public class OtplessWebActivity extends AppCompatActivity {
             returnWithError("Uri is null");
             return;
         }
+        reloadUrl(uri);
+    }
 
-        String waId = uri.getQueryParameter("waId");
-        if (waId == null || waId.length() == 0) {
-            returnWithError("Waid is null");
+    private void reloadUrl(@NonNull final Uri uri) {
+        if (mWebView == null) {
+            finish();
             return;
         }
-        if (mWebView.isUrlLoaded()) {
-            // check the validity of waId with otpless
-            mWebView.callWebJs("onWaidReceived", waId);
-        } else {
-            mWebView.enqueueWaid(waId);
-        }
+        final String loadedUrl = mWebView.getLoadedUrl();
+        final Uri newUrl = Utility.combineQueries(
+                Uri.parse(loadedUrl), uri
+        );
+        mWebView.loadWebUrl(newUrl.toString());
     }
 
     @Override
