@@ -24,4 +24,7 @@ public interface WebLoaderCallback {
 
     // key 12
     void changeWebViewHeight(@NonNull final Integer heightPercent);
+
+    // key 13
+    void extraParams();
 }

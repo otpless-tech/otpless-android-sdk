@@ -161,4 +161,18 @@ public class NativeWebManager implements OtplessWebListener {
             parentView.setLayoutParams(params);
         });
     }
+
+    // key 13
+    @Override
+    public void extraParams() {
+        final JSONObject result;
+        if (contract.getExtraParams() == null) {
+            result = new JSONObject();
+        } else {
+            result = contract.getExtraParams();
+        }
+        mActivity.runOnUiThread(() -> {
+            mWebView.callWebJs("onExtraParamResult", result.toString());
+        });
+    }
 }

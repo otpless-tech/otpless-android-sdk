@@ -12,6 +12,9 @@ import com.otpless.dto.OtplessResponse;
 import com.otpless.utils.Utility;
 import com.otpless.views.OtplessManager;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -21,7 +24,19 @@ public class MainActivity extends AppCompatActivity {
         OtplessManager.getInstance().init(this);
         Button button = (Button) findViewById(R.id.whatsapp_login);
         button.setOnClickListener(v -> {
-            OtplessManager.getInstance().start(this::onOtplessResult);
+            final JSONObject params = new JSONObject();
+            try {
+                params.put("method", "get");
+                final JSONObject data = new JSONObject();
+                data.put("name", "digvijay");
+                data.put("lastName", "singh");
+                data.put("hobby", "wandering");
+                params.put("params", data);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+
+            OtplessManager.getInstance().start(this::onOtplessResult, params);
         });
     }
 
@@ -31,15 +46,10 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
-    private void onOtplessResult(@Nullable OtplessResponse data) {
+    private void onOtplessResult(OtplessResponse data) {
         if (data == null) {
             Toast.makeText(this, "data is null", Toast.LENGTH_LONG).show();
             return;
         }
-        if (Utility.isNotEmpty(data.getWaId())) {
-            afterSessionId();
-        }
     }
-
-
 }

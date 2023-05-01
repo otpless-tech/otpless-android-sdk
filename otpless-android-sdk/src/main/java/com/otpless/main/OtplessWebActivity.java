@@ -17,11 +17,17 @@ import com.otpless.web.NativeWebManager;
 import com.otpless.web.OtplessWebView;
 import com.otpless.web.OtplessWebViewWrapper;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Iterator;
+
 public class OtplessWebActivity extends AppCompatActivity implements WebActivityContract {
 
     private OtplessWebView mWebView;
     private NativeWebManager mNativeManager;
     private CardView mParentCardView;
+    private JSONObject mExtraJSONParams;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,19 +54,37 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
         // get loading intent
         final String packageName = this.getApplicationContext().getPackageName();
         final String loginUrl = packageName + ".otpless://otpless";
+        final Uri.Builder urlToLoad;
         if (uri != null) {
-            // adding loading url and package name, add login uri at last
-            final Uri.Builder urlToLoad = uri.buildUpon();
-            urlToLoad.appendQueryParameter("package", packageName);
-            urlToLoad.appendQueryParameter("login_uri", loginUrl);
-            mWebView.loadWebUrl(urlToLoad.build().toString());
+            urlToLoad = uri.buildUpon();
         } else {
-            final Uri.Builder builder = Uri.parse("https://web-uat.otpless.com").buildUpon();
-            // add login uri at last
-            builder.appendQueryParameter("package", packageName);
-            builder.appendQueryParameter("login_uri", loginUrl);
-            mWebView.loadWebUrl(builder.build().toString());
+            urlToLoad = Uri.parse("https://web-uat.otpless.com").buildUpon();
+
         }
+        // check for additional json params while loading
+        final String extraParamStr = getIntent().getStringExtra("extra_json_params");
+        if (extraParamStr != null) {
+            try {
+                final JSONObject extra = new JSONObject(extraParamStr);
+                String methodName = extra.optString("method").toLowerCase();
+                mExtraJSONParams = extra.getJSONObject("params");
+                if (methodName.equals("get")) {
+                    // add the params in url
+                    final JSONObject params = extra.getJSONObject("params");
+                    for (Iterator<String> it = params.keys(); it.hasNext(); ) {
+                        String key = it.next();
+                        final String value = params.optString(key);
+                        if (value.isEmpty()) continue;
+                        urlToLoad.appendQueryParameter(key, value);
+                    }
+                }
+            } catch (JSONException ignore) {
+            }
+        }
+        // adding loading url and package name, add login uri at last
+        urlToLoad.appendQueryParameter("package", packageName);
+        urlToLoad.appendQueryParameter("login_uri", loginUrl);
+        mWebView.loadWebUrl(urlToLoad.build().toString());
         // add slide up animation
         final Animation animation = AnimationUtils.loadAnimation(this, R.anim.otpless_slide_up_anim);
         mParentCardView = findViewById(R.id.parent_cv);
@@ -70,7 +94,10 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
     private void checkVerifyOtpless(@NonNull Intent intent) {
         Uri uri = intent.getData();
         if (uri == null) {
-            returnWithError("Uri is null");
+            Intent result = new Intent();
+            result.putExtra("error_message", "Uri is null");
+            setResult(Activity.RESULT_CANCELED, result);
+            finish();
             return;
         }
         reloadUrl(uri);
@@ -98,13 +125,6 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
         }
     }
 
-    private void returnWithError(String message) {
-        Intent intent = new Intent();
-        intent.putExtra("error_message", message);
-        setResult(Activity.RESULT_CANCELED, intent);
-        finish();
-    }
-
     @Override
     protected void onDestroy() {
         if (mWebView != null) {
@@ -116,5 +136,10 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
     @Override
     public CardView getParentView() {
         return mParentCardView;
+    }
+
+    @Override
+    public JSONObject getExtraParams() {
+        return mExtraJSONParams;
     }
 }

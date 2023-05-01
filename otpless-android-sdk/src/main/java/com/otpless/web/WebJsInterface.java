@@ -121,6 +121,9 @@ public class WebJsInterface {
                     if (heightPercent == null) return;
                     this.mListener.changeWebViewHeight(heightPercent);
                     break;
+                case 13:
+                    this.mListener.extraParams();
+                    break;
             }
         } catch (JSONException e) {
             e.printStackTrace();
