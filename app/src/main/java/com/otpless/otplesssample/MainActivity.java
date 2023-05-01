@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         OtplessManager.getInstance().init(this);
         Button button = (Button) findViewById(R.id.whatsapp_login);
         button.setOnClickListener(v -> {
-            OtplessManager.getInstance().launchOtplessWeb(this::onOtplessResult);
+            OtplessManager.getInstance().start(this::onOtplessResult);
         });
     }
 

@@ -17,10 +17,11 @@ import com.otpless.web.NativeWebManager;
 import com.otpless.web.OtplessWebView;
 import com.otpless.web.OtplessWebViewWrapper;
 
-public class OtplessWebActivity extends AppCompatActivity {
+public class OtplessWebActivity extends AppCompatActivity implements WebActivityContract {
 
     private OtplessWebView mWebView;
     private NativeWebManager mNativeManager;
+    private CardView mParentCardView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +41,7 @@ public class OtplessWebActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        mNativeManager = new NativeWebManager(this, mWebView);
+        mNativeManager = new NativeWebManager(this, mWebView, this);
         mWebView.attachNativeWebManager(mNativeManager);
         // parse uri from data
         final Uri uri = getIntent().getData();
@@ -62,8 +63,8 @@ public class OtplessWebActivity extends AppCompatActivity {
         }
         // add slide up animation
         final Animation animation = AnimationUtils.loadAnimation(this, R.anim.otpless_slide_up_anim);
-        final CardView cardView = findViewById(R.id.parent_cv);
-        cardView.startAnimation(animation);
+        mParentCardView = findViewById(R.id.parent_cv);
+        mParentCardView.startAnimation(animation);
     }
 
     private void checkVerifyOtpless(@NonNull Intent intent) {
@@ -110,5 +111,10 @@ public class OtplessWebActivity extends AppCompatActivity {
             mWebView.detachNativeWebManager();
         }
         super.onDestroy();
+    }
+
+    @Override
+    public CardView getParentView() {
+        return mParentCardView;
     }
 }

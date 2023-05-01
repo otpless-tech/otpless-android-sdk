@@ -9,12 +9,14 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.FragmentActivity;
 
 import com.otpless.BuildConfig;
-import com.otpless.dto.OtplessResponse;
+import com.otpless.main.WebActivityContract;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,12 +32,15 @@ public class NativeWebManager implements OtplessWebListener {
     private final FragmentActivity mActivity;
     @NonNull
     private final OtplessWebView mWebView;
+    @NonNull
+    private final WebActivityContract contract;
 
     private boolean mBackSubscription = false;
 
-    public NativeWebManager(@NonNull final FragmentActivity fragmentActivity, @NonNull final OtplessWebView webView) {
+    public NativeWebManager(@NonNull final FragmentActivity fragmentActivity, @NonNull final OtplessWebView webView, @NonNull WebActivityContract contract) {
         mActivity = fragmentActivity;
         mWebView = webView;
+        this.contract = contract;
     }
 
     // key 1
@@ -129,40 +134,31 @@ public class NativeWebManager implements OtplessWebListener {
         return map;
     }
 
-    /**
-     * status 0 = error, status 2 = success, status 1 = in progress
-     */
+    // key 11
     @Override
     public void waidVerificationStatus(@NonNull JSONObject json) {
-        final int status = json.optInt("state", -1);
-        if (status < 0 || status > 3) return;
-        switch (status) {
-            case 0: {
-                String message = json.optString("message");
-                if (message.length() == 0) {
-                    message = "Something went wrong.";
-                }
-                final Intent intent = new Intent();
-                intent.putExtra("success", false);
-                intent.putExtra("error", message);
-                mActivity.setResult(Activity.RESULT_OK, intent);
-                mActivity.finish();
-            }
-            break;
-            case 1:
-                // todo for future event
-                break;
-            case 2:
-                // send success response
-                final Intent intent = new Intent();
-                intent.putExtra("success", true);
-                final String waid = json.optString("waId");
-                final String userNumber = json.optString("userNumber");
-                intent.putExtra("waId", waid);
-                intent.putExtra("userNumber", userNumber);
-                mActivity.setResult(Activity.RESULT_OK, intent);
-                mActivity.finish();
-                break;
+        final Intent intent = new Intent();
+        intent.putExtra("data", json.toString());
+        mActivity.setResult(Activity.RESULT_OK, intent);
+        mActivity.finish();
+    }
+
+    // key 12
+    @Override
+    public void changeWebViewHeight(@NonNull final Integer heightPercent) {
+        // get the height of screen
+        int originalHeight = mActivity.getResources().getDisplayMetrics().heightPixels;
+        int percent = heightPercent;
+        if (heightPercent > 100 || heightPercent < 0) {
+            percent = 100;
         }
+        final int newHeight = (originalHeight * percent) / 100;
+        // do update in evaluation on main thread
+        mActivity.runOnUiThread(() -> {
+            final CardView parentView = contract.getParentView();
+            final ViewGroup.LayoutParams params = parentView.getLayoutParams();
+            params.height = newHeight;
+            parentView.setLayoutParams(params);
+        });
     }
 }

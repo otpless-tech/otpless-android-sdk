@@ -3,7 +3,6 @@ package com.otpless.main;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
@@ -11,39 +10,48 @@ import androidx.annotation.Nullable;
 
 import com.otpless.dto.OtplessResponse;
 
-public class OtplessWebResultContract extends ActivityResultContract<Void, OtplessResponse> {
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class OtplessWebResultContract extends ActivityResultContract<JSONObject, OtplessResponse> {
     @NonNull
     @Override
-    public Intent createIntent(@NonNull Context context, Void input) {
+    public Intent createIntent(@NonNull Context context, JSONObject input) {
         final Intent intent = new Intent(context, OtplessWebActivity.class);
+        if (input != null) {
+            intent.putExtra("extra_json_params", input.toString());
+        }
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         return intent;
     }
 
+    @NonNull
     @Override
     public OtplessResponse parseResult(int resultCode, @Nullable Intent intent) {
-        if (intent == null) return null;
-        OtplessResponse userDetail = new OtplessResponse();
-        if (resultCode == Activity.RESULT_CANCELED) {
-            userDetail.setMessage("user cancelled.");
-            userDetail.setStatus("failed");
-            return userDetail;
-        }
-        final boolean success = intent.getBooleanExtra("success", false);
-        if (success) {
-            userDetail.setStatus("success");
-            final String waid = intent.getStringExtra("waId");
-            userDetail.setWaId(waid);
-            final String userNumber = intent.getStringExtra("userNumber");
-            userDetail.setUserNumber(userNumber);
-        } else {
-            userDetail.setStatus("failed");
-            String error = intent.getStringExtra("error");
-            if (error == null) {
-                error = "Something went wrong";
+        final OtplessResponse result = new OtplessResponse();
+        try {
+            // handle cancel result code
+            if (resultCode == Activity.RESULT_CANCELED) {
+                result.setErrorMessage("user cancelled.");
+                return result;
             }
-            userDetail.setMessage(error);
+            // handle success case
+            if (resultCode == Activity.RESULT_OK && intent != null) {
+                final String jsonString = intent.getStringExtra("data");
+                final JSONObject data = new JSONObject(jsonString);
+                result.setData(data);
+                return result;
+            }
+            // handle other error case
+            if (intent == null) {
+                result.setErrorMessage("no intent data");
+            } else {
+                result.setErrorMessage("something went wrong.");
+            }
+            return result;
+        } catch (JSONException e) {
+            result.setErrorMessage(e.getMessage());
+            return result;
         }
-        return userDetail;
     }
 }

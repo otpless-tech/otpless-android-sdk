@@ -8,10 +8,12 @@ import androidx.fragment.app.FragmentActivity;
 import com.otpless.dto.OtplessResponse;
 import com.otpless.main.OtplessWebResultContract;
 
+import org.json.JSONObject;
+
 class OtplessImpl {
 
     private OtplessUserDetailCallback mAfterLaunchCallback = null;
-    private ActivityResultLauncher<Void> mWebLaunch;
+    private ActivityResultLauncher<JSONObject> mWebLaunch;
 
     OtplessImpl() {
     }
@@ -29,9 +31,9 @@ class OtplessImpl {
         }
     }
 
-    void launchOtplessWeb(final OtplessUserDetailCallback callback) {
+    void launchOtplessWeb(final OtplessUserDetailCallback callback, final JSONObject params) {
         mAfterLaunchCallback = callback;
-        mWebLaunch.launch(null);
+        mWebLaunch.launch(params);
     }
 }
 

@@ -115,6 +115,12 @@ public class WebJsInterface {
                     if (json == null) break;
                     this.mListener.waidVerificationStatus(json);
                     break;
+                // change the height of web view
+                case 12:
+                    final Integer heightPercent = getInt(jsonObject, "heightPercent");
+                    if (heightPercent == null) return;
+                    this.mListener.changeWebViewHeight(heightPercent);
+                    break;
             }
         } catch (JSONException e) {
             e.printStackTrace();

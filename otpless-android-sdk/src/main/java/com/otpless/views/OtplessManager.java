@@ -1,11 +1,15 @@
 package com.otpless.views;
 
 import static com.otpless.utils.Utility.getSchemeHost;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
 import com.otpless.network.ApiManager;
 import com.otpless.utils.SchemeHostMetaInfo;
 import com.otpless.utils.Utility;
+
+import org.json.JSONObject;
 
 public class OtplessManager {
 
@@ -50,7 +54,11 @@ public class OtplessManager {
         }
     }
 
-    public void launchOtplessWeb(final OtplessUserDetailCallback callback) {
-        this.mOtpImpl.launchOtplessWeb(callback);
+    public void start(final OtplessUserDetailCallback callback) {
+        this.mOtpImpl.launchOtplessWeb(callback, null);
+    }
+
+    public void start(final OtplessUserDetailCallback callback, @NonNull final JSONObject params) {
+        this.mOtpImpl.launchOtplessWeb(callback, params);
     }
 }

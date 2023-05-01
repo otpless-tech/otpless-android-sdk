@@ -21,4 +21,7 @@ public interface WebLoaderCallback {
 
     // key 11
     void waidVerificationStatus(@NonNull final JSONObject json);
+
+    // key 12
+    void changeWebViewHeight(@NonNull final Integer heightPercent);
 }
