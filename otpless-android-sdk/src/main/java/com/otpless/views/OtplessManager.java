@@ -55,10 +55,10 @@ public class OtplessManager {
     }
 
     public void start(final OtplessUserDetailCallback callback) {
-        this.mOtpImpl.launchOtplessWeb(callback, null);
+        this.mOtpImpl.startOtpless(callback, null);
     }
 
     public void start(final OtplessUserDetailCallback callback, @NonNull final JSONObject params) {
-        this.mOtpImpl.launchOtplessWeb(callback, params);
+        this.mOtpImpl.startOtpless(callback, params);
     }
 }

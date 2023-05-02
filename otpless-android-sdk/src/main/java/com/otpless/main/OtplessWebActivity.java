@@ -117,12 +117,14 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
 
     @Override
     public void onBackPressed() {
-        if (mNativeManager == null) return;
-        if (mNativeManager.getBackSubscription()) {
-            mWebView.callWebJs("onHardBackPressed");
-        } else {
-            super.onBackPressed();
-        }
+        super.onBackPressed();
+        // todo remove commented line
+//        if (mNativeManager == null) return;
+//        if (mNativeManager.getBackSubscription()) {
+//            mWebView.callWebJs("onHardBackPressed");
+//        } else {
+//            super.onBackPressed();
+//        }
     }
 
     @Override
