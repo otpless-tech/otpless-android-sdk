@@ -3,6 +3,7 @@ package com.otpless.main;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
@@ -21,6 +22,7 @@ public class OtplessWebResultContract extends ActivityResultContract<JSONObject,
         if (input != null) {
             intent.putExtra("extra_json_params", input.toString());
         }
+        intent.setData(Uri.parse("https://otpless.com/android/index.html"));
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         return intent;
     }
