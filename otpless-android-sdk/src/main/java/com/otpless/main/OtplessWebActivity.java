@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
@@ -26,7 +27,7 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
 
     private OtplessWebView mWebView;
     private NativeWebManager mNativeManager;
-    private CardView mParentCardView;
+    private ViewGroup mParentViewGroup;
     private JSONObject mExtraJSONParams;
 
     @Override
@@ -87,8 +88,8 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
         mWebView.loadWebUrl(urlToLoad.build().toString());
         // add slide up animation
         final Animation animation = AnimationUtils.loadAnimation(this, R.anim.otpless_slide_up_anim);
-        mParentCardView = findViewById(R.id.parent_cv);
-        mParentCardView.startAnimation(animation);
+        mParentViewGroup = findViewById(R.id.parent_vg);
+        mParentViewGroup.startAnimation(animation);
     }
 
     private void checkVerifyOtpless(@NonNull Intent intent) {
@@ -117,14 +118,12 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        // todo remove commented line
-//        if (mNativeManager == null) return;
-//        if (mNativeManager.getBackSubscription()) {
-//            mWebView.callWebJs("onHardBackPressed");
-//        } else {
-//            super.onBackPressed();
-//        }
+        if (mNativeManager == null) return;
+        if (mNativeManager.getBackSubscription()) {
+            mWebView.callWebJs("onHardBackPressed");
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -136,8 +135,8 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
     }
 
     @Override
-    public CardView getParentView() {
-        return mParentCardView;
+    public ViewGroup getParentView() {
+        return mParentViewGroup;
     }
 
     @Override

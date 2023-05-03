@@ -155,7 +155,7 @@ public class NativeWebManager implements OtplessWebListener {
         final int newHeight = (originalHeight * percent) / 100;
         // do update in evaluation on main thread
         mActivity.runOnUiThread(() -> {
-            final CardView parentView = contract.getParentView();
+            final ViewGroup parentView = contract.getParentView();
             final ViewGroup.LayoutParams params = parentView.getLayoutParams();
             params.height = newHeight;
             parentView.setLayoutParams(params);
@@ -174,5 +174,12 @@ public class NativeWebManager implements OtplessWebListener {
         mActivity.runOnUiThread(() -> {
             mWebView.callWebJs("onExtraParamResult", result.toString());
         });
+    }
+
+    //key 14
+    @Override
+    public void closeActivity() {
+        mActivity.setResult(Activity.RESULT_CANCELED);
+        mActivity.finish();
     }
 }

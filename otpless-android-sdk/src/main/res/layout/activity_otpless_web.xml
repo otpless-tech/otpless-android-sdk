@@ -4,15 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#80000000"
+    android:background="@color/semi_transparent_gray"
     tools:context=".main.OtplessWebActivity">
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/parent_cv"
+    <FrameLayout
+        android:id="@+id/parent_vg"
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:layout_margin="8dp"
-        android:background="@color/white"
+        android:background="@color/otpless_transparent"
         app:cardCornerRadius="8dp"
         app:cardElevation="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -28,6 +28,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-    </androidx.cardview.widget.CardView>
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

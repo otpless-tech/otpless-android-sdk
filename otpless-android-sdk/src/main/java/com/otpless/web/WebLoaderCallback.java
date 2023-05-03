@@ -27,4 +27,7 @@ public interface WebLoaderCallback {
 
     // key 13
     void extraParams();
+
+    // key 14
+    void closeActivity();
 }

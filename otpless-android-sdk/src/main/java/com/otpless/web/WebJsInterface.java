@@ -124,6 +124,9 @@ public class WebJsInterface {
                 case 13:
                     this.mListener.extraParams();
                     break;
+                case 14:
+                    this.mListener.closeActivity();
+                    break;
             }
         } catch (JSONException e) {
             e.printStackTrace();

@@ -41,6 +41,7 @@ public class OtplessWebViewWrapper extends FrameLayout {
             } else {
                 mWebView = new OtplessWebView(context, attrs);
             }
+            this.setBackgroundColor(Color.TRANSPARENT);
             addView(mWebView);
         } catch (Exception exception) {
             final TextView tv;

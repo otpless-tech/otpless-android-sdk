@@ -1,6 +1,7 @@
 package com.otpless.web;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
@@ -52,6 +53,8 @@ public class OtplessWebView extends WebView {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && BuildConfig.DEBUG) {
             setWebContentsDebuggingEnabled(true);
         }
+        // setting background transparent
+        this.setBackgroundColor(Color.TRANSPARENT);
         // enabling javascript and dom
         getSettings().setJavaScriptEnabled(true);
         getSettings().setDomStorageEnabled(true);

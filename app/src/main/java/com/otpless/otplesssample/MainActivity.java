@@ -24,20 +24,25 @@ public class MainActivity extends AppCompatActivity {
         OtplessManager.getInstance().init(this);
         Button button = (Button) findViewById(R.id.whatsapp_login);
         button.setOnClickListener(v -> {
-            final JSONObject params = new JSONObject();
-            try {
-                params.put("method", "get");
-                final JSONObject data = new JSONObject();
-                data.put("name", "digvijay");
-                data.put("lastName", "singh");
-                data.put("hobby", "wandering");
-                params.put("params", data);
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
-            }
-
-            OtplessManager.getInstance().start(this::onOtplessResult, params);
+            openOtpless();
         });
+        openOtpless();
+    }
+
+    private void openOtpless() {
+        final JSONObject params = new JSONObject();
+        try {
+            params.put("method", "get");
+            final JSONObject data = new JSONObject();
+            data.put("name", "digvijay");
+            data.put("lastName", "singh");
+            data.put("hobby", "wandering");
+            params.put("params", data);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        OtplessManager.getInstance().start(this::onOtplessResult, params);
     }
 
     private void afterSessionId() {
