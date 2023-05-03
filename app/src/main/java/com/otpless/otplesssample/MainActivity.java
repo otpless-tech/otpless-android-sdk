@@ -55,6 +55,10 @@ public class MainActivity extends AppCompatActivity {
         if (data == null) {
             Toast.makeText(this, "data is null", Toast.LENGTH_LONG).show();
             return;
+        } else if (data.getData() == null) {
+            Toast.makeText(this, data.getErrorMessage(), Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, data.getData().toString(), Toast.LENGTH_LONG).show();
         }
     }
 }
