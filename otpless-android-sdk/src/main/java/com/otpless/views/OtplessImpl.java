@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
@@ -31,7 +30,9 @@ class OtplessImpl {
     private OtplessUserDetailCallback mAfterLaunchCallback = null;
     private ActivityResultLauncher<JSONObject> mWebLaunch;
     private JSONObject mExtraParams;
-    private View mFabButton;
+    private WeakReference<View> wFabButton = new WeakReference<>(null);
+    private WeakReference<ViewGroup> wDecorView = new WeakReference<>(null);
+    private boolean mShowOtplessFab = true;
     private static final int ButtonWidth = 120;
     private static final int ButtonHeight = 40;
     // height of status bar is usually 25dp
@@ -58,36 +59,72 @@ class OtplessImpl {
         if (mAfterLaunchCallback != null) {
             mAfterLaunchCallback.onOtplessUserDetail(userDetail);
         }
-        if (mFabButton != null) {
+        final View button = wFabButton.get();
+        if (button != null) {
+            if (!mShowOtplessFab) {
+                // remove the fab button
+                final ViewGroup parent = wDecorView.get();
+                if (parent == null) return;
+                parent.removeView(button);
+                return;
+            }
             // make button visible after first callback
-            mFabButton.setVisibility(View.VISIBLE);
-        } else {
-            if (wActivity.get() == null) return;
-            addButtonOnDecor(wActivity.get());
+            button.setVisibility(View.VISIBLE);
+            return;
         }
+        if (wActivity.get() == null || !mShowOtplessFab) return;
+        addButtonOnDecor(wActivity.get());
     }
 
     void startOtpless(final OtplessUserDetailCallback callback, final JSONObject params) {
         mAfterLaunchCallback = callback;
         mExtraParams = params;
-        if (mFabButton != null) {
+        final View button = wFabButton.get();
+        if (button != null) {
             // make button invisible after first callback
-            mFabButton.setVisibility(View.INVISIBLE);
+            button.setVisibility(View.INVISIBLE);
         }
         mWebLaunch.launch(params);
     }
 
+    @SuppressWarnings("unused")
+    void setFabConfig(final FabButtonAlignment alignment, final int sideMargin, final int bottomMargin) {
+        mAlignment = alignment;
+        switch (alignment) {
+            case BottomLeft:
+            case BottomRight: {
+                if (sideMargin > 0) {
+                    mSideMargin = sideMargin;
+                }
+                if (bottomMargin > 0) {
+                    mBottomMargin = bottomMargin;
+                }
+            }
+            break;
+            case BottomCenter:
+                if (bottomMargin > 0) {
+                    mBottomMargin = bottomMargin;
+                }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    void showOtplessFab(boolean isToShow) {
+        this.mShowOtplessFab = isToShow;
+    }
+
     private void addButtonOnDecor(final FragmentActivity activity) {
-        if (mFabButton != null) return;
+        if (wFabButton.get() != null) return;
         final View decorView = activity.getWindow().getDecorView();
         if (decorView == null) return;
         final ViewGroup parentView = findSuitableParent(decorView);
         if (parentView == null) return;
         final Button button = (Button) activity.getLayoutInflater().inflate(R.layout.otpless_fab_button, parentView, false);
         button.setOnClickListener(v -> {
-            if (mFabButton != null) {
+            final View fBtn = wFabButton.get();
+            if (fBtn != null) {
                 // make button invisible after first callback
-                mFabButton.setVisibility(View.INVISIBLE);
+                fBtn.setVisibility(View.INVISIBLE);
             }
             mWebLaunch.launch(mExtraParams);
         });
@@ -137,7 +174,8 @@ class OtplessImpl {
         }
         // endregion
         parentView.addView(button);
-        mFabButton = button;
+        wFabButton = new WeakReference<>(button);
+        wDecorView = new WeakReference<>(parentView);
     }
 
     private ViewGroup findSuitableParent(View view) {
@@ -158,26 +196,6 @@ class OtplessImpl {
             }
         } while (view != null);
         return fallback;
-    }
-
-    public void setFabConfig(FabButtonAlignment alignment, int sideMargin, int bottomMargin) {
-        mAlignment = alignment;
-        switch (alignment) {
-            case BottomLeft:
-            case BottomRight: {
-                if (sideMargin > 0) {
-                    mSideMargin = sideMargin;
-                }
-                if (bottomMargin > 0) {
-                    mBottomMargin = bottomMargin;
-                }
-            }
-            break;
-            case BottomCenter:
-                if (bottomMargin > 0) {
-                    mBottomMargin = bottomMargin;
-                }
-        }
     }
 
     private int dpToPixel(int dp) {

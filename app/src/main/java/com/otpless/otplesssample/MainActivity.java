@@ -3,6 +3,8 @@ package com.otpless.otplesssample;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -25,6 +27,10 @@ public class MainActivity extends AppCompatActivity {
         Button button = (Button) findViewById(R.id.whatsapp_login);
         button.setOnClickListener(v -> {
             openOtpless();
+        });
+        CheckBox checkBox = (CheckBox) findViewById(R.id.show_btn_cb);
+        checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            OtplessManager.getInstance().showFabButton(isChecked);
         });
         openOtpless();
     }

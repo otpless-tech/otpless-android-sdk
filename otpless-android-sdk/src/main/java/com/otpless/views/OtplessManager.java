@@ -54,11 +54,33 @@ public class OtplessManager {
         }
     }
 
+    @SuppressWarnings("unused")
     public void start(final OtplessUserDetailCallback callback) {
         this.mOtpImpl.startOtpless(callback, null);
     }
 
+    @SuppressWarnings("unused")
     public void start(final OtplessUserDetailCallback callback, @NonNull final JSONObject params) {
         this.mOtpImpl.startOtpless(callback, params);
+    }
+
+    @SuppressWarnings("unused")
+    public void showFabButton(boolean isToShow) {
+        this.mOtpImpl.showOtplessFab(isToShow);
+    }
+
+    @SuppressWarnings("unused")
+    public void setFabPosition(final FabButtonAlignment alignment) {
+        this.mOtpImpl.setFabConfig(alignment, -1, -1);
+    }
+
+    @SuppressWarnings("unused")
+    public void setFabPosition(final FabButtonAlignment alignment, int sideMargin) {
+        this.mOtpImpl.setFabConfig(alignment, sideMargin, -1);
+    }
+
+    @SuppressWarnings("unused")
+    public void setFabPosition(final FabButtonAlignment alignment, int sideMargin, int bottomMargin) {
+        this.mOtpImpl.setFabConfig(alignment, sideMargin, bottomMargin);
     }
 }
