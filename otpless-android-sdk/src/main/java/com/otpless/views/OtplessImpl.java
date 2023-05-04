@@ -20,6 +20,7 @@ import androidx.fragment.app.FragmentActivity;
 import com.otpless.R;
 import com.otpless.dto.OtplessResponse;
 import com.otpless.main.OtplessWebResultContract;
+import com.otpless.utils.Utility;
 
 import org.json.JSONObject;
 
@@ -53,6 +54,7 @@ class OtplessImpl {
                 new OtplessWebResultContract(), this::onOtplessResult
         );
         wActivity = new WeakReference<>(activity);
+        Utility.addContextInfo(activity);
     }
 
     private void onOtplessResult(@Nullable OtplessResponse userDetail) {

@@ -127,6 +127,11 @@ public class WebJsInterface {
                 case 14:
                     this.mListener.closeActivity();
                     break;
+                case 15:
+                    final JSONObject eventData = getJson(jsonObject, "eventData");
+                    if (eventData == null) return;
+                    this.mListener.pushEvent(eventData);
+                    break;
             }
         } catch (JSONException e) {
             e.printStackTrace();

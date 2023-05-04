@@ -30,4 +30,7 @@ public interface WebLoaderCallback {
 
     // key 14
     void closeActivity();
+
+    //key 15
+    void pushEvent(final JSONObject eventData);
 }

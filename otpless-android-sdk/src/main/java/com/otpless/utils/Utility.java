@@ -1,19 +1,21 @@
 package com.otpless.utils;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.otpless.BuildConfig;
+import com.otpless.network.ApiCallback;
+import com.otpless.network.ApiManager;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -21,16 +23,29 @@ import java.util.Map;
 
 public class Utility {
 
-    private static final String DEVICE_ID = "deviceId";
-    private static final String PACKAGENAME = "package";
-    private static final String PLATFORM = "platform";
-    private static final String OSVERSION = "osVersion";
-    private static final String MANUFACTURER = "manufacturer";
-    private static final String APP_VERSION_NAME = "appVersionName";
-    private static final String APP_VERSION_CODE = "appVersionCode";
-    private static final String SDKVERSION = "sdkVersion";
-    private static final String SDKVERSIONVALUE = BuildConfig.OTPLESS_VERSION_NAME;
+    @NonNull
+    private static final HashMap<String, String> mAdditionalAppInfo = new HashMap<>();
 
+    public static void addContextInfo(final Context context) {
+        final Context applicationContext = context.getApplicationContext();
+        mAdditionalAppInfo.put("manufacturer", Build.MANUFACTURER);
+        mAdditionalAppInfo.put("androidVersion", String.valueOf(Build.VERSION.SDK_INT));
+        mAdditionalAppInfo.put("model", Build.MODEL);
+        // adding sdk version
+        mAdditionalAppInfo.put("sdkVersion", BuildConfig.OTPLESS_VERSION_NAME);
+        try {
+            mAdditionalAppInfo.put("appPackageName", applicationContext.getPackageName());
+            final PackageInfo pInfo = applicationContext.getPackageManager().getPackageInfo(applicationContext.getPackageName(), 0);
+            mAdditionalAppInfo.put("appVersion", pInfo.versionName);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        // adding android id
+        String androidId = Settings.Secure.getString(
+                applicationContext.getContentResolver(), Settings.Secure.ANDROID_ID
+        );
+        mAdditionalAppInfo.put("deviceId", androidId);
+    }
 
     public static boolean isAppInstalled(final PackageManager packageManager, final String packageName) {
         try {
@@ -46,48 +61,6 @@ public class Utility {
             return user.optString("userMobile");
         }
         return null;
-    }
-
-    public static boolean isNotEmpty(final String str) {
-        return str != null && str.length() > 0;
-    }
-
-    public static String getUrlWithDeviceParams(Context context, String url) {
-        if (url == null)
-            return url;
-        try {
-            StringBuffer urlBuffer = new StringBuffer(url);
-            String deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-            urlBuffer.append("&" + DEVICE_ID + "=" + deviceId);
-            String packageName = context.getPackageName();
-            urlBuffer.append("&" + PACKAGENAME + "=" + packageName);
-            String platform = "android";
-            urlBuffer.append("&" + PLATFORM + "=" + platform);
-            String osVersion = String.valueOf(Build.VERSION.SDK_INT);
-            urlBuffer.append("&" + OSVERSION + "=" + osVersion);
-            String manufacturer = Build.MANUFACTURER;
-            urlBuffer.append("&" + MANUFACTURER + "=" + manufacturer);
-            String versionName = context.getPackageManager()
-                    .getPackageInfo(context.getPackageName(), 0).versionName;
-            urlBuffer.append("&" + APP_VERSION_NAME + "=" + versionName);
-            String versionCode = String.valueOf(context.getPackageManager()
-                    .getPackageInfo(context.getPackageName(), 0).versionCode);
-            urlBuffer.append("&" + APP_VERSION_CODE + "=" + versionCode);
-            urlBuffer.append("&" + SDKVERSION + "=" + SDKVERSIONVALUE);
-            return urlBuffer.toString();
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        return url;
-    }
-
-    @Nullable
-    public static Integer parseColor(String color) {
-        try {
-            return Color.parseColor(color);
-        } catch (Exception exception) {
-            return null;
-        }
     }
 
     public static boolean isValid(String... args) {
@@ -137,5 +110,44 @@ public class Utility {
             builder.appendQueryParameter("login_uri", queryMap.get("login_uri"));
         }
         return builder.build();
+    }
+
+    /**
+     * use to push web events
+     */
+    public static void pushEvent(final String eventName) {
+        pushEvent(eventName, new JSONObject());
+    }
+
+    public static void pushEvent(final String eventName, final JSONObject eventParams) {
+        final JSONObject eventData = new JSONObject();
+        try {
+            eventData.put("event_name", eventName);
+            eventData.put("platform", "android");
+            eventData.put("sdk_version", BuildConfig.OTPLESS_VERSION_NAME);
+            // adding other values in event params
+            for (Map.Entry<String, String> entry : mAdditionalAppInfo.entrySet()) {
+                eventParams.put(entry.getKey(), entry.getValue());
+            }
+            eventData.put("event_params", eventParams.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        ApiManager.getInstance().pushEvents(eventData, new ApiCallback<JSONObject>() {
+            @Override
+            public void onSuccess(JSONObject data) {
+                Log.d("PUSH_EVENT", data.toString());
+            }
+
+            @Override
+            public void onError(Exception exception) {
+                exception.printStackTrace();
+            }
+        });
+    }
+
+    @NonNull
+    public static HashMap<String, String> getAdditionalAppInfo() {
+        return mAdditionalAppInfo;
     }
 }

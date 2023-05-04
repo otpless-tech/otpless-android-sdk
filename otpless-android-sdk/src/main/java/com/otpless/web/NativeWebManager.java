@@ -9,14 +9,17 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.FragmentActivity;
 
 import com.otpless.BuildConfig;
 import com.otpless.main.WebActivityContract;
+import com.otpless.network.ApiCallback;
+import com.otpless.network.ApiManager;
+import com.otpless.utils.Utility;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -72,6 +75,13 @@ public class NativeWebManager implements OtplessWebListener {
             final Uri deeplinkUrl = Uri.parse(deeplink);
             final Intent whatsappIntent = new Intent(Intent.ACTION_VIEW, deeplinkUrl);
             mActivity.startActivity(whatsappIntent);
+            //region ==== sending the event ====
+            final String channel = deeplinkUrl.getScheme() + "://" + deeplinkUrl.getHost();
+
+            final JSONObject params = new JSONObject();
+            params.put("channel", channel);
+            Utility.pushEvent("intent_redirect_out", params);
+            //endregion
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -141,6 +151,7 @@ public class NativeWebManager implements OtplessWebListener {
         intent.putExtra("data", json.toString());
         mActivity.setResult(Activity.RESULT_OK, intent);
         mActivity.finish();
+        Utility.pushEvent("auth_completed");
     }
 
     // key 12
@@ -176,10 +187,42 @@ public class NativeWebManager implements OtplessWebListener {
         });
     }
 
-    //key 14
+    // key 14
     @Override
     public void closeActivity() {
         mActivity.setResult(Activity.RESULT_CANCELED);
         mActivity.finish();
+        Utility.pushEvent("user_abort");
     }
+
+    // key 15
+    @Override
+    public void pushEvent(JSONObject eventData) {
+        try {
+            eventData.put("sdk_version", BuildConfig.OTPLESS_VERSION_NAME);
+            // add additional event params
+            final JSONObject additionalInfo = new JSONObject();
+            for (Map.Entry<String, String> entry : Utility.getAdditionalAppInfo().entrySet()) {
+                additionalInfo.put(entry.getKey(), entry.getValue());
+            }
+            eventData.put("additional_event_params", additionalInfo.toString());
+            eventData.put("platform", "android");
+            eventData.put("caller", "web");
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        ApiManager.getInstance().pushEvents(eventData, new ApiCallback<JSONObject>() {
+            @Override
+            public void onSuccess(JSONObject data) {
+                Log.d("PUSH_EVENT", data.toString());
+            }
+
+            @Override
+            public void onError(Exception exception) {
+                exception.printStackTrace();
+            }
+        });
+    }
+
+
 }
