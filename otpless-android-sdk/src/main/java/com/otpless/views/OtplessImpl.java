@@ -13,7 +13,6 @@ import android.widget.FrameLayout;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.FragmentActivity;
 
@@ -57,7 +56,7 @@ class OtplessImpl {
         Utility.addContextInfo(activity);
     }
 
-    private void onOtplessResult(@Nullable OtplessResponse userDetail) {
+    private void onOtplessResult(@NonNull OtplessResponse userDetail) {
         if (mAfterLaunchCallback != null) {
             mAfterLaunchCallback.onOtplessUserDetail(userDetail);
         }

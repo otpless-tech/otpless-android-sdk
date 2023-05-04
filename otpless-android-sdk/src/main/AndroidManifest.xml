@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.otpless">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
     <uses-permission android:name="android.permission.INTERNET" />
     <queries>
         <package android:name="com.whatsapp"/>
@@ -10,7 +10,7 @@
         <meta-data android:value="${applicationId}.otpless" android:name="otpless.deeplink.scheme"/>
         <meta-data android:value="otpless" android:name="otpless.deeplink.host"/>
         <activity
-            android:name=".main.OtplessWebActivity"
+            android:name="com.otpless.main.OtplessWebActivity"
             android:theme="@style/Theme.Otpless.NoActionBar"
             android:launchMode="singleTop"
             android:exported="true">
