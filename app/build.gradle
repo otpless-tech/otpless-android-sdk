@@ -2,6 +2,20 @@ plugins {
     id 'com.android.application'
 }
 
+def getGitBranchName() {
+    def stdout = new ByteArrayOutputStream()
+    def stderr = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--abbrev-ref', 'HEAD'
+        standardOutput = stdout
+        errorOutput = stderr
+    }
+    if (stderr.toString().trim().length() > 0) {
+        throw new GradleException("Error getting Git branch name: ${stderr.toString()}")
+    }
+    return stdout.toString().trim()
+}
+
 android {
     compileSdkVersion 31
     buildToolsVersion "30.0.3"
@@ -25,6 +39,14 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    // changing the name of build apk
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def fileName = "app-${variant.name}-${getGitBranchName()}.apk"
+            outputFileName = fileName
+        }
     }
 }
 
