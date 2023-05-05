@@ -150,4 +150,9 @@ public class Utility {
     public static HashMap<String, String> getAdditionalAppInfo() {
         return mAdditionalAppInfo;
     }
+
+    public static boolean isWhatsAppInstalled(final Context context) {
+        final PackageManager manager = context.getPackageManager();
+        return isAppInstalled(manager, "com.whatsapp") || isAppInstalled(manager, "com.whatsapp.w4b");
+    }
 }

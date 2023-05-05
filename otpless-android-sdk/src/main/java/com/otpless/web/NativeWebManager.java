@@ -141,6 +141,7 @@ public class NativeWebManager implements OtplessWebListener {
                 applicationContext.getContentResolver(), Settings.Secure.ANDROID_ID
         );
         map.put("deviceId", androidId);
+        map.put("hasWhatsapp", String.valueOf(Utility.isWhatsAppInstalled(mActivity)));
         return map;
     }
 

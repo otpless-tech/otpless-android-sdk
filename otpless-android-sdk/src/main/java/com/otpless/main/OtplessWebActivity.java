@@ -106,6 +106,7 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
         }
         // adding loading url and package name, add login uri at last
         urlToLoad.appendQueryParameter("package", packageName);
+        urlToLoad.appendQueryParameter("hasWhatsapp", String.valueOf(Utility.isWhatsAppInstalled(this)));
         urlToLoad.appendQueryParameter("login_uri", loginUrl);
         mWebView.loadWebUrl(urlToLoad.build().toString());
     }
