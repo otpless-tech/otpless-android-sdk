@@ -79,7 +79,7 @@ public class WebJsInterface {
                 case 2:
                     this.mListener.hideLoader();
                     break;
-                // to subscribe backpress
+                // to subscribe back press
                 case 3:
                     final Boolean subscribe = getBoolean(jsonObject, "subscribe");
                     if (subscribe == null) break;

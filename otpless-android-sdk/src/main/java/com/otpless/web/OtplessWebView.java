@@ -4,26 +4,34 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.otpless.BuildConfig;
+import com.otpless.R;
 
 public class OtplessWebView extends WebView {
 
     public static final String JAVASCRIPT_OBJ = "javascript_obj";
 
     private LoadingStatus mLoadingState = LoadingStatus.InProgress;
-    WebLoaderCallback webLoaderCallback = null;
     private String mEnqueuedWaid = null;
     private String mLoadingUrl = null;
+
+    private TextView mErrorTv;
+    private View mErrorLayout;
+    private Button mRetryButton;
 
     public OtplessWebView(@NonNull Context context) {
         super(context);
@@ -60,6 +68,19 @@ public class OtplessWebView extends WebView {
         getSettings().setDomStorageEnabled(true);
         getSettings().setLoadsImagesAutomatically(true);
         setWebViewClient(new OtplessWebClient());
+
+        // add error view also
+        mErrorLayout = LayoutInflater.from(getContext()).inflate(R.layout.otpless_web_error_view, this, false);
+        mRetryButton = mErrorLayout.findViewById(R.id.retry_btn);
+        mRetryButton.setOnClickListener(v -> {
+            mRetryButton.setVisibility(View.INVISIBLE);
+            reload();
+        });
+        // Add the custom layout to the WebView as an error view
+        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        addView(mErrorLayout, params);
+        mErrorTv = mErrorLayout.findViewById(R.id.message_tv);
+        mErrorLayout.setVisibility(View.GONE);
     }
 
     // for oreo and samsung and oppo devices autofill is suppressed
@@ -94,6 +115,13 @@ public class OtplessWebView extends WebView {
         mLoadingUrl = url;
         mLoadingState = LoadingStatus.InProgress;
         loadUrl(url);
+    }
+
+    public void reload() {
+        if (mLoadingUrl != null && mLoadingState != LoadingStatus.InProgress) {
+            mLoadingState = LoadingStatus.InProgress;
+            loadUrl(mLoadingUrl);
+        }
     }
 
     public String getLoadedUrl() {
@@ -142,17 +170,13 @@ public class OtplessWebView extends WebView {
         @Override
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
-            if (mLoadingState == LoadingStatus.Failed) {
-                if (webLoaderCallback != null) {
-                    webLoaderCallback.showLoader("Please wait...");
-                }
-            } else {
+            if ("about:blank".equals(url)) return;
+            if (mLoadingState != LoadingStatus.Failed) {
                 mLoadingState = LoadingStatus.Success;
-                // inject java script object here
-                if (webLoaderCallback != null) {
-                    webLoaderCallback.hideLoader();
-                }
+                mErrorLayout.setVisibility(View.GONE);
                 injectJavaScript();
+            } else { // failed case
+                loadUrl("about:blank");
             }
         }
 
@@ -170,6 +194,10 @@ public class OtplessWebView extends WebView {
             super.onReceivedError(view, errorCode, description, failingUrl);
             if (failingUrl != null && failingUrl.equals(mLoadingUrl)) {
                 mLoadingState = LoadingStatus.Failed;
+                mErrorLayout.setVisibility(View.VISIBLE);
+                final String errorMessage = "Something went wrong.\n" + description + "\nPlease retry.";
+                mErrorTv.setText(errorMessage);
+                mRetryButton.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -189,8 +217,3 @@ public class OtplessWebView extends WebView {
     }
 }
 
-enum LoadingStatus {
-    InProgress,
-    Success,
-    Failed
-}

@@ -2,6 +2,7 @@ package com.otpless.main;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -48,7 +49,7 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
         super.onNewIntent(intent);
         if (intent == null) {
             return;
-        };
+        }
         checkVerifyOtpless(intent);
     }
 
