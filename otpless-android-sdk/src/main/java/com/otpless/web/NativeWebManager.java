@@ -147,7 +147,7 @@ public class NativeWebManager implements OtplessWebListener {
 
     // key 11
     @Override
-    public void waidVerificationStatus(@NonNull JSONObject json) {
+    public void codeVerificationStatus(@NonNull JSONObject json) {
         final Intent intent = new Intent();
         intent.putExtra("data", json.toString());
         mActivity.setResult(Activity.RESULT_OK, intent);

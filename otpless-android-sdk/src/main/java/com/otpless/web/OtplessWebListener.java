@@ -16,7 +16,7 @@ public interface OtplessWebListener extends WebLoaderCallback {
     void appInfo();
 
     // key 11
-    void waidVerificationStatus(@NonNull final JSONObject json);
+    void codeVerificationStatus(@NonNull final JSONObject json);
 
     // key 12
     void changeWebViewHeight(@NonNull final Integer heightPercent);

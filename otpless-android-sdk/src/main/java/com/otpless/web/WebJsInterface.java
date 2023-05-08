@@ -113,7 +113,7 @@ public class WebJsInterface {
                 case 11:
                     final JSONObject json = getJson(jsonObject, "response");
                     if (json == null) break;
-                    this.mListener.waidVerificationStatus(json);
+                    this.mListener.codeVerificationStatus(json);
                     break;
                 // change the height of web view
                 case 12:
