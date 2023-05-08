@@ -1,7 +1,6 @@
 package com.otpless.utils;
 
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -44,6 +43,7 @@ public class Utility {
         String androidId = Settings.Secure.getString(
                 applicationContext.getContentResolver(), Settings.Secure.ANDROID_ID
         );
+        mAdditionalAppInfo.put("hasWhatsapp", String.valueOf(isWhatsAppInstalled(context)));
         mAdditionalAppInfo.put("deviceId", androidId);
     }
 
@@ -55,14 +55,6 @@ public class Utility {
         }
     }
 
-    public static String parseUserNumber(final JSONObject jsonObject) {
-        JSONObject user = jsonObject.optJSONObject("data");
-        if (user != null) {
-            return user.optString("userMobile");
-        }
-        return null;
-    }
-
     public static boolean isValid(String... args) {
         for (String str : args) {
             if (str == null || str.length() == 0) {
@@ -70,20 +62,6 @@ public class Utility {
             }
         }
         return true;
-    }
-
-    public static SchemeHostMetaInfo getSchemeHost(final Context context) {
-        // check the scheme and host with from manifest
-        try {
-            final ApplicationInfo info = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
-            String host = info.metaData.getString("otpless.deeplink.host");
-            String scheme = info.metaData.getString("otpless.deeplink.scheme");
-            // host and scheme will always be
-            return new SchemeHostMetaInfo(scheme, host);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     public static Uri combineQueries(@NonNull final Uri mainUri, @NonNull final Uri secondUri) {

@@ -29,8 +29,6 @@ public class ApiManager {
     private Handler mHandler;
     private Handler mUiHandler;
 
-    public String baseUrl = "";
-
     public static ApiManager getInstance() {
         if (sInstance == null) {
             synchronized (ApiManager.class) {
@@ -155,15 +153,6 @@ public class ApiManager {
                 mUiHandler.post(() -> callback.onError(e));
             }
         });
-    }
-
-    public void verifyWaId(final String waid, final ApiCallback<JSONObject> callback) throws JSONException {
-        String META_VERSE = "/metaverse";
-        final String url = baseUrl + META_VERSE;
-        JSONObject jsonParam = new JSONObject();
-        jsonParam.put("userId", waid);
-        jsonParam.put("api", "getUserDetail");
-        post(url, jsonParam, callback);
     }
 
     public void pushEvents(final JSONObject eventParam, final ApiCallback<JSONObject> callback) {

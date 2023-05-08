@@ -7,8 +7,6 @@
         <package android:name="com.whatsapp.w4b"/>
     </queries>
     <application>
-        <meta-data android:value="${applicationId}.otpless" android:name="otpless.deeplink.scheme"/>
-        <meta-data android:value="otpless" android:name="otpless.deeplink.host"/>
         <activity
             android:name="com.otpless.main.OtplessWebActivity"
             android:theme="@style/Theme.Otpless.NoActionBar"

@@ -22,7 +22,6 @@ public class OtplessWebResultContract extends ActivityResultContract<JSONObject,
         if (input != null) {
             intent.putExtra("extra_json_params", input.toString());
         }
-        intent.setData(Uri.parse("https://otpless.com/mobile/index.html"));
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         return intent;
     }

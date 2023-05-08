@@ -7,6 +7,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -37,7 +39,10 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
         setContentView(R.layout.activity_otpless_web);
         OtplessWebViewWrapper webViewWrapper = findViewById(R.id.otpless_web_wrapper);
         mWebView = webViewWrapper.getWebView();
-        if (mWebView == null) return;
+        if (mWebView == null) {
+            finish();
+            return;
+        }
         initView();
         //region send load event
         Utility.pushEvent("sdk_screen_loaded");
@@ -114,6 +119,7 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
     private void checkVerifyOtpless(@NonNull Intent intent) {
         Uri uri = intent.getData();
         if (uri == null) {
+            sendIntentInEvent(false);
             Intent result = new Intent();
             result.putExtra("error_message", "Uri is null");
             setResult(Activity.RESULT_CANCELED, result);
@@ -128,11 +134,19 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
             finish();
             return;
         }
+        final boolean hasCode;
+        final String code = uri.getQueryParameter("code");
+        if (code == null || code.length() == 0) {
+            hasCode = false;
+        } else {
+            hasCode = true;
+        }
         final String loadedUrl = mWebView.getLoadedUrl();
         final Uri newUrl = Utility.combineQueries(
                 Uri.parse(loadedUrl), uri
         );
         mWebView.loadWebUrl(newUrl.toString());
+        sendIntentInEvent(hasCode);
     }
 
     @Override
