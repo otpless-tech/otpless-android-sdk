@@ -15,6 +15,7 @@ import com.otpless.R;
 import com.otpless.network.ApiCallback;
 import com.otpless.network.ApiManager;
 import com.otpless.utils.Utility;
+import com.otpless.views.OtplessManager;
 import com.otpless.web.NativeWebManager;
 import com.otpless.web.OtplessWebView;
 import com.otpless.web.OtplessWebViewWrapper;
@@ -62,6 +63,10 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
         ApiManager.getInstance().apiConfig(new ApiCallback<JSONObject>() {
             @Override
             public void onSuccess(JSONObject data) {
+                // check for fab button text
+                final String fabText = data.optString("button_text");
+                OtplessManager.getInstance().setFabText(fabText);
+                // check for url
                 final String url = data.optString("auth");
                 if (!url.isEmpty()) {
                     firstLoad(url);
@@ -69,6 +74,7 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
                 }
                 // fallback loading
                 firstLoad("https://otpless.com/mobile/index.html");
+
             }
 
             @Override

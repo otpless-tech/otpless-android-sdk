@@ -61,4 +61,9 @@ public class OtplessManager {
     public void setFabPosition(final FabButtonAlignment alignment, int sideMargin, int bottomMargin) {
         this.mOtpImpl.setFabConfig(alignment, sideMargin, bottomMargin);
     }
+
+    public void setFabText(final String text) {
+        if (text == null || text.length() == 0) return;
+        this.mOtpImpl.setFabText(text);
+    }
 }

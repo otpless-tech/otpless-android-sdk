@@ -30,7 +30,7 @@ class OtplessImpl {
     private OtplessUserDetailCallback mAfterLaunchCallback = null;
     private ActivityResultLauncher<JSONObject> mWebLaunch;
     private JSONObject mExtraParams;
-    private WeakReference<View> wFabButton = new WeakReference<>(null);
+    private WeakReference<Button> wFabButton = new WeakReference<>(null);
     private WeakReference<ViewGroup> wDecorView = new WeakReference<>(null);
     private boolean mShowOtplessFab = true;
     private static final int ButtonWidth = 120;
@@ -41,6 +41,7 @@ class OtplessImpl {
     private FabButtonAlignment mAlignment = FabButtonAlignment.BottomRight;
     private int mBottomMargin = 24;
     private int mSideMargin = 16;
+    private String mFabText = "Sign in";
 
     @NonNull
     private WeakReference<FragmentActivity> wActivity = new WeakReference<>(null);
@@ -60,7 +61,7 @@ class OtplessImpl {
         if (mAfterLaunchCallback != null) {
             mAfterLaunchCallback.onOtplessUserDetail(userDetail);
         }
-        final View button = wFabButton.get();
+        final Button button = wFabButton.get();
         if (button != null) {
             if (!mShowOtplessFab) {
                 // remove the fab button
@@ -71,6 +72,7 @@ class OtplessImpl {
             }
             // make button visible after first callback
             button.setVisibility(View.VISIBLE);
+            button.setText(mFabText);
             return;
         }
         if (wActivity.get() == null || !mShowOtplessFab) return;
@@ -129,7 +131,7 @@ class OtplessImpl {
             }
             mWebLaunch.launch(mExtraParams);
         });
-
+        button.setText(mFabText);
         final ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) button.getLayoutParams();
         // region add the margin
         final Resources resources = activity.getResources();
@@ -203,6 +205,10 @@ class OtplessImpl {
         final Activity activity = wActivity.get();
         if (activity == null) return 0;
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (float) dp, activity.getResources().getDisplayMetrics());
+    }
+
+    void setFabText(@NonNull final String text) {
+        this.mFabText = text;
     }
 }
 
