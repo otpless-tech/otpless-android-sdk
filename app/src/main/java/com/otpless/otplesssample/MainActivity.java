@@ -22,19 +22,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openOtpless() {
-        final JSONObject params = new JSONObject();
-        try {
-            params.put("method", "get");
-            final JSONObject data = new JSONObject();
-            data.put("name", "digvijay");
-            data.put("lastName", "singh");
-            data.put("hobby", "wandering");
-            params.put("params", data);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-
-        OtplessManager.getInstance().start(this::onOtplessResult, params);
+        OtplessManager.getInstance().start(this::onOtplessResult);
     }
 
     private void onOtplessResult(OtplessResponse data) {
