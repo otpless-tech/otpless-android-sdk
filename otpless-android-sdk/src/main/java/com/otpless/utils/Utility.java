@@ -45,6 +45,7 @@ public class Utility {
         );
         mAdditionalAppInfo.put("hasWhatsapp", String.valueOf(isWhatsAppInstalled(context)));
         mAdditionalAppInfo.put("deviceId", androidId);
+        mAdditionalAppInfo.put("installerName", getInstallerName(context));
     }
 
     public static boolean isAppInstalled(final PackageManager packageManager, final String packageName) {
@@ -132,5 +133,19 @@ public class Utility {
     public static boolean isWhatsAppInstalled(final Context context) {
         final PackageManager manager = context.getPackageManager();
         return isAppInstalled(manager, "com.whatsapp") || isAppInstalled(manager, "com.whatsapp.w4b");
+    }
+
+    @NonNull
+    private static String getInstallerName(final Context context) {
+        try {
+            final PackageManager packageManager = context.getPackageManager();
+            final String installerName = packageManager.getInstallerPackageName(context.getPackageName());
+            if (installerName != null && installerName.length() > 0) {
+                return installerName;
+            }
+            return "NA";
+        } catch (Throwable ignore) {
+            return "NA";
+        }
     }
 }
