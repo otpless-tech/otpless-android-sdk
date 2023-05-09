@@ -73,7 +73,7 @@ public class OtplessWebView extends WebView {
         mErrorLayout = LayoutInflater.from(getContext()).inflate(R.layout.otpless_web_error_view, this, false);
         mRetryButton = mErrorLayout.findViewById(R.id.retry_btn);
         mRetryButton.setOnClickListener(v -> {
-            mRetryButton.setVisibility(View.INVISIBLE);
+            mErrorLayout.setVisibility(View.GONE);
             reload();
         });
         // Add the custom layout to the WebView as an error view
@@ -195,7 +195,7 @@ public class OtplessWebView extends WebView {
             if (failingUrl != null && failingUrl.equals(mLoadingUrl)) {
                 mLoadingState = LoadingStatus.Failed;
                 mErrorLayout.setVisibility(View.VISIBLE);
-                final String errorMessage = "Something went wrong.\n" + description + "\nPlease retry.";
+                final String errorMessage = "Unable to connect." + "\nPlease retry.";
                 mErrorTv.setText(errorMessage);
                 mRetryButton.setVisibility(View.VISIBLE);
             }

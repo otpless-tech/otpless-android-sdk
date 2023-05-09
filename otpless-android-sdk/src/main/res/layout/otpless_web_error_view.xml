@@ -12,7 +12,7 @@
         android:id="@+id/message_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:text="Something went wrong while loading. Please try again."
+        tools:text="Unable to connect.\nPlease retry."
         android:textSize="16sp"
         android:textColor="@color/black" />
 
