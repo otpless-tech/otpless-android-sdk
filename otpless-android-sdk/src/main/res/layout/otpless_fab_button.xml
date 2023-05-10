@@ -9,5 +9,5 @@
     android:ellipsize="end"
     android:textAllCaps="false"
     android:autoSizeMaxTextSize="18sp"
-    android:autoSizeMinTextSize="12sp"
+    android:autoSizeMinTextSize="16sp"
     android:textColor="@color/black"/>
