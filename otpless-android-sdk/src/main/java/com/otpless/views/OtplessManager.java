@@ -32,6 +32,11 @@ public class OtplessManager {
         this.mOtpImpl.initWebLauncher(activity);
     }
 
+    public void start(final FragmentActivity activity, final OtplessUserDetailCallback callback) {
+        this.init(activity);
+        this.start(callback);
+    }
+
     @SuppressWarnings("unused")
     public void start(final OtplessUserDetailCallback callback) {
         this.mOtpImpl.startOtpless(callback, null);
