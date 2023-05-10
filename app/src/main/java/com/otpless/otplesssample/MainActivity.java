@@ -1,12 +1,12 @@
 package com.otpless.otplesssample;
 
 import android.os.Bundle;
-import android.widget.Toast;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.otpless.dto.OtplessResponse;
 import com.otpless.views.OtplessManager;
+
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -14,16 +14,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        OtplessManager.getInstance().start(this, this::onOtplessResult);
-    }
-
-    private void onOtplessResult(OtplessResponse data) {
-        if (data == null) {
-            Toast.makeText(this, "data is null", Toast.LENGTH_LONG).show();
-        } else if (data.getData() == null) {
-            Toast.makeText(this, data.getErrorMessage(), Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(this, data.getData().toString(), Toast.LENGTH_LONG).show();
-        }
+        // copy this code in onCreate of your Login Activity
+        OtplessManager.getInstance().start(this, data -> {
+            if (data.getData() == null) {
+                Log.e("OTP-less", data.getErrorMessage());
+            } else {
+                final JSONObject json = data.getData();
+                final String token = json.optString("token");
+                if (!token.isEmpty()) {
+                    Log.d("OTP-less", String.format("token: %s", token));
+                    // todo pass this token to backend to fetch user detail
+                }
+            }
+        });
     }
 }

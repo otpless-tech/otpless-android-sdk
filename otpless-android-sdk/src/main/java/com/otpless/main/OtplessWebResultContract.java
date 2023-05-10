@@ -3,7 +3,6 @@ package com.otpless.main;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
