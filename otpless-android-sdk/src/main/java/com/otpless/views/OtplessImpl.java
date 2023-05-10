@@ -35,8 +35,6 @@ class OtplessImpl {
     private boolean mShowOtplessFab = true;
     private static final int ButtonWidth = 120;
     private static final int ButtonHeight = 40;
-    // height of status bar is usually 25dp
-    private static final int StatusBarHeight = 25;
 
     private FabButtonAlignment mAlignment = FabButtonAlignment.BottomRight;
     private int mBottomMargin = 24;
@@ -118,9 +116,7 @@ class OtplessImpl {
 
     private void addButtonOnDecor(final FragmentActivity activity) {
         if (wFabButton.get() != null) return;
-        final View decorView = activity.getWindow().getDecorView();
-        if (decorView == null) return;
-        final ViewGroup parentView = findSuitableParent(decorView);
+        final ViewGroup parentView = (ViewGroup) activity.findViewById(android.R.id.content);
         if (parentView == null) return;
         final Button button = (Button) activity.getLayoutInflater().inflate(R.layout.otpless_fab_button, parentView, false);
         button.setOnClickListener(v -> {
@@ -134,18 +130,15 @@ class OtplessImpl {
         button.setText(mFabText);
         final ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) button.getLayoutParams();
         // region add the margin
-        final Resources resources = activity.getResources();
-        final DisplayMetrics matrix = resources.getDisplayMetrics();
-        final int screenWidth = matrix.widthPixels;
-        final int screenHeight = matrix.heightPixels;
+        final int screenWidth = parentView.getWidth();
+        final int screenHeight = parentView.getHeight();
         final int buttonWidth = dpToPixel(ButtonWidth);
         final int buttonHeight = dpToPixel(ButtonHeight);
-        final int statusBarHeight = dpToPixel(StatusBarHeight);
         switch (mAlignment) {
             case Center: {
                 // in center case draw of button will be
                 int x = (screenWidth - buttonWidth) / 2;
-                int y = ((screenHeight - buttonHeight) / 2) + statusBarHeight;
+                int y = ((screenHeight - buttonHeight) / 2);
                 params.setMargins(x, y, 0, 0);
             }
             break;
@@ -155,21 +148,21 @@ class OtplessImpl {
                 int marginEnd = dpToPixel(mSideMargin);
                 int marginBottom = dpToPixel(mBottomMargin);
                 int x = screenWidth - (buttonWidth + marginEnd);
-                int y = screenHeight - (buttonHeight + marginBottom) + statusBarHeight;
+                int y = screenHeight - (buttonHeight + marginBottom);
                 params.setMargins(x, y, 0, 0);
             }
             break;
             case BottomLeft: {
                 int marginStart = dpToPixel(mSideMargin);
                 int marginBottom = dpToPixel(mBottomMargin);
-                int y = screenHeight - (buttonHeight + marginBottom) + statusBarHeight;
+                int y = screenHeight - (buttonHeight + marginBottom);
                 params.setMargins(marginStart, y, 0, 0);
             }
             break;
             case BottomCenter: {
                 int x = (screenWidth - buttonWidth) / 2;
                 int marginBottom = dpToPixel(mBottomMargin);
-                int y = screenHeight - (buttonHeight + marginBottom) + statusBarHeight;
+                int y = screenHeight - (buttonHeight + marginBottom);
                 params.setMargins(x, y, 0, 0);
             }
             break;
