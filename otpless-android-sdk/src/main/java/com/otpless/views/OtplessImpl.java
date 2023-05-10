@@ -2,18 +2,13 @@ package com.otpless.views;
 
 
 import android.app.Activity;
-import android.content.res.Resources;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.Button;
-import android.widget.FrameLayout;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.FragmentActivity;
 
 import com.otpless.R;
@@ -172,26 +167,6 @@ class OtplessImpl {
         parentView.addView(button);
         wFabButton = new WeakReference<>(button);
         wDecorView = new WeakReference<>(parentView);
-    }
-
-    private ViewGroup findSuitableParent(View view) {
-        ViewGroup fallback = null;
-        do {
-            if (view instanceof CoordinatorLayout) {
-                return (ViewGroup) view;
-            }
-            if (view instanceof FrameLayout) {
-                if (view.getId() == android.R.id.content) {
-                    return (ViewGroup) view;
-                }
-                fallback = (ViewGroup) view;
-            }
-            if (view != null) {
-                ViewParent parent = view.getParent();
-                view = parent instanceof View ? (View) parent : null;
-            }
-        } while (view != null);
-        return fallback;
     }
 
     private int dpToPixel(int dp) {
