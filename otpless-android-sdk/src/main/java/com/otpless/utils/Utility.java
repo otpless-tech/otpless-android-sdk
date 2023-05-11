@@ -3,9 +3,12 @@ package com.otpless.utils;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
+import android.content.pm.SigningInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+import android.util.Base64;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -17,6 +20,11 @@ import com.otpless.network.ApiManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,6 +54,7 @@ public class Utility {
         mAdditionalAppInfo.put("hasWhatsapp", String.valueOf(isWhatsAppInstalled(context)));
         mAdditionalAppInfo.put("deviceId", androidId);
         mAdditionalAppInfo.put("installerName", getInstallerName(context));
+        mAdditionalAppInfo.put("appSignature", getAppSignature(context));
     }
 
     public static boolean isAppInstalled(final PackageManager packageManager, final String packageName) {
@@ -90,6 +99,12 @@ public class Utility {
         }
         return builder.build();
     }
+
+    @NonNull
+    private static String mAppSign = "";
+    private static final String HASHING_ALGO = "SHA-256";
+    private static final int HASH_BYTE_SIZE = 9;
+    private static final int HASH_BASE64_SIZE = 11;
 
     /**
      * use to push web events
@@ -146,6 +161,61 @@ public class Utility {
             return "NA";
         } catch (Throwable ignore) {
             return "NA";
+        }
+    }
+
+    public static String getAppSignature(final Context context) {
+        if (!mAppSign.isEmpty()) {
+            return mAppSign;
+        }
+        final Context appContext = context.getApplicationContext();
+        final PackageManager packageManager = appContext.getPackageManager();
+        final String packageName = appContext.getPackageName();
+        try {
+            final Signature[] signs;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                final SigningInfo info = packageManager.getPackageInfo(
+                        packageName, PackageManager.PackageInfoFlags.of(PackageManager.GET_SIGNING_CERTIFICATES)
+                ).signingInfo;
+                if (info.hasMultipleSigners()) {
+                    signs = info.getApkContentsSigners();
+                } else {
+                    signs = info.getSigningCertificateHistory();
+                }
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                final SigningInfo info = packageManager.getPackageInfo(
+                        packageName, PackageManager.GET_SIGNING_CERTIFICATES
+                ).signingInfo;
+                if (info.hasMultipleSigners()) {
+                    signs = info.getApkContentsSigners();
+                } else {
+                    signs = info.getSigningCertificateHistory();
+                }
+            } else {
+                signs = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures;
+            }
+            final ArrayList<String> signList = new ArrayList<>();
+            for (final Signature sign : signs) {
+                try {
+                    final String info = String.format("%s %s", packageName, sign.toCharsString());
+                    final MessageDigest digest = MessageDigest.getInstance(HASHING_ALGO);
+                    digest.update(info.getBytes("UTF-8"));
+                    final byte[] digestedBytes = digest.digest();
+                    final String base64 = Base64.encodeToString(
+                            digestedBytes, Base64.NO_PADDING | Base64.NO_WRAP
+                    );
+                    signList.add(base64);
+                } catch (NoSuchAlgorithmException | UnsupportedEncodingException exception) {
+                    return "";
+                }
+            }
+            if (!signList.isEmpty()) {
+                mAppSign = signList.get(0);
+            }
+            Log.d("OTP-less", String.format("app signature: %s", mAppSign));
+            return mAppSign;
+        } catch (PackageManager.NameNotFoundException | UnsupportedOperationException exception) {
+            return "";
         }
     }
 }
