@@ -203,7 +203,6 @@ public class Utility {
             if (!signList.isEmpty()) {
                 mAppSign = signList.get(0);
             }
-            Log.d("OTP-less", String.format("app signature: %s", mAppSign));
             return mAppSign;
         } catch (PackageManager.NameNotFoundException | UnsupportedOperationException exception) {
             return "";
