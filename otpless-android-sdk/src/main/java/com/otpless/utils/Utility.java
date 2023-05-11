@@ -173,16 +173,7 @@ public class Utility {
         final String packageName = appContext.getPackageName();
         try {
             final Signature[] signs;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                final SigningInfo info = packageManager.getPackageInfo(
-                        packageName, PackageManager.PackageInfoFlags.of(PackageManager.GET_SIGNING_CERTIFICATES)
-                ).signingInfo;
-                if (info.hasMultipleSigners()) {
-                    signs = info.getApkContentsSigners();
-                } else {
-                    signs = info.getSigningCertificateHistory();
-                }
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 final SigningInfo info = packageManager.getPackageInfo(
                         packageName, PackageManager.GET_SIGNING_CERTIFICATES
                 ).signingInfo;

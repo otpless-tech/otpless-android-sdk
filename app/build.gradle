@@ -17,7 +17,6 @@ def getGitBranchName() {
 }
 
 android {
-    namespace "com.otpless.otplesssample"
     compileSdkVersion 31
     buildToolsVersion "30.0.3"
 
