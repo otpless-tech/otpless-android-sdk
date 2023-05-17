@@ -67,7 +67,7 @@ public class OtplessWebView extends WebView {
         getSettings().setJavaScriptEnabled(true);
         getSettings().setDomStorageEnabled(true);
         getSettings().setLoadsImagesAutomatically(true);
-        getSettings().setUserAgentString(String.format("%s otplessapp", getSettings().getUserAgentString()));
+        getSettings().setUserAgentString(String.format("%s otplesssdk", getSettings().getUserAgentString()));
         setWebViewClient(new OtplessWebClient());
 
         // add error view also
