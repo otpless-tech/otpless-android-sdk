@@ -10,6 +10,9 @@ import android.widget.Button;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import com.otpless.R;
 import com.otpless.dto.OtplessResponse;
@@ -20,7 +23,7 @@ import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 
-class OtplessImpl {
+class OtplessImpl implements LifecycleObserver {
 
     private OtplessUserDetailCallback mAfterLaunchCallback = null;
     private ActivityResultLauncher<JSONObject> mWebLaunch;
@@ -48,6 +51,7 @@ class OtplessImpl {
         );
         wActivity = new WeakReference<>(activity);
         Utility.addContextInfo(activity);
+        activity.getLifecycle().addObserver(this);
     }
 
     private void onOtplessResult(@NonNull OtplessResponse userDetail) {
@@ -177,6 +181,13 @@ class OtplessImpl {
 
     void setFabText(@NonNull final String text) {
         this.mFabText = text;
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    @SuppressWarnings("unused")
+    public void clearReferences() {
+        mWebLaunch = null;
+        mAfterLaunchCallback = null;
     }
 }
 
