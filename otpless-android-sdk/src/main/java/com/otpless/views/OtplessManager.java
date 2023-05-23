@@ -10,6 +10,8 @@ public class OtplessManager {
 
     private static OtplessManager sInstance = null;
 
+    private boolean mHasPageLoaderEnabled = true;
+
     public static OtplessManager getInstance() {
         if (sInstance == null) {
             synchronized (OtplessManager.class) {
@@ -70,5 +72,13 @@ public class OtplessManager {
     public void setFabText(final String text) {
         if (text == null || text.length() == 0) return;
         this.mOtpImpl.setFabText(text);
+    }
+
+    public void setPageLoaderVisible(final boolean isVisible) {
+        this.mHasPageLoaderEnabled = isVisible;
+    }
+
+    public boolean isToShowPageLoader() {
+        return this.mHasPageLoaderEnabled;
     }
 }
