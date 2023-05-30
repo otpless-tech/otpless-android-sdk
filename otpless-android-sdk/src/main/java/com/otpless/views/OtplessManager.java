@@ -4,6 +4,9 @@ package com.otpless.views;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
+import com.otpless.main.OtplessEventData;
+import com.otpless.main.OtplessEventCallback;
+
 import org.json.JSONObject;
 
 public class OtplessManager {
@@ -70,5 +73,13 @@ public class OtplessManager {
     public void setFabText(final String text) {
         if (text == null || text.length() == 0) return;
         this.mOtpImpl.setFabText(text);
+    }
+
+    public void setEventCallback(final OtplessEventCallback callback) {
+        this.mOtpImpl.setEventCallback(callback);
+    }
+
+    public void sendOtplessEvent(final OtplessEventData event) {
+        this.mOtpImpl.sendOtplessEvent(event);
     }
 }
