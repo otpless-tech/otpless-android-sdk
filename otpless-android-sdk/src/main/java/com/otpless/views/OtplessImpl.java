@@ -214,6 +214,7 @@ class OtplessImpl implements LifecycleObserver {
         final ViewGroup parentView = (ViewGroup) activity.findViewById(android.R.id.content);
         if (parentView == null) return;
         parentView.removeView(fab);
+        wFabButton = new WeakReference<>(null);
     }
 }
 
