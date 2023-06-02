@@ -178,8 +178,6 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
     @Override
     protected void onDestroy() {
         if (mWebView != null) {
-            // todo
-            mWebView.clearCache(true);
             mWebView.detachNativeWebManager();
         }
         Utility.pushEvent("sdk_screen_dismissed");
