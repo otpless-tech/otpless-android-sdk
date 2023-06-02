@@ -189,5 +189,18 @@ class OtplessImpl implements LifecycleObserver {
         mWebLaunch = null;
         mAfterLaunchCallback = null;
     }
+
+    void onSignInCompleted() {
+        // removing fab button
+        final Activity activity = wActivity.get();
+        if (activity == null) return;
+        final Button fab = wFabButton.get();
+        if (fab == null) return;
+        final ViewGroup decorView = wDecorView.get();
+        if (decorView == null) return;
+        final ViewGroup parentView = (ViewGroup) activity.findViewById(android.R.id.content);
+        if (parentView == null) return;
+        parentView.removeView(fab);
+    }
 }
 

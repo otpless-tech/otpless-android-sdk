@@ -81,4 +81,8 @@ public class OtplessManager {
     public boolean isToShowPageLoader() {
         return this.mHasPageLoaderEnabled;
     }
+
+    public void onSignInCompleted() {
+        this.mOtpImpl.onSignInCompleted();
+    }
 }
