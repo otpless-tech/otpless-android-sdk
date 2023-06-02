@@ -1,6 +1,7 @@
 package com.otpless.web;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -32,6 +33,9 @@ public class OtplessWebView extends WebView {
     private TextView mErrorTv;
     private View mErrorLayout;
     private Button mRetryButton;
+
+    @Nullable
+    public PageLoadStatusCallback pageLoadStatusCallback;
 
     public OtplessWebView(@NonNull Context context) {
         super(context);
@@ -114,13 +118,13 @@ public class OtplessWebView extends WebView {
     public void loadWebUrl(String url) {
         if (url == null) return;
         mLoadingUrl = url;
-        mLoadingState = LoadingStatus.InProgress;
+        changeLoadingStatus(LoadingStatus.InProgress);
         loadUrl(url);
     }
 
     public void reload() {
         if (mLoadingUrl != null && mLoadingState != LoadingStatus.InProgress) {
-            mLoadingState = LoadingStatus.InProgress;
+            changeLoadingStatus(LoadingStatus.InProgress);
             loadUrl(mLoadingUrl);
         }
     }
@@ -169,11 +173,18 @@ public class OtplessWebView extends WebView {
     private class OtplessWebClient extends WebViewClient {
 
         @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            super.onPageStarted(view, url, favicon);
+            if ("about:blank".equals(url)) return;
+            changeLoadingStatus(LoadingStatus.Started);
+        }
+
+        @Override
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
             if ("about:blank".equals(url)) return;
             if (mLoadingState != LoadingStatus.Failed) {
-                mLoadingState = LoadingStatus.Success;
+                changeLoadingStatus(LoadingStatus.Success);
                 mErrorLayout.setVisibility(View.GONE);
                 injectJavaScript();
             } else { // failed case
@@ -194,7 +205,7 @@ public class OtplessWebView extends WebView {
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
             super.onReceivedError(view, errorCode, description, failingUrl);
             if (failingUrl != null && failingUrl.equals(mLoadingUrl)) {
-                mLoadingState = LoadingStatus.Failed;
+                changeLoadingStatus(LoadingStatus.Failed);
                 mErrorLayout.setVisibility(View.VISIBLE);
                 final String errorMessage = "Unable to connect." + "\nPlease retry.";
                 mErrorTv.setText(errorMessage);
@@ -215,6 +226,13 @@ public class OtplessWebView extends WebView {
         if (mEnqueuedWaid == null) return;
         callWebJs("onWaidReceived", mEnqueuedWaid);
         mEnqueuedWaid = null;
+    }
+
+    private void changeLoadingStatus(LoadingStatus loadingStatus) {
+        this.mLoadingState = loadingStatus;
+        if (this.pageLoadStatusCallback != null) {
+            this.pageLoadStatusCallback.onPageStatusChange(loadingStatus);
+        }
     }
 }
 

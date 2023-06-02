@@ -13,6 +13,8 @@ public class OtplessManager {
 
     private static OtplessManager sInstance = null;
 
+    private boolean mHasPageLoaderEnabled = true;
+
     public static OtplessManager getInstance() {
         if (sInstance == null) {
             synchronized (OtplessManager.class) {
@@ -81,5 +83,13 @@ public class OtplessManager {
 
     public void sendOtplessEvent(final OtplessEventData event) {
         this.mOtpImpl.sendOtplessEvent(event);
+    }
+
+    public void setPageLoaderVisible(final boolean isVisible) {
+        this.mHasPageLoaderEnabled = isVisible;
+    }
+
+    public boolean isToShowPageLoader() {
+        return this.mHasPageLoaderEnabled;
     }
 }
