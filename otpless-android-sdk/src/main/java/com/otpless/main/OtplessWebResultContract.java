@@ -17,6 +17,16 @@ public class OtplessWebResultContract extends ActivityResultContract<JSONObject,
     @NonNull
     @Override
     public Intent createIntent(@NonNull Context context, JSONObject input) {
+        return makeOtplessWebIntent(context, input);
+    }
+
+    @NonNull
+    @Override
+    public OtplessResponse parseResult(int resultCode, @Nullable Intent intent) {
+        return parseResultData(resultCode, intent);
+    }
+
+    public static Intent makeOtplessWebIntent(@NonNull Context context, JSONObject input) {
         final Intent intent = new Intent(context, OtplessWebActivity.class);
         if (input != null) {
             intent.putExtra("extra_json_params", input.toString());
@@ -26,8 +36,7 @@ public class OtplessWebResultContract extends ActivityResultContract<JSONObject,
     }
 
     @NonNull
-    @Override
-    public OtplessResponse parseResult(int resultCode, @Nullable Intent intent) {
+    public static OtplessResponse parseResultData(int resultCode, @Nullable Intent intent) {
         final OtplessResponse result = new OtplessResponse();
         try {
             // handle cancel result code

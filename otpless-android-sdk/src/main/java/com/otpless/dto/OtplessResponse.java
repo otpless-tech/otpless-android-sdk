@@ -1,5 +1,6 @@
 package com.otpless.dto;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
@@ -32,5 +33,15 @@ public class OtplessResponse implements Serializable {
                 "errorMessage='" + errorMessage + '\'' +
                 ", data=" + data +
                 '}';
+    }
+
+    public String toJsonString() {
+        final JSONObject parent = new JSONObject();
+        try {
+            parent.put("errorMessage", errorMessage);
+            parent.put("data", data);
+        } catch (JSONException ignore) {
+        }
+        return parent.toString();
     }
 }

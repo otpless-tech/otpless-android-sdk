@@ -7,9 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import androidx.activity.ComponentActivity;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
@@ -28,24 +28,24 @@ class OtplessImpl implements LifecycleObserver {
     private OtplessUserDetailCallback mAfterLaunchCallback = null;
     private ActivityResultLauncher<JSONObject> mWebLaunch;
     private JSONObject mExtraParams;
-    private WeakReference<Button> wFabButton = new WeakReference<>(null);
-    private WeakReference<ViewGroup> wDecorView = new WeakReference<>(null);
-    private boolean mShowOtplessFab = true;
+    protected WeakReference<Button> wFabButton = new WeakReference<>(null);
+    protected WeakReference<ViewGroup> wDecorView = new WeakReference<>(null);
+    protected boolean mShowOtplessFab = true;
     private static final int ButtonWidth = 120;
     private static final int ButtonHeight = 40;
 
     private FabButtonAlignment mAlignment = FabButtonAlignment.BottomRight;
     private int mBottomMargin = 24;
     private int mSideMargin = 16;
-    private String mFabText = "Sign in";
+    protected String mFabText = "Sign in";
 
     @NonNull
-    private WeakReference<FragmentActivity> wActivity = new WeakReference<>(null);
+    protected WeakReference<Activity> wActivity = new WeakReference<>(null);
 
     OtplessImpl() {
     }
 
-    void initWebLauncher(final FragmentActivity activity) {
+    void initWebLauncher(final ComponentActivity activity) {
         mWebLaunch = activity.registerForActivityResult(
                 new OtplessWebResultContract(), this::onOtplessResult
         );
@@ -113,7 +113,7 @@ class OtplessImpl implements LifecycleObserver {
         this.mShowOtplessFab = isToShow;
     }
 
-    private void addButtonOnDecor(final FragmentActivity activity) {
+    protected void addButtonOnDecor(final Activity activity) {
         if (wFabButton.get() != null) return;
         final ViewGroup parentView = (ViewGroup) activity.findViewById(android.R.id.content);
         if (parentView == null) return;
@@ -188,6 +188,7 @@ class OtplessImpl implements LifecycleObserver {
     public void clearReferences() {
         mWebLaunch = null;
         mAfterLaunchCallback = null;
+        mExtraParams = null;
     }
 }
 
