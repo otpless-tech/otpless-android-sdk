@@ -89,7 +89,7 @@ public class NativeWebManager implements OtplessWebListener {
             if (!deeplinkUrl.getScheme().equals("https")) {
                 data.put("channel", channel);
             }
-            OtplessManager.getInstance().sendOtplessEvent(new OtplessEventData(OtplessEventCode.REDIRECTION_OUT, data));
+            OtplessManager.getInstance().sendOtplessEvent(new OtplessEventData(OtplessEventCode.BUTTON_CLICK, data));
             //endregion
         } catch (Exception exception) {
             exception.printStackTrace();
