@@ -52,6 +52,7 @@ public class Utility {
                 applicationContext.getContentResolver(), Settings.Secure.ANDROID_ID
         );
         mAdditionalAppInfo.put("hasWhatsapp", String.valueOf(isWhatsAppInstalled(context)));
+        mAdditionalAppInfo.put("hasOtplessApp", String.valueOf(isOtplessAppInstalled(context)));
         mAdditionalAppInfo.put("deviceId", androidId);
         mAdditionalAppInfo.put("installerName", getInstallerName(context));
         mAdditionalAppInfo.put("appSignature", getAppSignature(context));
@@ -148,6 +149,11 @@ public class Utility {
     public static boolean isWhatsAppInstalled(final Context context) {
         final PackageManager manager = context.getPackageManager();
         return isAppInstalled(manager, "com.whatsapp") || isAppInstalled(manager, "com.whatsapp.w4b");
+    }
+
+    public static boolean isOtplessAppInstalled(final Context context) {
+        final PackageManager manager = context.getPackageManager();
+        return  isAppInstalled(manager, "com.otpless.app");
     }
 
     @NonNull

@@ -7,6 +7,7 @@
     <queries>
         <package android:name="com.whatsapp"/>
         <package android:name="com.whatsapp.w4b"/>
+        <package android:name="com.otpless.app"/>
     </queries>
     <application>
         <activity
