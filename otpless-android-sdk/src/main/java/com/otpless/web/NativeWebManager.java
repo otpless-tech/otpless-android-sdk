@@ -16,10 +16,13 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
 import com.otpless.BuildConfig;
+import com.otpless.main.OtplessEventCode;
+import com.otpless.main.OtplessEventData;
 import com.otpless.main.WebActivityContract;
 import com.otpless.network.ApiCallback;
 import com.otpless.network.ApiManager;
 import com.otpless.utils.Utility;
+import com.otpless.views.OtplessManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -81,6 +84,12 @@ public class NativeWebManager implements OtplessWebListener {
             final JSONObject params = new JSONObject();
             params.put("channel", channel);
             Utility.pushEvent("intent_redirect_out", params);
+            final JSONObject data = new JSONObject();
+            data.put("event_action", "button_clicked");
+            if (!deeplinkUrl.getScheme().equals("https")) {
+                data.put("channel", channel);
+            }
+            OtplessManager.getInstance().sendOtplessEvent(new OtplessEventData(OtplessEventCode.BUTTON_CLICK, data));
             //endregion
         } catch (Exception exception) {
             exception.printStackTrace();

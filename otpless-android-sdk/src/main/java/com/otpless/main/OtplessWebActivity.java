@@ -7,15 +7,18 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ProgressBar;
 
 import com.otpless.R;
 import com.otpless.network.ApiCallback;
 import com.otpless.network.ApiManager;
 import com.otpless.utils.Utility;
 import com.otpless.views.OtplessManager;
+import com.otpless.web.LoadingStatus;
 import com.otpless.web.NativeWebManager;
 import com.otpless.web.OtplessWebView;
 import com.otpless.web.OtplessWebViewWrapper;
@@ -28,6 +31,7 @@ import java.util.Iterator;
 public class OtplessWebActivity extends AppCompatActivity implements WebActivityContract {
 
     private OtplessWebView mWebView;
+    private ProgressBar mProgress;
     private NativeWebManager mNativeManager;
     private ViewGroup mParentViewGroup;
     private JSONObject mExtraJSONParams;
@@ -60,6 +64,17 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
     private void initView() {
         mNativeManager = new NativeWebManager(this, mWebView, this);
         mWebView.attachNativeWebManager(mNativeManager);
+        mProgress = findViewById(R.id.progress_bar);
+        if (OtplessManager.getInstance().isToShowPageLoader()) {
+            mProgress.setVisibility(View.VISIBLE);
+            mWebView.pageLoadStatusCallback = loadingStatus -> {
+                if (loadingStatus == LoadingStatus.InProgress) {
+                    mProgress.setVisibility(View.VISIBLE);
+                } else {
+                    mProgress.setVisibility(View.GONE);
+                }
+            };
+        }
         ApiManager.getInstance().apiConfig(new ApiCallback<JSONObject>() {
             @Override
             public void onSuccess(JSONObject data) {
@@ -140,11 +155,7 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
         }
         final boolean hasCode;
         final String code = uri.getQueryParameter("code");
-        if (code == null || code.length() == 0) {
-            hasCode = false;
-        } else {
-            hasCode = true;
-        }
+        hasCode = code != null && code.length() != 0;
         final String loadedUrl = mWebView.getLoadedUrl();
         final Uri newUrl = Utility.combineQueries(
                 Uri.parse(loadedUrl), uri

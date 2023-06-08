@@ -7,11 +7,16 @@ import android.content.Intent;
 import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
 
+import com.otpless.main.OtplessEventData;
+import com.otpless.main.OtplessEventCallback;
+
 import org.json.JSONObject;
 
 public class OtplessManager {
 
     private static OtplessManager sInstance = null;
+
+    private boolean mHasPageLoaderEnabled = true;
 
     public static OtplessManager getInstance() {
         if (sInstance == null) {
@@ -85,5 +90,25 @@ public class OtplessManager {
 
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         this.mOtpImpl.parseData(requestCode, resultCode, data);
+    }
+
+    public void setEventCallback(final OtplessEventCallback callback) {
+        this.mOtpImpl.setEventCallback(callback);
+    }
+
+    public void sendOtplessEvent(final OtplessEventData event) {
+        this.mOtpImpl.sendOtplessEvent(event);
+    }
+
+    public void setPageLoaderVisible(final boolean isVisible) {
+        this.mHasPageLoaderEnabled = isVisible;
+    }
+
+    public boolean isToShowPageLoader() {
+        return this.mHasPageLoaderEnabled;
+    }
+
+    public void onSignInCompleted() {
+        this.mOtpImpl.onSignInCompleted();
     }
 }

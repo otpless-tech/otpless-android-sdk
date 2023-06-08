@@ -16,6 +16,8 @@ import androidx.lifecycle.OnLifecycleEvent;
 
 import com.otpless.R;
 import com.otpless.dto.OtplessResponse;
+import com.otpless.main.OtplessEventData;
+import com.otpless.main.OtplessEventCallback;
 import com.otpless.main.OtplessWebResultContract;
 import com.otpless.utils.Utility;
 
@@ -26,6 +28,7 @@ import java.lang.ref.WeakReference;
 class OtplessImpl implements LifecycleObserver {
 
     private OtplessUserDetailCallback mAfterLaunchCallback = null;
+    private OtplessEventCallback mEventCallback = null;
     private ActivityResultLauncher<JSONObject> mWebLaunch;
     private JSONObject mExtraParams;
     protected WeakReference<Button> wFabButton = new WeakReference<>(null);
@@ -113,19 +116,21 @@ class OtplessImpl implements LifecycleObserver {
         this.mShowOtplessFab = isToShow;
     }
 
+    protected void onFabButtonClicked() {
+        final View fBtn = wFabButton.get();
+        if (fBtn != null) {
+            // make button invisible after first callback
+            fBtn.setVisibility(View.INVISIBLE);
+        }
+        mWebLaunch.launch(mExtraParams);
+    }
+
     protected void addButtonOnDecor(final Activity activity) {
         if (wFabButton.get() != null) return;
         final ViewGroup parentView = (ViewGroup) activity.findViewById(android.R.id.content);
         if (parentView == null) return;
         final Button button = (Button) activity.getLayoutInflater().inflate(R.layout.otpless_fab_button, parentView, false);
-        button.setOnClickListener(v -> {
-            final View fBtn = wFabButton.get();
-            if (fBtn != null) {
-                // make button invisible after first callback
-                fBtn.setVisibility(View.INVISIBLE);
-            }
-            mWebLaunch.launch(mExtraParams);
-        });
+        button.setOnClickListener(v -> onFabButtonClicked());
         button.setText(mFabText);
         final ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) button.getLayoutParams();
         // region add the margin
@@ -189,6 +194,30 @@ class OtplessImpl implements LifecycleObserver {
         mWebLaunch = null;
         mAfterLaunchCallback = null;
         mExtraParams = null;
+        mEventCallback = null;
+    }
+
+    void setEventCallback(final OtplessEventCallback callback) {
+        mEventCallback = callback;
+    }
+
+    void sendOtplessEvent(final OtplessEventData event) {
+        if (mEventCallback == null) return;
+        mEventCallback.onOtplessEvent(event);
+    }
+
+    protected void onSignInCompleted() {
+        // removing fab button
+        final Activity activity = wActivity.get();
+        if (activity == null) return;
+        final Button fab = wFabButton.get();
+        if (fab == null) return;
+        final ViewGroup decorView = wDecorView.get();
+        if (decorView == null) return;
+        final ViewGroup parentView = (ViewGroup) activity.findViewById(android.R.id.content);
+        if (parentView == null) return;
+        parentView.removeView(fab);
+        wFabButton = new WeakReference<>(null);
     }
 }
 
