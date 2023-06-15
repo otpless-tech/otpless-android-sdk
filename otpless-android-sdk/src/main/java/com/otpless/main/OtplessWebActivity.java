@@ -105,7 +105,7 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
 
     private void firstLoad(final String url) {
         final String packageName = this.getApplicationContext().getPackageName();
-        final String loginUrl = packageName + ".otpless://otpless";
+        String loginUrl = packageName + ".otpless://otpless";
         final Uri.Builder urlToLoad = Uri.parse(url).buildUpon();
 
         // check for additional json params while loading
@@ -122,6 +122,10 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
                         String key = it.next();
                         final String value = params.optString(key);
                         if (value.isEmpty()) continue;
+                        if ("login_uri".equals(key)) {
+                            loginUrl = value + ".otpless://otpless";
+                            continue;
+                        }
                         urlToLoad.appendQueryParameter(key, value);
                     }
                 }
