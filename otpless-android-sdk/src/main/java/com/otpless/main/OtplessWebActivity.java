@@ -35,7 +35,8 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
     private NativeWebManager mNativeManager;
     private ViewGroup mParentViewGroup;
     private JSONObject mExtraJSONParams;
-
+    private Uri mPendingReceivedUri = null;
+    private boolean isCodeLoaded = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +84,7 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
                 OtplessManager.getInstance().setFabText(fabText);
                 // check for url
                 final String url = data.optString("auth");
+                if (isCodeLoaded) return;
                 if (!url.isEmpty()) {
                     firstLoad(url);
                     return;
@@ -94,6 +96,7 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
 
             @Override
             public void onError(Exception exception) {
+                if (isCodeLoaded) return;
                 firstLoad("https://otpless.com/mobile/index.html");
             }
         });
@@ -137,6 +140,13 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
         urlToLoad.appendQueryParameter("hasWhatsapp", String.valueOf(Utility.isWhatsAppInstalled(this)));
         urlToLoad.appendQueryParameter("hasOtplessApp", String.valueOf(Utility.isOtplessAppInstalled(this)));
         urlToLoad.appendQueryParameter("login_uri", loginUrl);
+        //
+        final String finalUrl = urlToLoad.build().toString();
+        if (mPendingReceivedUri != null) {
+            reloadToVerifyCode(mPendingReceivedUri, finalUrl);
+            mPendingReceivedUri = null;
+            return;
+        }
         mWebView.loadWebUrl(urlToLoad.build().toString());
     }
 
@@ -150,22 +160,28 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
             finish();
             return;
         }
-        reloadUrl(uri);
-    }
-
-    private void reloadUrl(@NonNull final Uri uri) {
         if (mWebView == null) {
             finish();
             return;
         }
+        final String loadedUrl = mWebView.getLoadedUrl();
+        // if loadedUrl is null that means apps onCreate is called and activity is recreated because of memory reason and base url loading is in progress
+        if (loadedUrl == null) {
+            mPendingReceivedUri = uri;
+            return;
+        }
+        reloadToVerifyCode(uri, loadedUrl);
+    }
+
+    private void reloadToVerifyCode(@NonNull final Uri uri, @NonNull final String loadedUrl) {
         final boolean hasCode;
         final String code = uri.getQueryParameter("code");
         hasCode = code != null && code.length() != 0;
-        final String loadedUrl = mWebView.getLoadedUrl();
         final Uri newUrl = Utility.combineQueries(
                 Uri.parse(loadedUrl), uri
         );
         mWebView.loadWebUrl(newUrl.toString());
+        isCodeLoaded = true;
         sendIntentInEvent(hasCode);
     }
 

@@ -29,7 +29,7 @@ class OtplessImpl implements LifecycleObserver {
 
     private OtplessUserDetailCallback mAfterLaunchCallback = null;
     private OtplessEventCallback mEventCallback = null;
-    private ActivityResultLauncher<JSONObject> mWebLaunch;
+    protected ActivityResultLauncher<JSONObject> mWebLaunch;
     private JSONObject mExtraParams;
     protected WeakReference<Button> wFabButton = new WeakReference<>(null);
     protected WeakReference<ViewGroup> wDecorView = new WeakReference<>(null);

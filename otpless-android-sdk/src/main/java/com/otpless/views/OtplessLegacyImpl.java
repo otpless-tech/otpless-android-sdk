@@ -31,6 +31,10 @@ class OtplessLegacyImpl extends OtplessImpl {
 
     @Override
     protected void onFabButtonClicked() {
+        if (mWebLaunch != null) {
+            super.onFabButtonClicked();
+            return;
+        }
         final Activity activity = wActivity.get();
         final Intent intent = OtplessWebResultContract.makeOtplessWebIntent(activity, mExtraParams);
         activity.startActivityForResult(intent, REQUEST_CODE);
