@@ -16,8 +16,8 @@ import androidx.lifecycle.OnLifecycleEvent;
 
 import com.otpless.R;
 import com.otpless.dto.OtplessResponse;
-import com.otpless.main.OtplessEventData;
 import com.otpless.main.OtplessEventCallback;
+import com.otpless.main.OtplessEventData;
 import com.otpless.main.OtplessWebResultContract;
 import com.otpless.utils.Utility;
 
@@ -203,7 +203,12 @@ class OtplessImpl implements LifecycleObserver {
 
     void sendOtplessEvent(final OtplessEventData event) {
         if (mEventCallback == null) return;
-        mEventCallback.onOtplessEvent(event);
+        // event code in case of no internet connection
+        if (event.getEventCode() == 101) {
+            mEventCallback.onInternetError();
+        } else {
+            mEventCallback.onOtplessEvent(event);
+        }
     }
 
     protected void onSignInCompleted() {

@@ -1,8 +1,5 @@
 package com.otpless.main;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -13,9 +10,12 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 
+import androidx.annotation.NonNull;
+
 import com.otpless.R;
 import com.otpless.network.ApiCallback;
 import com.otpless.network.ApiManager;
+import com.otpless.network.NetworkStatusData;
 import com.otpless.utils.Utility;
 import com.otpless.views.OtplessManager;
 import com.otpless.web.LoadingStatus;
@@ -28,7 +28,7 @@ import org.json.JSONObject;
 
 import java.util.Iterator;
 
-public class OtplessWebActivity extends AppCompatActivity implements WebActivityContract {
+public class OtplessWebActivity extends OtplessSdkBaseActivity implements WebActivityContract {
 
     private OtplessWebView mWebView;
     private ProgressBar mProgress;
@@ -37,6 +37,7 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
     private JSONObject mExtraJSONParams;
     private Uri mPendingReceivedUri = null;
     private boolean isCodeLoaded = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -229,5 +230,17 @@ public class OtplessWebActivity extends AppCompatActivity implements WebActivity
             throw new RuntimeException(e);
         }
         Utility.pushEvent("intent_redirect_in", params);
+    }
+
+    @Override
+    public void onConnectionChange(NetworkStatusData statusData) {
+        super.onConnectionChange(statusData);
+        if (!statusData.isEnabled()) {
+            runOnUiThread(() -> {
+                OtplessManager.getInstance().sendOtplessEvent(
+                        new OtplessEventData(101, null)
+                );
+            });
+        }
     }
 }
