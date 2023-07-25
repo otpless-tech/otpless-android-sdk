@@ -2,12 +2,8 @@ package com.otpless.otplesssample;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.otpless.main.OtplessEventCallback;
-import com.otpless.main.OtplessEventData;
 import com.otpless.views.OtplessManager;
 
 import org.json.JSONObject;
