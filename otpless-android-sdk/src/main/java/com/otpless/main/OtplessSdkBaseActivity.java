@@ -23,7 +23,7 @@ abstract class OtplessSdkBaseActivity extends AppCompatActivity implements OnCon
         OtplessNetworkManager.getInstance().addListeners(this, this);
         if (OtplessNetworkManager.getInstance().getNetworkStatus().getStatus() == ONetworkStatus.DISABLED) {
             if (mSnackBar != null) {
-                mSnackBar.showText("You are not connected to internet.", "#FF9494", 0);
+                mSnackBar.showText("You are not connected to internet.", null, 0);
             }
         }
     }
@@ -37,17 +37,11 @@ abstract class OtplessSdkBaseActivity extends AppCompatActivity implements OnCon
     @Override
     public void onConnectionChange(final NetworkStatusData statusData) {
         runOnUiThread(() -> {
-            switch (statusData.getStatus()) {
-                case ENABLED:
-                    if (mSnackBar != null) {
-                        mSnackBar.showText("Back to online mode.", "#23D366", 5_000);
-                    }
-                    break;
-                case DISABLED:
-                    if (mSnackBar != null) {
-                        mSnackBar.showText("You are not connected to internet.", "#FF9494", 0);
-                    }
-                    break;
+            if (mSnackBar == null) return;
+            if (statusData.getStatus() == ONetworkStatus.DISABLED) {
+                mSnackBar.showText("You are not connected to internet.", null, 0);
+            } else if (statusData.getStatus() == ONetworkStatus.ENABLED) {
+                mSnackBar.remove();
             }
         });
     }

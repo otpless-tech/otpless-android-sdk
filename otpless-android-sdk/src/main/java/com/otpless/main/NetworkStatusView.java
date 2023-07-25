@@ -49,13 +49,12 @@ public class NetworkStatusView extends FrameLayout {
     private void initView(final Context context) {
         // setting layout params
         final LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-        params.setMargins(16, 4, 16, 0);
         params.gravity = Gravity.TOP;
         this.setLayoutParams(params);
         // setting background color
-        this.setBackground(ContextCompat.getDrawable(context, R.drawable.bg_snack_bar));
+        this.setBackground(ContextCompat.getDrawable(context, R.drawable.bg_snack_bar_no_internet));
         // default color code is black
-        this.textColorCode = Color.parseColor("#000000");
+        this.textColorCode = Color.parseColor("#FFFFFF");
         // adding view
         final View view = LayoutInflater.from(context).inflate(R.layout.no_network_view, this, false);
         mTextView = view.findViewById(R.id.no_internet_tv);

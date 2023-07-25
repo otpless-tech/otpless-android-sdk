@@ -50,9 +50,12 @@ public class NetworkSnackBar {
             parentView.addView(networkStatusView);
         }
         Integer colorInt = null;
-        try {
-            colorInt = Color.parseColor(color);
-        } catch (Exception ignore){}
+        if (color != null) {
+            try {
+                colorInt = Color.parseColor(color);
+            } catch (Exception ignore) {
+            }
+        }
         networkStatusView.setText(text, colorInt);
         mHandler.removeCallbacksAndMessages(null);
         // set the callback handler
@@ -63,6 +66,8 @@ public class NetworkSnackBar {
 
     public void remove() {
         final View statusView = parentView.findViewWithTag("otpless_network_status_vw");
-        parentView.removeView(statusView);
+        if (statusView != null) {
+            parentView.removeView(statusView);
+        }
     }
 }

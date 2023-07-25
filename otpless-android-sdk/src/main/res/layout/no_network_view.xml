@@ -3,15 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp">
+    android:paddingVertical="5dp">
 
     <TextView
         android:id="@+id/no_internet_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
         android:gravity="center"
-        android:textColor="@color/otpless_primary"
         android:textSize="16sp"
         tools:text="Online mode" />
 

@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        // todo remove before mergin
+        // todo remove before margin
         OtplessManager.getInstance().setEventCallback(
                 new OtplessEventCallback() {
                     @Override
