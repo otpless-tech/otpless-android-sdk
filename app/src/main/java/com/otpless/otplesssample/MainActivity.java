@@ -31,20 +31,5 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        // todo remove before margin
-        OtplessManager.getInstance().setEventCallback(
-                new OtplessEventCallback() {
-                    @Override
-                    public void onOtplessEvent(OtplessEventData event) {
-
-                    }
-
-                    @Override
-                    public void onInternetError() {
-                        Log.d("OtpMain", "Otpless main no internet error");
-                        Toast.makeText(MainActivity.this, "No internet connection", Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );
     }
 }
