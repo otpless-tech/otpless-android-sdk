@@ -1,0 +1,95 @@
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+
+def PUBLISH_ARTIFACT_ID = "otpless-android-sdk"
+def PUBLISH_DESCRIPTION = "No internet connectivity callback support and view."
+
+LinkedHashMap<String, String> getOssrhCredentials() {
+    def home = System.getenv("HOME")
+    def filePath = file(home+"/cred/ossrh_cred")
+    String fileContent = filePath.text
+    def params=fileContent.split("\n")
+    def result = [:]
+    for (String each in params) {
+        def param = each.split("=", 2)
+        if (param.length < 2) continue
+        result.put(param[0], param[1])
+    }
+    return result
+}
+
+def credentials= getOssrhCredentials()
+
+task androidSourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    if (project.plugins.findPlugin("com.android.library")) {
+        // For android libraries
+        from android.sourceSets.main.java.srcDirs
+    } else {
+        // For pure kotlin libraries, in case you have them
+        from sourceSets.main.java.srcDirs
+    }
+}
+artifacts {
+    archives androidSourcesJar
+}
+
+signing {
+    def keyId = credentials.get("keyId")
+    def key = credentials.get("key")
+    def signingPassword = credentials.get("password")
+    useInMemoryPgpKeys(keyId, key, signingPassword)
+    sign configurations.archives
+}
+
+group = "io.github.otpless-tech"
+archivesBaseName = PUBLISH_ARTIFACT_ID
+version = "2.1.1"
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            def ossrhUsername = credentials.get("ossrhUserName")
+            def ossrhPassword =  credentials.get("ossrhPassword")
+            repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name = PUBLISH_ARTIFACT_ID
+                packaging 'aar'
+                // optionally artifactId can be defined here
+                description = PUBLISH_DESCRIPTION
+                url = 'https://github.com/otpless-tech/otpless-android-sdk/tree/main'
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'digvijay-otpless'
+                        name = 'Digvijay Singh'
+                        email = 'digvijay.singh@otpless.com'
+                    }
+                }
+
+                scm {
+                    connection = 'scm:git:ssh://git@github.com:otpless-tech/otpless-android-sdk.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:otpless-tech/otpless-android-sdk.git'
+                    url = 'https://github.com/otpless-tech/otpless-android-sdk/tree/main'
+                }
+            }
+        }
+    }
+}
+

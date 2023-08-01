@@ -51,3 +51,5 @@ afterEvaluate {
         } //
     }
 }
+
+apply from: './publish-otpless.gradle'
