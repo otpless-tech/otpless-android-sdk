@@ -7,4 +7,7 @@
     <dimen name="button_padding_vertical">2dp</dimen>
     <dimen name="otpless_whatsapp_dim">32dp</dimen>
     <dimen name="otpless_btn_top_margin">14dp</dimen>
+
+    <dimen name="otpless_view_status_bar_margin">25dp</dimen>
+    <dimen name="otpless_view_bottom_margin">48dp</dimen>
 </resources>

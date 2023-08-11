@@ -28,6 +28,7 @@ import org.json.JSONObject;
 
 import java.util.Iterator;
 
+@Deprecated
 public class OtplessWebActivity extends OtplessSdkBaseActivity implements WebActivityContract {
 
     private OtplessWebView mWebView;

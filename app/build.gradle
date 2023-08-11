@@ -21,7 +21,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "com.otpless.otplesssample"
+        applicationId "com.digvijayanubhav.app"
         minSdkVersion 17
         targetSdkVersion 31
         versionCode 1

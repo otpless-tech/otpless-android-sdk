@@ -13,6 +13,7 @@ import com.otpless.dto.OtplessResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+@Deprecated
 public class OtplessWebResultContract extends ActivityResultContract<JSONObject, OtplessResponse> {
     @NonNull
     @Override

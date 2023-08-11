@@ -158,10 +158,8 @@ public class NativeWebManager implements OtplessWebListener {
     // key 11
     @Override
     public void codeVerificationStatus(@NonNull JSONObject json) {
-        final Intent intent = new Intent();
-        intent.putExtra("data", json.toString());
-        mActivity.setResult(Activity.RESULT_OK, intent);
-        mActivity.finish();
+        contract.onVerificationResult(Activity.RESULT_OK, json);
+        contract.closeView();
         Utility.pushEvent("auth_completed");
     }
 
@@ -201,8 +199,8 @@ public class NativeWebManager implements OtplessWebListener {
     // key 14
     @Override
     public void closeActivity() {
-        mActivity.setResult(Activity.RESULT_CANCELED);
-        mActivity.finish();
+        contract.onVerificationResult(Activity.RESULT_CANCELED, null);
+        contract.closeView();
         Utility.pushEvent("user_abort");
     }
 

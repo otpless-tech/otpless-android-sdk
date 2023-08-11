@@ -9,8 +9,10 @@ import androidx.annotation.NonNull;
 
 import com.otpless.main.OtplessEventData;
 import com.otpless.main.OtplessEventCallback;
+import com.otpless.main.OtplessView;
 
 import org.json.JSONObject;
+
 
 public class OtplessManager {
 
@@ -111,4 +113,5 @@ public class OtplessManager {
     public void onSignInCompleted() {
         this.mOtpImpl.onSignInCompleted();
     }
+
 }
