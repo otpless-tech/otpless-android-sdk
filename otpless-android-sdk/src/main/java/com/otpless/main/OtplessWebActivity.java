@@ -67,7 +67,7 @@ public class OtplessWebActivity extends OtplessSdkBaseActivity implements WebAct
     private void initView() {
         mNativeManager = new NativeWebManager(this, mWebView, this);
         mWebView.attachNativeWebManager(mNativeManager);
-        mProgress = findViewById(R.id.progress_bar);
+        mProgress = findViewById(R.id.otpless_progress_bar);
         if (OtplessManager.getInstance().isToShowPageLoader()) {
             mProgress.setVisibility(View.VISIBLE);
             mWebView.pageLoadStatusCallback = loadingStatus -> {
@@ -104,7 +104,7 @@ public class OtplessWebActivity extends OtplessSdkBaseActivity implements WebAct
         });
         // add slide up animation
         final Animation animation = AnimationUtils.loadAnimation(this, R.anim.otpless_slide_up_anim);
-        mParentViewGroup = findViewById(R.id.parent_vg);
+        mParentViewGroup = findViewById(R.id.otpless_parent_vg);
         mParentViewGroup.startAnimation(animation);
     }
 

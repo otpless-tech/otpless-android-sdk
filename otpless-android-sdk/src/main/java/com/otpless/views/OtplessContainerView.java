@@ -1,5 +1,6 @@
 package com.otpless.views;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -10,10 +11,10 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.otpless.R;
@@ -38,6 +39,7 @@ public class OtplessContainerView extends FrameLayout implements WebActivityCont
     private JSONObject extra;
 
     private OtplessViewContract viewContract;
+    private TextView networkTv;
 
     public OtplessContainerView(@NonNull Context context) {
         super(context);
@@ -63,14 +65,19 @@ public class OtplessContainerView extends FrameLayout implements WebActivityCont
         params.setMargins(0, topMargin, 0, bottomMargin);
         setLayoutParams(params);
         // inflate the layout and add here
-        final View view = LayoutInflater.from(getContext()).inflate(R.layout.activity_otpless_web, this, false);
+        final View view = LayoutInflater.from(getContext()).inflate(R.layout.otpless_content_view, this, false);
         addView(view);
         // assigning all the view
-        parentVg = view.findViewById(R.id.parent_vg);
-        progressBar = view.findViewById(R.id.progress_bar);
+        parentVg = view.findViewById(R.id.otpless_parent_vg);
+        progressBar = view.findViewById(R.id.otpless_progress_bar);
         webViewWrapper = view.findViewById(R.id.otpless_web_wrapper);
-
+        networkTv = view.findViewById(R.id.otpless_no_internet_tv);
         webView = webViewWrapper.getWebView();
+        // adding close button call
+        view.findViewById(R.id.otpless_close_ib).setOnClickListener(v -> {
+            onVerificationResult(Activity.RESULT_CANCELED, null);
+            closeView();
+        });
         final Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.otpless_slide_up_anim);
         parentVg.startAnimation(animation);
         if (webView == null) {
@@ -125,5 +132,18 @@ public class OtplessContainerView extends FrameLayout implements WebActivityCont
 
     public void setViewContract(OtplessViewContract viewContract) {
         this.viewContract = viewContract;
+    }
+
+    public void showNoNetwork(final String error) {
+        if (networkTv != null) {
+            networkTv.setVisibility(View.VISIBLE);
+            networkTv.setText(error);
+        }
+    }
+
+    public void hideNoNetwork() {
+        if (networkTv != null) {
+            networkTv.setVisibility(View.GONE);
+        }
     }
 }

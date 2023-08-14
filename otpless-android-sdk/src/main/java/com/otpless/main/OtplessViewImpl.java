@@ -1,5 +1,6 @@
 package com.otpless.main;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.view.View;
@@ -11,8 +12,13 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
+import com.otpless.dto.OtplessResponse;
 import com.otpless.network.ApiCallback;
 import com.otpless.network.ApiManager;
+import com.otpless.network.NetworkStatusData;
+import com.otpless.network.ONetworkStatus;
+import com.otpless.network.OnConnectionChangeListener;
+import com.otpless.network.OtplessNetworkManager;
 import com.otpless.utils.Utility;
 import com.otpless.views.OtplessContainerView;
 import com.otpless.views.OtplessManager;
@@ -26,13 +32,14 @@ import org.json.JSONObject;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 
-final class OtplessViewImpl implements OtplessView, OtplessViewContract {
+final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConnectionChangeListener {
 
     private static final String VIEW_TAG_NAME = "otpless_webview_container";
 
     private final FragmentActivity activity;
 
     private WeakReference<OtplessContainerView> wContainer = new WeakReference<>(null);
+    private OtplessUserDetailCallback detailCallback;
 
     OtplessViewImpl(final FragmentActivity activity) {
         this.activity = activity;
@@ -46,6 +53,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract {
 
     @Override
     public void startOtpless(JSONObject params, OtplessUserDetailCallback callback) {
+        this.detailCallback = callback;
         addViewIfNotAdded();
         loadWebView(params);
     }
@@ -116,7 +124,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract {
 
     @Override
     public void setCallback(OtplessUserDetailCallback callback) {
-
+        this.detailCallback = callback;
     }
 
     @Override
@@ -126,7 +134,22 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract {
 
     @Override
     public void onVerificationResult(int resultCode, JSONObject jsonObject) {
-        // todo handle result here
+        if (this.detailCallback != null) {
+            final OtplessResponse response = new OtplessResponse();
+            if (resultCode == Activity.RESULT_CANCELED) {
+                response.setErrorMessage("user cancelled");
+                this.detailCallback.onOtplessUserDetail(response);
+            } else {
+                // check for error on jsonObject
+                final String possibleError = jsonObject.optString("error");
+                if (possibleError.isEmpty()) {
+                    response.setData(jsonObject);
+                } else {
+                    response.setErrorMessage(possibleError);
+                }
+                this.detailCallback.onOtplessUserDetail(response);
+            }
+        }
     }
 
     @Override
@@ -182,6 +205,11 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract {
         containerView.setViewContract(this);
         parent.addView(containerView);
         wContainer = new WeakReference<>(containerView);
+        // check for listener and add view
+        if (OtplessNetworkManager.getInstance().getNetworkStatus().getStatus() == ONetworkStatus.DISABLED) {
+            containerView.showNoNetwork("You are not connected to internet.");
+        }
+        OtplessNetworkManager.getInstance().addListeners(activity, this);
     }
 
     private void removeView() {
@@ -196,6 +224,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract {
         View container = parent.findViewWithTag(VIEW_TAG_NAME);
         if (container != null) {
             parent.removeView(container);
+            OtplessNetworkManager.getInstance().removeListener(activity, this);
         }
     }
 
@@ -247,5 +276,24 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract {
             throw new RuntimeException(e);
         }
         Utility.pushEvent("intent_redirect_in", params);
+    }
+
+    @Override
+    public void onConnectionChange(NetworkStatusData statusData) {
+        final OtplessContainerView containerView = wContainer.get();
+        if (containerView == null) return;
+        activity.runOnUiThread(() -> {
+            if (statusData.getStatus() == ONetworkStatus.DISABLED) {
+                containerView.showNoNetwork("You are not connected to internet.");
+            } else if (statusData.getStatus() == ONetworkStatus.ENABLED) {
+                containerView.hideNoNetwork();
+            }
+            // send the event call
+            if (!statusData.isEnabled()) {
+                OtplessManager.getInstance().sendOtplessEvent(
+                        new OtplessEventData(101, null)
+                );
+            }
+        });
     }
 }

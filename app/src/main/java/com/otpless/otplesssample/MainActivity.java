@@ -1,9 +1,11 @@
 package com.otpless.otplesssample;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.otpless.dto.OtplessResponse;
 import com.otpless.main.OtplessManager;
 import com.otpless.main.OtplessView;
 
@@ -19,7 +21,19 @@ public class MainActivity extends AppCompatActivity {
         // copy this code in onCreate of your Login Activity
 
         otplessView = OtplessManager.getInstance().getOtplessView(this);
-        otplessView.startOtpless(null);
+        otplessView.startOtpless(null, this::onOtplessCallback);
+        findViewById(R.id.otpless_btn).setOnClickListener(v -> {
+            otplessView.startOtpless(null, this::onOtplessCallback);
+        });
+    }
+
+    private void onOtplessCallback(OtplessResponse response) {
+        if (response.getErrorMessage() != null) {
+            Toast.makeText(this, response.getErrorMessage(), Toast.LENGTH_LONG).show();
+        } else {
+            final String token = response.getData().optString("token");
+            Toast.makeText(this, token, Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override

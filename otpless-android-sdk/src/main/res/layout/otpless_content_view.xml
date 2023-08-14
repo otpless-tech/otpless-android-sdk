@@ -6,6 +6,19 @@
     android:layout_height="match_parent"
     android:background="@color/semi_transparent_gray">
 
+    <TextView
+        android:id="@+id/otpless_no_internet_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingVertical="5dp"
+        android:layout_marginTop="15dp"
+        android:visibility="gone"
+        android:textSize="14sp"
+        android:background="@drawable/bg_snack_bar_no_internet"
+        android:textColor="@color/white"
+        tools:text="Online mode" />
+
     <FrameLayout
         android:id="@+id/otpless_parent_vg"
         android:layout_width="match_parent"
@@ -27,5 +40,14 @@
         android:indeterminateTint="@color/otpless_primary"
         android:visibility="gone"
         android:layout_gravity="center"/>
+
+    <ImageButton
+        android:id="@+id/otpless_close_ib"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:background="@drawable/otpless_close_ellipse"
+        android:layout_gravity="end|top"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"/>
 
 </FrameLayout>

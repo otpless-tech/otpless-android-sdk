@@ -217,8 +217,7 @@ public class NativeWebManager implements OtplessWebListener {
             eventData.put("additional_event_params", additionalInfo.toString());
             eventData.put("platform", "android");
             eventData.put("caller", "web");
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
+        } catch (JSONException ignore) {
         }
         ApiManager.getInstance().pushEvents(eventData, new ApiCallback<JSONObject>() {
             @Override

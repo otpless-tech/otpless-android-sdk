@@ -57,7 +57,7 @@ public class NetworkStatusView extends FrameLayout {
         this.textColorCode = Color.parseColor("#FFFFFF");
         // adding view
         final View view = LayoutInflater.from(context).inflate(R.layout.no_network_view, this, false);
-        mTextView = view.findViewById(R.id.no_internet_tv);
+        mTextView = view.findViewById(R.id.otpless_no_internet_tv);
         this.addView(view);
     }
 

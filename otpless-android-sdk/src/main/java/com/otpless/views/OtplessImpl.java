@@ -25,6 +25,7 @@ import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 
+@Deprecated
 class OtplessImpl implements LifecycleObserver {
 
     private OtplessUserDetailCallback mAfterLaunchCallback = null;
