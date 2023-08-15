@@ -5,6 +5,7 @@ import androidx.fragment.app.FragmentActivity;
 public class OtplessManager {
 
     private static OtplessManager sInstance = null;
+    private boolean mHasPageLoaderEnabled = true;
 
     public static OtplessManager getInstance() {
         if (sInstance == null) {
@@ -20,5 +21,13 @@ public class OtplessManager {
 
     public OtplessView getOtplessView(final FragmentActivity activity) {
         return new OtplessViewImpl(activity);
+    }
+
+    public void setPageLoaderVisible(final boolean isVisible) {
+        this.mHasPageLoaderEnabled = isVisible;
+    }
+
+    public boolean isToShowPageLoader() {
+        return this.mHasPageLoaderEnabled;
     }
 }

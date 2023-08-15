@@ -18,8 +18,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 
 import com.otpless.R;
+import com.otpless.main.OtplessManager;
 import com.otpless.main.OtplessViewContract;
 import com.otpless.main.WebActivityContract;
+import com.otpless.web.LoadingStatus;
 import com.otpless.web.NativeWebManager;
 import com.otpless.web.OtplessWebView;
 import com.otpless.web.OtplessWebViewWrapper;
@@ -73,6 +75,9 @@ public class OtplessContainerView extends FrameLayout implements WebActivityCont
         webViewWrapper = view.findViewById(R.id.otpless_web_wrapper);
         networkTv = view.findViewById(R.id.otpless_no_internet_tv);
         webView = webViewWrapper.getWebView();
+        if (webView == null) {
+            // todo
+        }
         // adding close button call
         view.findViewById(R.id.otpless_close_ib).setOnClickListener(v -> {
             onVerificationResult(Activity.RESULT_CANCELED, null);
@@ -80,8 +85,14 @@ public class OtplessContainerView extends FrameLayout implements WebActivityCont
         });
         final Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.otpless_slide_up_anim);
         parentVg.startAnimation(animation);
-        if (webView == null) {
-            // todo
+        if (OtplessManager.getInstance().isToShowPageLoader()) {
+            webView.pageLoadStatusCallback = (loadingStatus -> {
+                if (loadingStatus == LoadingStatus.InProgress) {
+                    progressBar.setVisibility(View.VISIBLE);
+                } else {
+                    progressBar.setVisibility(View.GONE);
+                }
+            });
         }
     }
 
