@@ -16,13 +16,13 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
 import com.otpless.BuildConfig;
+import com.otpless.main.CommDownFlow;
 import com.otpless.main.OtplessEventCode;
 import com.otpless.main.OtplessEventData;
 import com.otpless.main.WebActivityContract;
 import com.otpless.network.ApiCallback;
 import com.otpless.network.ApiManager;
 import com.otpless.utils.Utility;
-import com.otpless.views.OtplessManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,6 +42,8 @@ public class NativeWebManager implements OtplessWebListener {
     private final WebActivityContract contract;
 
     private boolean mBackSubscription = false;
+
+    private CommDownFlow commDownFlow;
 
     public NativeWebManager(@NonNull final FragmentActivity fragmentActivity, @NonNull final OtplessWebView webView, @NonNull WebActivityContract contract) {
         mActivity = fragmentActivity;
@@ -89,7 +91,9 @@ public class NativeWebManager implements OtplessWebListener {
             if (!deeplinkUrl.getScheme().equals("https")) {
                 data.put("channel", channel);
             }
-            OtplessManager.getInstance().sendOtplessEvent(new OtplessEventData(OtplessEventCode.BUTTON_CLICK, data));
+            if (commDownFlow != null) {
+                commDownFlow.onOtplessEvent(new OtplessEventData(OtplessEventCode.BUTTON_CLICK, data));
+            }
             //endregion
         } catch (Exception exception) {
             exception.printStackTrace();
@@ -233,4 +237,7 @@ public class NativeWebManager implements OtplessWebListener {
     }
 
 
+    public void setCommDownFlow(CommDownFlow commDownFlow) {
+        this.commDownFlow = commDownFlow;
+    }
 }

@@ -10,20 +10,4 @@
         <package android:name="com.whatsapp.w4b"/>
         <package android:name="com.otpless.app"/>
     </queries>
-    <application>
-        <activity
-            android:name="com.otpless.main.OtplessWebActivity"
-            android:theme="@style/Theme.Otpless.NoActionBar"
-            android:launchMode="singleTop"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:host="otpless"
-                    android:scheme= "${applicationId}.otpless"/>
-            </intent-filter>
-        </activity>
-    </application>
 </manifest>

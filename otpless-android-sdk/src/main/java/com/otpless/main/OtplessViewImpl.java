@@ -32,7 +32,7 @@ import org.json.JSONObject;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 
-final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConnectionChangeListener {
+final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConnectionChangeListener, CommDownFlow {
 
     private static final String VIEW_TAG_NAME = "otpless_webview_container";
 
@@ -40,6 +40,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
 
     private WeakReference<OtplessContainerView> wContainer = new WeakReference<>(null);
     private OtplessUserDetailCallback detailCallback;
+    private OtplessEventCallback eventCallback;
 
     OtplessViewImpl(final FragmentActivity activity) {
         this.activity = activity;
@@ -77,6 +78,9 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
                     firstLoadingUrl = getFirstLoadingUrl("https://otpless.com/mobile/index.html", params);
                 }
                 containerView.setCredentials(activity, firstLoadingUrl, params);
+                if (containerView.getWebManager() != null) {
+                    containerView.getWebManager().setCommDownFlow(OtplessViewImpl.this);
+                }
             }
 
             @Override
@@ -289,11 +293,20 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
                 containerView.hideNoNetwork();
             }
             // send the event call
-            if (!statusData.isEnabled()) {
-                OtplessManager.getInstance().sendOtplessEvent(
-                        new OtplessEventData(101, null)
-                );
+            if (!statusData.isEnabled() && this.eventCallback != null) {
+                this.eventCallback.onInternetError();
             }
         });
+    }
+
+    @Override
+    public void setEventCallback(final OtplessEventCallback callback) {
+        this.eventCallback = callback;
+    }
+
+    @Override
+    public void onOtplessEvent(OtplessEventData event) {
+        if (this.eventCallback == null) return;
+        this.eventCallback.onOtplessEvent(event);
     }
 }

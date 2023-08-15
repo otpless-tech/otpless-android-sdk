@@ -1,11 +1,14 @@
 package com.otpless.otplesssample;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.otpless.dto.OtplessResponse;
+import com.otpless.main.OtplessEventCallback;
+import com.otpless.main.OtplessEventData;
 import com.otpless.main.OtplessManager;
 import com.otpless.main.OtplessView;
 
@@ -25,6 +28,14 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.otpless_btn).setOnClickListener(v -> {
             otplessView.startOtpless(null, this::onOtplessCallback);
         });
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (otplessView != null) {
+            otplessView.verifyIntent(intent);
+        }
     }
 
     private void onOtplessCallback(OtplessResponse response) {

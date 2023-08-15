@@ -99,7 +99,6 @@ public class OtplessContainerView extends FrameLayout implements WebActivityCont
     public void setCredentials(@NonNull final FragmentActivity activity, @NonNull final String loadingUrl, final JSONObject extra) {
         this.activity = activity;
         this.extra = extra;
-        // if onFinishInflate is called before setActivity
         if (this.webView != null) {
             if (webManager == null) {
                 webManager = new NativeWebManager(this.activity, this.webView, this);

@@ -17,4 +17,6 @@ public interface OtplessView {
     void closeView();
     boolean onBackPressed();
     void verifyIntent(Intent intent);
+
+    void setEventCallback(final OtplessEventCallback callback);
 }
