@@ -7,8 +7,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.otpless.dto.OtplessResponse;
-import com.otpless.main.OtplessEventCallback;
-import com.otpless.main.OtplessEventData;
 import com.otpless.main.OtplessManager;
 import com.otpless.main.OtplessView;
 
@@ -27,6 +25,10 @@ public class MainActivity extends AppCompatActivity {
         otplessView.startOtpless(null, this::onOtplessCallback);
         findViewById(R.id.otpless_btn).setOnClickListener(v -> {
             otplessView.startOtpless(null, this::onOtplessCallback);
+        });
+
+        findViewById(R.id.sign_in_complete).setOnClickListener(v -> {
+            otplessView.onSignInCompleted();
         });
     }
 

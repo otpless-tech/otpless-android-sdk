@@ -16,7 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
 import com.otpless.BuildConfig;
-import com.otpless.main.CommDownFlow;
+import com.otpless.main.NativeWebListener;
 import com.otpless.main.OtplessEventCode;
 import com.otpless.main.OtplessEventData;
 import com.otpless.main.WebActivityContract;
@@ -43,7 +43,7 @@ public class NativeWebManager implements OtplessWebListener {
 
     private boolean mBackSubscription = false;
 
-    private CommDownFlow commDownFlow;
+    private NativeWebListener nativeWebListener;
 
     public NativeWebManager(@NonNull final FragmentActivity fragmentActivity, @NonNull final OtplessWebView webView, @NonNull WebActivityContract contract) {
         mActivity = fragmentActivity;
@@ -91,8 +91,8 @@ public class NativeWebManager implements OtplessWebListener {
             if (!deeplinkUrl.getScheme().equals("https")) {
                 data.put("channel", channel);
             }
-            if (commDownFlow != null) {
-                commDownFlow.onOtplessEvent(new OtplessEventData(OtplessEventCode.BUTTON_CLICK, data));
+            if (nativeWebListener != null) {
+                nativeWebListener.onOtplessEvent(new OtplessEventData(OtplessEventCode.BUTTON_CLICK, data));
             }
             //endregion
         } catch (Exception exception) {
@@ -162,8 +162,9 @@ public class NativeWebManager implements OtplessWebListener {
     // key 11
     @Override
     public void codeVerificationStatus(@NonNull JSONObject json) {
-        contract.onVerificationResult(Activity.RESULT_OK, json);
-        contract.closeView();
+        mActivity.runOnUiThread(() ->
+            contract.onVerificationResult(Activity.RESULT_OK, json)
+        );
         Utility.pushEvent("auth_completed");
     }
 
@@ -203,8 +204,9 @@ public class NativeWebManager implements OtplessWebListener {
     // key 14
     @Override
     public void closeActivity() {
-        contract.onVerificationResult(Activity.RESULT_CANCELED, null);
-        contract.closeView();
+        mActivity.runOnUiThread(() ->
+            contract.onVerificationResult(Activity.RESULT_CANCELED, null)
+        );
         Utility.pushEvent("user_abort");
     }
 
@@ -237,7 +239,7 @@ public class NativeWebManager implements OtplessWebListener {
     }
 
 
-    public void setCommDownFlow(CommDownFlow commDownFlow) {
-        this.commDownFlow = commDownFlow;
+    public void setNativeWebListener(NativeWebListener nativeWebListener) {
+        this.nativeWebListener = nativeWebListener;
     }
 }

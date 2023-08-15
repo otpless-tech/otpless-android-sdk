@@ -1,5 +1,5 @@
 package com.otpless.main;
 
-public interface CommDownFlow {
+public interface NativeWebListener {
     void onOtplessEvent(final OtplessEventData event);
 }

@@ -81,7 +81,6 @@ public class OtplessContainerView extends FrameLayout implements WebActivityCont
         // adding close button call
         view.findViewById(R.id.otpless_close_ib).setOnClickListener(v -> {
             onVerificationResult(Activity.RESULT_CANCELED, null);
-            closeView();
         });
         final Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.otpless_slide_up_anim);
         parentVg.startAnimation(animation);
