@@ -17,6 +17,8 @@ public interface OtplessView {
     /// explicitly setting the callback
     void setCallback(final OtplessUserDetailCallback callback, final JSONObject extra);
 
+    void setCallback(final OtplessUserDetailCallback callback, final JSONObject extra, final boolean isLoginPage);
+
     /// explicitly closing the view
     void closeView();
 
@@ -41,4 +43,8 @@ public interface OtplessView {
 
     /// to change the text of sign in fab button
     void setFabText(final String text);
+
+    void showOtplessLoginPage(final JSONObject extra, OtplessUserDetailCallback callback);
+
+    void showOtplessLoginPage(OtplessUserDetailCallback callback);
 }

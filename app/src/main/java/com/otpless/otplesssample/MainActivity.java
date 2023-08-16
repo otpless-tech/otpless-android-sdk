@@ -22,9 +22,10 @@ public class MainActivity extends AppCompatActivity {
         // copy this code in onCreate of your Login Activity
 
         otplessView = OtplessManager.getInstance().getOtplessView(this);
-        otplessView.startOtpless(null, this::onOtplessCallback);
+        otplessView.showOtplessLoginPage(this::onOtplessCallback);
+        otplessView.setCallback(this::onOtplessCallback, null, true);
         findViewById(R.id.otpless_btn).setOnClickListener(v -> {
-            otplessView.startOtpless(null, this::onOtplessCallback);
+            otplessView.showOtplessLoginPage(this::onOtplessCallback);
         });
 
         findViewById(R.id.sign_in_complete).setOnClickListener(v -> {
