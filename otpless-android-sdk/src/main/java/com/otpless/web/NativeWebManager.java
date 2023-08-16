@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentActivity;
 
 import com.otpless.BuildConfig;
 import com.otpless.main.NativeWebListener;
@@ -35,7 +34,7 @@ public class NativeWebManager implements OtplessWebListener {
     private static final String OtplessPreferenceStore = "otpless_shared_pref_store";
 
     @NonNull
-    private final FragmentActivity mActivity;
+    private final Activity mActivity;
     @NonNull
     private final OtplessWebView mWebView;
     @NonNull
@@ -45,8 +44,8 @@ public class NativeWebManager implements OtplessWebListener {
 
     private NativeWebListener nativeWebListener;
 
-    public NativeWebManager(@NonNull final FragmentActivity fragmentActivity, @NonNull final OtplessWebView webView, @NonNull WebActivityContract contract) {
-        mActivity = fragmentActivity;
+    public NativeWebManager(@NonNull final Activity activity, @NonNull final OtplessWebView webView, @NonNull WebActivityContract contract) {
+        mActivity = activity;
         mWebView = webView;
         this.contract = contract;
     }

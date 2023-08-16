@@ -3,6 +3,7 @@ package com.otpless.main;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +38,7 @@ import java.util.Iterator;
 
 final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConnectionChangeListener, NativeWebListener {
 
-    private static final String VIEW_TAG_NAME = "otpless_webview_container";
+    private static final String VIEW_TAG_NAME = "OtplessView";
 
     private final FragmentActivity activity;
     private JSONObject extras;
@@ -62,7 +63,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     public void startOtpless(JSONObject params) {
         this.extras = params;
         addViewIfNotAdded();
-        loadWebView(params);
+        loadWebView(null, null);
     }
 
     @Override
@@ -70,48 +71,61 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         this.detailCallback = callback;
         this.extras = params;
         addViewIfNotAdded();
-        loadWebView(params);
+        loadWebView(null, null);
     }
 
     private void startOtpless() {
         addViewIfNotAdded();
-        loadWebView(this.extras);
+        loadWebView(null, null);
     }
 
-    private void loadWebView(final JSONObject params) {
-        ApiManager.getInstance().apiConfig(new ApiCallback<JSONObject>() {
-            @Override
-            public void onSuccess(JSONObject data) {
-                // check for fab button text
-                final String fabText = data.optString("button_text");
-                if (!fabText.isEmpty()) {
-                    mFabText = fabText;
+    private void loadWebView(final String baseUrl, Uri uri) {
+        if (baseUrl == null) {
+            ApiManager.getInstance().apiConfig(new ApiCallback<JSONObject>() {
+                @Override
+                public void onSuccess(JSONObject data) {
+                    // check for fab button text
+                    final String fabText = data.optString("button_text");
+                    if (!fabText.isEmpty()) {
+                        mFabText = fabText;
+                    }
+                    // check for url
+                    final String url = data.optString("auth");
+                    final OtplessContainerView containerView = wContainer.get();
+                    if (containerView == null || containerView.getWebView() == null) return;
+                    String firstLoadingUrl;
+                    if (!url.isEmpty()) {
+                        firstLoadingUrl = getFirstLoadingUrl(url, extras);
+                    } else {
+                        firstLoadingUrl = getFirstLoadingUrl("https://otpless.com/mobile/index.html", extras);
+                    }
+                    if (uri == null) {
+                        containerView.getWebView().loadWebUrl(firstLoadingUrl);
+                    } else {
+                        reloadToVerifyCode(containerView.getWebView(), uri, firstLoadingUrl);
+                    }
                 }
-                // check for url
-                final String url = data.optString("auth");
-                if (wContainer.get() == null && wContainer.get().getWebView() == null) return;
-                final OtplessContainerView containerView = wContainer.get();
-                final OtplessWebView webView = wContainer.get().getWebView();
-                String firstLoadingUrl;
-                if (!url.isEmpty()) {
-                    firstLoadingUrl = getFirstLoadingUrl(url, params);
-                } else {
-                    firstLoadingUrl = getFirstLoadingUrl("https://otpless.com/mobile/index.html", params);
-                }
-                containerView.setCredentials(activity, firstLoadingUrl, params);
-                if (containerView.getWebManager() != null) {
-                    containerView.getWebManager().setNativeWebListener(OtplessViewImpl.this);
-                }
-            }
 
-            @Override
-            public void onError(Exception exception) {
-                if (wContainer.get() == null && wContainer.get().getWebView() == null) return;
-                final OtplessWebView webView = wContainer.get().getWebView();
-                final String loadingUrl = getFirstLoadingUrl("https://otpless.com/mobile/index.html", params);
-                webView.loadWebUrl(loadingUrl);
-            }
-        });
+                @Override
+                public void onError(Exception exception) {
+                    final OtplessContainerView containerView = wContainer.get();
+                    if (containerView == null || containerView.getWebView() == null) return;
+                    final String loadingUrl = getFirstLoadingUrl("https://otpless.com/mobile/index.html", extras);
+                    containerView.getWebView().loadWebUrl(loadingUrl);
+                    if (containerView.getWebManager() != null) {
+                        containerView.getWebManager().setNativeWebListener(OtplessViewImpl.this);
+                    }
+                }
+            });
+        } else if (uri == null) {
+            final OtplessContainerView containerView = wContainer.get();
+            if (containerView == null || containerView.getWebView() == null) return;
+            containerView.getWebView().loadWebUrl(baseUrl);
+        } else {
+            final OtplessContainerView containerView = wContainer.get();
+            if (containerView == null || containerView.getWebView() == null) return;
+            reloadToVerifyCode(containerView.getWebView(), uri, baseUrl);
+        }
     }
 
     private String getFirstLoadingUrl(final String url, final JSONObject extraParams) {
@@ -148,8 +162,9 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     }
 
     @Override
-    public void setCallback(OtplessUserDetailCallback callback) {
+    public void setCallback(final OtplessUserDetailCallback callback, final JSONObject extra) {
         this.detailCallback = callback;
+        this.extras = extra;
     }
 
     @Override
@@ -189,6 +204,11 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     }
 
     @Override
+    public JSONObject getExtraParams() {
+        return this.extras;
+    }
+
+    @Override
     public boolean onBackPressed() {
         if (wContainer.get() == null) return false;
         final NativeWebManager manager = wContainer.get().getWebManager();
@@ -204,14 +224,23 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     }
 
     @Override
-    public void verifyIntent(Intent intent) {
+    public boolean verifyIntent(Intent intent) {
         Uri uri = intent.getData();
-        if (uri == null) return;
-        // getting loaded url
-        if (wContainer.get() != null && wContainer.get().getWebView() != null) {
+        if (uri == null) return false;
+        if (!"otpless".equals(uri.getHost())) return false;
+        // check if web view is already loaded or not if webview is loaded then reload the url
+        final OtplessContainerView otplessContainerView = wContainer.get();
+        if (otplessContainerView != null && otplessContainerView.getWebView() != null) {
             final OtplessWebView webView = wContainer.get().getWebView();
-            reloadToVerifyCode(webView, uri, webView.getLoadedUrl());
+            final String loadedUrl = webView.getLoadedUrl();
+            loadWebView(loadedUrl, uri);
+        } else {
+            // add view if not added
+            Log.d(VIEW_TAG_NAME, "adding the view in low memory case.");
+            addViewIfNotAdded();
+            loadWebView(null, uri);
         }
+        return true;
     }
 
     private void addViewIfNotAdded() {
@@ -239,6 +268,10 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         containerView.setTag(VIEW_TAG_NAME);
         containerView.setId(View.generateViewId());
         containerView.setViewContract(this);
+        // adding listener to the data components from this class
+        if (containerView.getWebManager() != null) {
+            containerView.getWebManager().setNativeWebListener(OtplessViewImpl.this);
+        }
         parent.addView(containerView);
         wContainer = new WeakReference<>(containerView);
         // check for listener and add view

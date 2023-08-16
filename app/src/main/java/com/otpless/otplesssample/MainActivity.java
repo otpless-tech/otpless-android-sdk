@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.sign_in_complete).setOnClickListener(v -> {
             otplessView.onSignInCompleted();
         });
+        otplessView.verifyIntent(getIntent());
     }
 
     @Override

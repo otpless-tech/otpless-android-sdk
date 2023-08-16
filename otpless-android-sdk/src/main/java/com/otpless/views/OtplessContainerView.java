@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentActivity;
 
 import com.otpless.R;
 import com.otpless.main.OtplessManager;
@@ -32,13 +31,9 @@ public class OtplessContainerView extends FrameLayout implements WebActivityCont
 
     private FrameLayout parentVg;
     private ProgressBar progressBar;
-    private OtplessWebViewWrapper webViewWrapper;
     private OtplessWebView webView;
 
     private NativeWebManager webManager;
-
-    private FragmentActivity activity;
-    private JSONObject extra;
 
     private OtplessViewContract viewContract;
     private TextView networkTv;
@@ -72,7 +67,7 @@ public class OtplessContainerView extends FrameLayout implements WebActivityCont
         // assigning all the view
         parentVg = view.findViewById(R.id.otpless_parent_vg);
         progressBar = view.findViewById(R.id.otpless_progress_bar);
-        webViewWrapper = view.findViewById(R.id.otpless_web_wrapper);
+        OtplessWebViewWrapper webViewWrapper = view.findViewById(R.id.otpless_web_wrapper);
         networkTv = view.findViewById(R.id.otpless_no_internet_tv);
         webView = webViewWrapper.getWebView();
         if (webView == null) {
@@ -93,18 +88,8 @@ public class OtplessContainerView extends FrameLayout implements WebActivityCont
                 }
             });
         }
-    }
-
-    public void setCredentials(@NonNull final FragmentActivity activity, @NonNull final String loadingUrl, final JSONObject extra) {
-        this.activity = activity;
-        this.extra = extra;
-        if (this.webView != null) {
-            if (webManager == null) {
-                webManager = new NativeWebManager(this.activity, this.webView, this);
-                this.webView.attachNativeWebManager(webManager);
-            }
-            this.webView.loadWebUrl(loadingUrl);
-        }
+        webManager = new NativeWebManager((Activity) getContext(), this.webView, this);
+        this.webView.attachNativeWebManager(webManager);
     }
 
     public NativeWebManager getWebManager() {
@@ -122,7 +107,10 @@ public class OtplessContainerView extends FrameLayout implements WebActivityCont
 
     @Override
     public JSONObject getExtraParams() {
-        return this.extra;
+        if (this.viewContract != null) {
+            return this.viewContract.getExtraParams();
+        }
+        return null;
     }
 
     @Override

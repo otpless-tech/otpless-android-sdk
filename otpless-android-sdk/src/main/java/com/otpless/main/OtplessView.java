@@ -15,7 +15,7 @@ public interface OtplessView {
     void startOtpless(final JSONObject params, final OtplessUserDetailCallback callback);
 
     /// explicitly setting the callback
-    void setCallback(final OtplessUserDetailCallback callback);
+    void setCallback(final OtplessUserDetailCallback callback, final JSONObject extra);
 
     /// explicitly closing the view
     void closeView();
@@ -25,7 +25,7 @@ public interface OtplessView {
     boolean onBackPressed();
 
     /// intent to verify mainly from onNewIntent and also can be from onCreate
-    void verifyIntent(Intent intent);
+    boolean verifyIntent(Intent intent);
 
     /// to receive the events in apps
     void setEventCallback(final OtplessEventCallback callback);
