@@ -25,6 +25,7 @@ import com.otpless.web.NativeWebManager;
 import com.otpless.web.OtplessWebView;
 import com.otpless.web.OtplessWebViewWrapper;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class OtplessContainerView extends FrameLayout implements WebActivityContract {
@@ -71,12 +72,16 @@ public class OtplessContainerView extends FrameLayout implements WebActivityCont
         networkTv = view.findViewById(R.id.otpless_no_internet_tv);
         webView = webViewWrapper.getWebView();
         if (webView == null) {
-            // todo
+            final JSONObject errorJson = new JSONObject();
+            try {
+                errorJson.put("error", "Error in loading web. Please try again later.");
+            } catch (JSONException ignore) {
+            }
+            onVerificationResult(
+                    Activity.RESULT_CANCELED, errorJson
+            );
+            return;
         }
-        // adding close button call
-        view.findViewById(R.id.otpless_close_ib).setOnClickListener(v -> {
-            onVerificationResult(Activity.RESULT_CANCELED, null);
-        });
         final Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.otpless_slide_up_anim);
         parentVg.startAnimation(animation);
         if (OtplessManager.getInstance().isToShowPageLoader()) {

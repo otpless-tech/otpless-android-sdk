@@ -234,9 +234,11 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         if (manager.getBackSubscription()) {
             // back-press has been consumed
             webView.callWebJs("onHardBackPressed");
-            return true;
+        } else {
+            // remove the view
+            onVerificationResult(Activity.RESULT_CANCELED, null);
         }
-        return false;
+        return true;
     }
 
     @Override
