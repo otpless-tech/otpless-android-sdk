@@ -11,8 +11,8 @@ android {
 
         minSdkVersion 17
         targetSdkVersion 33
-        versionCode 211
-        versionName "2.1.1"
+        versionCode 212
+        versionName "2.1.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "OTPLESS_VERSION_NAME", "\"" + versionName + "\"")
@@ -52,4 +52,4 @@ afterEvaluate {
     }
 }
 
-apply from: './publish-otpless.gradle'
+//apply from: './publish-otpless.gradle'
