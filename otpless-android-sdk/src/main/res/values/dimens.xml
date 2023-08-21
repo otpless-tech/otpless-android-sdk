@@ -8,6 +8,4 @@
     <dimen name="otpless_whatsapp_dim">32dp</dimen>
     <dimen name="otpless_btn_top_margin">14dp</dimen>
 
-    <dimen name="otpless_view_status_bar_margin">24dp</dimen>
-    <dimen name="otpless_view_bottom_margin">48dp</dimen>
 </resources>

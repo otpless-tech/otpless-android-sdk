@@ -58,9 +58,6 @@ public class OtplessContainerView extends FrameLayout implements WebActivityCont
         // set the layout parameters
         LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         params.gravity = Gravity.CENTER;
-        final int topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.otpless_view_status_bar_margin);
-        final int bottomMargin = getContext().getResources().getDimensionPixelSize(R.dimen.otpless_view_bottom_margin);
-        params.setMargins(0, topMargin, 0, bottomMargin);
         setLayoutParams(params);
         // inflate the layout and add here
         final View view = LayoutInflater.from(getContext()).inflate(R.layout.otpless_content_view, this, false);

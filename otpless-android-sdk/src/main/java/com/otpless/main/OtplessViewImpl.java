@@ -7,7 +7,6 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -35,6 +34,8 @@ import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConnectionChangeListener, NativeWebListener {
 
@@ -56,6 +57,8 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     private static final int ButtonHeight = 40;
 
     private boolean isLoginPageEnabled = false;
+
+    private final Queue<ViewGroup> helpQueue = new PriorityQueue<>();
 
     OtplessViewImpl(final FragmentActivity activity) {
         this.activity = activity;
@@ -273,7 +276,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
             Utility.pushEvent("decorview_null");
             return;
         }
-        final ViewGroup parent = findParentView(decorView);
+        final ViewGroup parent = findParentView();
         if (parent == null) {
             Utility.pushEvent("parent_null");
             return;
@@ -305,7 +308,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         if (window == null) return;
         final View decorView = window.getDecorView();
         if (decorView == null) return;
-        final ViewGroup parent = findParentView(decorView);
+        final ViewGroup parent = findParentView();
         if (parent == null) return;
         // search and remove the view
         View container = parent.findViewWithTag(VIEW_TAG_NAME);
@@ -315,27 +318,35 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         }
     }
 
-    private ViewGroup findParentView(final View view) {
-        if (view == null) return null;
-        if (!(view instanceof ViewGroup)) return null;
-        ViewGroup resultView = (ViewGroup) view;
-        ViewGroup fallback = null;
-        do {
-            if (resultView.getId() == android.R.id.content) {
-                return resultView;
+    private ViewGroup findParentView() {
+        final Window window = activity.getWindow();
+        if (window == null) return null;
+        final View decorView = window.getDecorView();
+        if (!(decorView instanceof ViewGroup)) return null;
+        helpQueue.clear();
+        helpQueue.add((ViewGroup) decorView);
+        return findFrameLayout();
+    }
+
+    // using bfs to find the view from decor
+    private ViewGroup findFrameLayout() {
+        final ViewGroup group = helpQueue.poll();
+        if (group == null) return null;
+        final int childCount = group.getChildCount();
+        int index = 0;
+        while (index < childCount) {
+            final View v = group.getChildAt(index);
+            if (v.getId() == android.R.id.content) {
+                return (ViewGroup) (v);
             }
-            if (resultView instanceof FrameLayout) {
-                return resultView;
+            if (v instanceof FrameLayout) {
+                return (FrameLayout)(v);
+            } else if (v instanceof ViewGroup) {
+                helpQueue.add((ViewGroup) v);
             }
-            final ViewParent parent = resultView.getParent();
-            if (parent instanceof ViewGroup) {
-                resultView = (ViewGroup) parent;
-                fallback = resultView;
-            } else {
-                resultView = null;
-            }
-        } while (resultView != null);
-        return fallback;
+            index++;
+        }
+        return findFrameLayout();
     }
 
     private void reloadToVerifyCode(final OtplessWebView webView, @NonNull final Uri uri, @NonNull final String loadedUrl) {
