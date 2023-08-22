@@ -34,9 +34,9 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
     private static final String WHATSAPP_BUSINESS_PACKAGE = "com.whatsapp.w4b";
 
     private String otplessLink = null;
-    private TextView mTextView;
-    private int mTextSize = 20;
-    private int mCornerRadiusInDp = 12;
+    protected TextView mTextView;
+    protected int mTextSize = 20;
+    protected int mCornerRadiusInDp = 12;
 
     private OtplessUserDetailCallback mUserCallback;
 
@@ -55,7 +55,7 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
         init(attrs);
     }
 
-    private void init(AttributeSet attrs) {
+    protected void init(AttributeSet attrs) {
         // parsing otpless link attribute
         if (attrs != null) {
             TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.WhatsappLoginButton);
@@ -102,7 +102,7 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
         this.setOnClickListener(this);
     }
 
-    private int getIntFromAttr(final String str) throws IllegalArgumentException {
+    int getIntFromAttr(final String str) throws IllegalArgumentException {
         if (str == null) {
             throw new IllegalArgumentException("no value supplied");
         }
@@ -111,7 +111,7 @@ public class WhatsappLoginButton extends ConstraintLayout implements View.OnClic
         return (int) f;
     }
 
-    private void addInternalViews(final AttributeSet attr) {
+    protected void addInternalViews(final AttributeSet attr) {
         mTextView = new TextView(getContext(), attr);
         mTextView.setId(View.generateViewId());
         final String text = "Continue with WhatsApp";

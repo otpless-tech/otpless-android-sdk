@@ -1,7 +1,8 @@
 package com.otpless.utils;
 
+import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -11,6 +12,7 @@ import android.provider.Settings;
 import androidx.annotation.Nullable;
 
 import com.otpless.BuildConfig;
+import com.otpless.views.OtplessUserDetailCallback;
 
 import org.json.JSONObject;
 
@@ -106,5 +108,21 @@ public class Utility {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static void verifyIntent(final Activity activity, final Intent intent, final OtplessUserDetailCallback callback) {
+        UtilityImpl.verifyOtplessIntent(activity, intent, callback);
+    }
+
+    public static void showLoader(final Activity activity) {
+        UtilityImpl.addLoader(activity);
+    }
+
+    public static void hideLoader(final Activity activity) {
+        UtilityImpl.removeLoader(activity);
+    }
+
+    public static boolean onBackPressed(final Activity activity) {
+        return UtilityImpl.onBackPress(activity);
     }
 }

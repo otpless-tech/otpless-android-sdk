@@ -31,7 +31,7 @@
         app:layout_constraintStart_toStartOf="@+id/editTxt"
         app:layout_constraintEnd_toEndOf="@+id/editTxt"/>
 
-    <com.otpless.views.WhatsappLoginButton
+    <com.otpless.views.OtplessWhatsappButton
         android:id="@+id/whatsapp_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

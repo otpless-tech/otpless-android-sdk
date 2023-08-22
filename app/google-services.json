@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "517533558035",
+    "project_id": "otplesssdk",
+    "storage_bucket": "otplesssdk.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:517533558035:android:a3819dd8b044b7d54e66e6",
+        "android_client_info": {
+          "package_name": "com.anubhav.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "517533558035-g5n1r95rm1u0g66igbo9i3acvhjuibau.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anubhav.app",
+            "certificate_hash": "03151d8f194d0f74f5baafc6968fa2962ad4b181"
+          }
+        },
+        {
+          "client_id": "517533558035-oqeboe79m3ksd85qric57da172olavhb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0VW7pMRNJ5bC3QQ5JcjZs3152BG1jE2I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "517533558035-oqeboe79m3ksd85qric57da172olavhb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -3,12 +3,17 @@ package com.otpless.views;
 import static com.otpless.utils.Utility.getSchemeHost;
 import static com.otpless.utils.Utility.isNotEmpty;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import com.otpless.network.ApiManager;
 import com.otpless.utils.SchemeHostMetaInfo;
@@ -19,6 +24,10 @@ public class OtplessManager {
     private static OtplessManager sInstance = null;
     private static final String URL_PATTERN = "https://%s.authlink.me";
     public String redirectUrl = "";
+
+    public static OtplessUserDetailCallback initCallback = null;
+
+    private static String sRedirectionUri = null;
 
     public static OtplessManager getInstance() {
         if (sInstance == null) {
@@ -43,7 +52,7 @@ public class OtplessManager {
         this.mOtpImpl.add(activity);
     }
 
-    private void setUrlRedirectURI(FragmentActivity activity) {
+    private void setUrlRedirectURI(Activity activity) {
         if (Utility.isValid(redirectUrl, ApiManager.getInstance().baseUrl)) {
             return;
         }
@@ -119,5 +128,51 @@ public class OtplessManager {
         result[4] = pref.getString("cancel_btn_text", null);
         result[5] = pref.getString("cancel_btn_color", null);
         return result;
+    }
+
+    public static void openOtpless(@NonNull final Activity activity, Uri apiUri) {
+        ApiManager.getInstance().baseUrl = apiUri.toString();
+        final Uri.Builder builder = apiUri.buildUpon();
+        builder.appendQueryParameter("redirectUri", getRedirectUri(activity));
+        final String newUrl = Utility.getUrlWithDeviceParams(activity, builder.build().toString());
+        final Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(newUrl));
+        activity.startActivity(webIntent);
+        Utility.showLoader(activity);
+    }
+
+    public static void verify(@NonNull final Activity activity, final Intent intent, final OtplessUserDetailCallback callback) {
+        OtplessUserDetailCallback cb;
+        if (callback != null) {
+            cb = callback;
+        } else {
+            cb = initCallback;
+        }
+        Utility.verifyIntent(activity, intent, cb);
+    }
+
+    public static void setRedirectUrl(@NonNull final String redirectStr) {
+        sRedirectionUri = redirectStr;
+    }
+
+    public static void registerCallback(final FragmentActivity activity, @NonNull OtplessUserDetailCallback callback) {
+        initCallback = callback;
+        activity.getLifecycle().addObserver(new LifecycleObserver() {
+            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            public void onDestroyed() {
+               initCallback = null;
+            }
+        });
+    }
+
+    private static String getRedirectUri(Activity activity) {
+        if (sRedirectionUri != null) {
+            return sRedirectionUri;
+        }
+        final String packageName = activity.getApplicationContext().getPackageName();
+        return String.format("%s.otpless://otpless", packageName);
+    }
+
+    public static boolean onBackPressed(final Activity activity) {
+        return Utility.onBackPressed(activity);
     }
 }
