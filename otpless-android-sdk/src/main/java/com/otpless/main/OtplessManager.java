@@ -1,6 +1,6 @@
 package com.otpless.main;
 
-import androidx.fragment.app.FragmentActivity;
+import android.app.Activity;
 
 public class OtplessManager {
 
@@ -19,7 +19,7 @@ public class OtplessManager {
         return sInstance;
     }
 
-    public OtplessView getOtplessView(final FragmentActivity activity) {
+    public OtplessView getOtplessView(final Activity activity) {
         return new OtplessViewImpl(activity);
     }
 

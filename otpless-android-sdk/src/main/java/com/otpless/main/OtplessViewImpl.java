@@ -12,7 +12,6 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentActivity;
 
 import com.otpless.R;
 import com.otpless.dto.OtplessResponse;
@@ -41,7 +40,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
 
     private static final String VIEW_TAG_NAME = "OtplessView";
 
-    private final FragmentActivity activity;
+    private final Activity activity;
     private JSONObject extras;
 
     private WeakReference<OtplessContainerView> wContainer = new WeakReference<>(null);
@@ -60,7 +59,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
 
     private final Queue<ViewGroup> helpQueue = new PriorityQueue<>();
 
-    OtplessViewImpl(final FragmentActivity activity) {
+    OtplessViewImpl(final Activity activity) {
         this.activity = activity;
     }
 
