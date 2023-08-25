@@ -515,14 +515,14 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
 
     @Override
     public void showOtplessLoginPage(JSONObject extra, OtplessUserDetailCallback callback) {
-        this.isLoginPageEnabled = true;
+        this.setCallback(callback, extra, true);
         addViewIfNotAdded();
         loadWebView(null, null);
     }
 
     @Override
     public void showOtplessLoginPage(OtplessUserDetailCallback callback) {
-        this.isLoginPageEnabled = true;
+        this.setCallback(callback, null, true);
         addViewIfNotAdded();
         loadWebView(null, null);
     }
