@@ -315,6 +315,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         if (container != null) {
             parent.removeView(container);
             OtplessNetworkManager.getInstance().removeListener(activity, this);
+            wContainer.clear();
         }
     }
 
@@ -524,6 +525,13 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     @Override
     public void showOtplessLoginPage(OtplessUserDetailCallback callback) {
         this.setCallback(callback, null, true);
+        addViewIfNotAdded();
+        loadWebView(null, null);
+    }
+
+    @Override
+    public void showOtplessLoginPage() {
+        this.isLoginPageEnabled = true;
         addViewIfNotAdded();
         loadWebView(null, null);
     }

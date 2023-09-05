@@ -47,7 +47,12 @@ public interface OtplessView {
     /// to change the text of sign in fab button
     void setFabText(final String text);
 
+    /// to show otpless login page with extra and callback
     void showOtplessLoginPage(final JSONObject extra, OtplessUserDetailCallback callback);
 
+    /// to show otpless login page with callback
     void showOtplessLoginPage(OtplessUserDetailCallback callback);
+
+    // to show otpless login page if callback is already set
+    void showOtplessLoginPage();
 }

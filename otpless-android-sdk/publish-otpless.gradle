@@ -44,8 +44,7 @@ signing {
 }
 
 group = "io.github.otpless-tech"
-archivesBaseName = PUBLISH_ARTIFACT_ID
-version = "2.1.5"
+version = "2.1.6"
 
 uploadArchives {
     repositories {
