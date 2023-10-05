@@ -14,6 +14,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 
 import com.otpless.R;
+import com.otpless.dto.OtplessRequest;
 import com.otpless.dto.OtplessResponse;
 import com.otpless.network.ApiCallback;
 import com.otpless.network.ApiManager;
@@ -72,12 +73,33 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     }
 
     @Override
+    public void startOtpless(final OtplessRequest request) {
+        if (request != null) {
+            this.startOtpless(request.toJsonObj());
+        } else {
+            this.startOtpless();
+        }
+    }
+
+    @Override
     public void startOtpless(JSONObject params, OtplessUserDetailCallback callback) {
         this.detailCallback = callback;
         this.extras = params;
         this.isLoginPageEnabled = false;
         addViewIfNotAdded();
         loadWebView(null, null);
+    }
+
+    @Override
+    public void startOtpless(final OtplessRequest request, final OtplessUserDetailCallback callback) {
+        if (request != null) {
+            this.startOtpless(request.toJsonObj(), callback);
+        } else {
+            this.detailCallback = callback;
+            this.isLoginPageEnabled = false;
+            this.startOtpless();
+        }
+
     }
 
     @Override
@@ -182,6 +204,21 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         this.detailCallback = callback;
         this.extras = extra;
         this.isLoginPageEnabled = isLoginPage;
+    }
+
+    @Override
+    public void setCallback(final OtplessRequest request, final OtplessUserDetailCallback callback) {
+        this.setCallback(request, callback, false);
+    }
+
+    @Override
+    public void setCallback(final OtplessRequest request, final OtplessUserDetailCallback callback ,final boolean isLoginPage) {
+        if (request != null) {
+            this.setCallback(callback, request.toJsonObj(), isLoginPage);
+        } else {
+            this.detailCallback = callback;
+            this.isLoginPageEnabled = isLoginPage;
+        }
     }
 
     @Override
@@ -527,6 +564,15 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         this.setCallback(callback, null, true);
         addViewIfNotAdded();
         loadWebView(null, null);
+    }
+
+    @Override
+    public void showOtplessLoginPage(final OtplessRequest request, OtplessUserDetailCallback callback) {
+        JSONObject extra = null;
+        if (request != null) {
+            extra = request.toJsonObj();
+        }
+        this.showOtplessLoginPage(extra, callback);
     }
 
     @Override

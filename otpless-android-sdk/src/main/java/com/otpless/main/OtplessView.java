@@ -2,6 +2,7 @@ package com.otpless.main;
 
 import android.content.Intent;
 
+import com.otpless.dto.OtplessRequest;
 import com.otpless.views.FabButtonAlignment;
 import com.otpless.views.OtplessUserDetailCallback;
 
@@ -11,8 +12,12 @@ public interface OtplessView {
     /// methods to start otpless
     void startOtpless(final JSONObject params);
 
+    void startOtpless(final OtplessRequest request);
+
     /// method to start otpless with with json parameters
     void startOtpless(final JSONObject params, final OtplessUserDetailCallback callback);
+
+    void startOtpless(final OtplessRequest request, final OtplessUserDetailCallback callback);
 
     /// methods to start otpless
     void startOtpless();
@@ -21,6 +26,10 @@ public interface OtplessView {
     void setCallback(final OtplessUserDetailCallback callback, final JSONObject extra);
 
     void setCallback(final OtplessUserDetailCallback callback, final JSONObject extra, final boolean isLoginPage);
+
+    void setCallback(final OtplessRequest request, final OtplessUserDetailCallback callback);
+
+    void setCallback(final OtplessRequest request, final OtplessUserDetailCallback callback, final boolean isLoginPage);
 
     /// explicitly closing the view
     void closeView();
@@ -49,6 +58,8 @@ public interface OtplessView {
 
     /// to show otpless login page with extra and callback
     void showOtplessLoginPage(final JSONObject extra, OtplessUserDetailCallback callback);
+
+    void showOtplessLoginPage(final OtplessRequest request, OtplessUserDetailCallback callback);
 
     /// to show otpless login page with callback
     void showOtplessLoginPage(OtplessUserDetailCallback callback);
