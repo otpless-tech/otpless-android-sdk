@@ -91,7 +91,6 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     public void startOtpless(@NonNull final OtplessRequest request, final OtplessUserDetailCallback callback) {
         this.extras = request.toJsonObj();
         this.detailCallback = callback;
-        this.isLoginPageEnabled = false;
         this.startOtpless();
     }
 
