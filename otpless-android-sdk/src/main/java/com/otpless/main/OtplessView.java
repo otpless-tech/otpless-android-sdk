@@ -10,11 +10,13 @@ import org.json.JSONObject;
 
 public interface OtplessView {
     /// methods to start otpless
+    @Deprecated
     void startOtpless(final JSONObject params);
 
     void startOtpless(final OtplessRequest request);
 
     /// method to start otpless with with json parameters
+    @Deprecated
     void startOtpless(final JSONObject params, final OtplessUserDetailCallback callback);
 
     void startOtpless(final OtplessRequest request, final OtplessUserDetailCallback callback);
@@ -23,6 +25,7 @@ public interface OtplessView {
     void startOtpless();
 
     /// explicitly setting the callback
+    @Deprecated
     void setCallback(final OtplessUserDetailCallback callback, final JSONObject extra);
 
     void setCallback(final OtplessUserDetailCallback callback, final JSONObject extra, final boolean isLoginPage);
