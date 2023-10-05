@@ -73,12 +73,9 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     }
 
     @Override
-    public void startOtpless(final OtplessRequest request) {
-        if (request != null) {
-            this.startOtpless(request.toJsonObj());
-        } else {
-            this.startOtpless();
-        }
+    public void startOtpless(OtplessUserDetailCallback callback) {
+        this.detailCallback = callback;
+        this.startOtpless();
     }
 
     @Override
@@ -91,15 +88,11 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     }
 
     @Override
-    public void startOtpless(final OtplessRequest request, final OtplessUserDetailCallback callback) {
-        if (request != null) {
-            this.startOtpless(request.toJsonObj(), callback);
-        } else {
-            this.detailCallback = callback;
-            this.isLoginPageEnabled = false;
-            this.startOtpless();
-        }
-
+    public void startOtpless(@NonNull final OtplessRequest request, final OtplessUserDetailCallback callback) {
+        this.extras = request.toJsonObj();
+        this.detailCallback = callback;
+        this.isLoginPageEnabled = false;
+        this.startOtpless();
     }
 
     @Override
@@ -207,18 +200,15 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     }
 
     @Override
-    public void setCallback(final OtplessRequest request, final OtplessUserDetailCallback callback) {
-        this.setCallback(request, callback, false);
+    public void setCallback(final OtplessUserDetailCallback callback, final boolean isLoginPage) {
+        this.setCallback(callback, null, isLoginPage);
     }
 
     @Override
-    public void setCallback(final OtplessRequest request, final OtplessUserDetailCallback callback ,final boolean isLoginPage) {
-        if (request != null) {
-            this.setCallback(callback, request.toJsonObj(), isLoginPage);
-        } else {
-            this.detailCallback = callback;
-            this.isLoginPageEnabled = isLoginPage;
-        }
+    public void setCallback(@NonNull final OtplessRequest request, final OtplessUserDetailCallback callback ,final boolean isLoginPage) {
+        this.extras = request.toJsonObj();
+        this.detailCallback = callback;
+        this.isLoginPageEnabled = isLoginPage;
     }
 
     @Override
@@ -567,12 +557,12 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     }
 
     @Override
-    public void showOtplessLoginPage(final OtplessRequest request, OtplessUserDetailCallback callback) {
-        JSONObject extra = null;
-        if (request != null) {
-            extra = request.toJsonObj();
-        }
-        this.showOtplessLoginPage(extra, callback);
+    public void showOtplessLoginPage(@NonNull final OtplessRequest request, OtplessUserDetailCallback callback) {
+        this.isLoginPageEnabled = true;
+        this.detailCallback = callback;
+        this.extras = request.toJsonObj();
+        addViewIfNotAdded();
+        loadWebView(null, null);
     }
 
     @Override
