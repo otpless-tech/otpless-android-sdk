@@ -33,7 +33,7 @@ import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
-import java.util.PriorityQueue;
+import java.util.LinkedList;
 import java.util.Queue;
 
 final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConnectionChangeListener, NativeWebListener {
@@ -57,7 +57,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
 
     private boolean isLoginPageEnabled = false;
 
-    private final Queue<ViewGroup> helpQueue = new PriorityQueue<>();
+    private final Queue<ViewGroup> helpQueue = new LinkedList<>();
 
     OtplessViewImpl(final Activity activity) {
         this.activity = activity;

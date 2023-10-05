@@ -11,8 +11,8 @@ android {
 
         minSdkVersion 17
         targetSdkVersion 33
-        versionCode 216
-        versionName "2.1.6"
+        versionCode 217
+        versionName "2.1.7"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "OTPLESS_VERSION_NAME", "\"" + versionName + "\"")
