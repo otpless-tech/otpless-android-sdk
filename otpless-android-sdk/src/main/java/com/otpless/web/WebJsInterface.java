@@ -132,6 +132,9 @@ public class WebJsInterface {
                     if (eventData == null) return;
                     this.mListener.pushEvent(eventData);
                     break;
+                case 17:
+                    this.mListener.networkConnectionType();
+                    break;
             }
         } catch (JSONException e) {
             e.printStackTrace();

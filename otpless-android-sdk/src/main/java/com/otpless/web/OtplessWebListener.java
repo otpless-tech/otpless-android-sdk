@@ -2,6 +2,7 @@ package com.otpless.web;
 
 import androidx.annotation.NonNull;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public interface OtplessWebListener extends WebLoaderCallback {
@@ -29,4 +30,7 @@ public interface OtplessWebListener extends WebLoaderCallback {
 
     //key 15
     void pushEvent(final JSONObject eventData);
+
+    //key 17
+    void networkConnectionType() throws JSONException;
 }

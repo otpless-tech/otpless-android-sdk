@@ -21,6 +21,8 @@ import com.otpless.main.OtplessEventData;
 import com.otpless.main.WebActivityContract;
 import com.otpless.network.ApiCallback;
 import com.otpless.network.ApiManager;
+import com.otpless.network.NetworkStatusData;
+import com.otpless.network.OtplessNetworkManager;
 import com.otpless.utils.Utility;
 
 import org.json.JSONException;
@@ -240,5 +242,35 @@ public class NativeWebManager implements OtplessWebListener {
 
     public void setNativeWebListener(NativeWebListener nativeWebListener) {
         this.nativeWebListener = nativeWebListener;
+    }
+
+    // key 17 network connection type
+    @Override
+    public void networkConnectionType() {
+        try {
+            final JSONObject data = getNetworkTypeDataInJson();
+            mWebView.callWebJs("onNetworkConnectionTypeCallback", data.toString());
+        } catch (JSONException e) {
+            final JSONObject event = new JSONObject();
+            try {
+                event.put("error", "query_network_type");
+                event.put("message", e.getMessage());
+            } catch (JSONException ignore) {
+            }
+            pushEvent(event);
+        }
+    }
+
+    private JSONObject getNetworkTypeDataInJson() throws JSONException {
+        final NetworkStatusData data = OtplessNetworkManager.getInstance().getNetworkStatus();
+        final JSONObject result = new JSONObject();
+        if (data.isCellular()) {
+            result.put("type", "cellular");
+        } else if (data.isWifi()) {
+            result.put("type", "wifi");
+        } else {
+            result.put("type", "none");
+        }
+        return result;
     }
 }
