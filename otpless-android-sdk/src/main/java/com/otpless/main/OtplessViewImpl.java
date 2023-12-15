@@ -61,7 +61,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     private static final int ButtonHeight = 40;
 
     private boolean isLoginPageEnabled = false;
-    private boolean backSubscription = true;
+    private boolean backSubscription = false;
     private boolean isLoaderVisible = true;
     private boolean isRetryVisible = true;
 
@@ -115,50 +115,18 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     }
 
     private void loadWebView(final String baseUrl, Uri uri) {
+        final OtplessContainerView containerView = wContainer.get();
+        if (containerView == null || containerView.getWebView() == null) return;
         if (baseUrl == null) {
-            ApiManager.getInstance().apiConfig(new ApiCallback<JSONObject>() {
-                @Override
-                public void onSuccess(JSONObject data) {
-                    // check for fab button text
-                    final String fabText = data.optString("button_text");
-                    if (!fabText.isEmpty()) {
-                        mFabText = fabText;
-                    }
-                    // check for url
-                    final String url = data.optString("auth");
-                    final OtplessContainerView containerView = wContainer.get();
-                    if (containerView == null || containerView.getWebView() == null) return;
-                    String firstLoadingUrl;
-                    if (!url.isEmpty()) {
-                        firstLoadingUrl = getFirstLoadingUrl(url, extras);
-                    } else {
-                        firstLoadingUrl = getFirstLoadingUrl("https://otpless.com/mobile/index.html", extras);
-                    }
-                    if (uri == null) {
-                        containerView.getWebView().loadWebUrl(firstLoadingUrl);
-                    } else {
-                        reloadToVerifyCode(containerView.getWebView(), uri, firstLoadingUrl);
-                    }
-                }
-
-                @Override
-                public void onError(Exception exception) {
-                    final OtplessContainerView containerView = wContainer.get();
-                    if (containerView == null || containerView.getWebView() == null) return;
-                    final String loadingUrl = getFirstLoadingUrl("https://otpless.com/mobile/index.html", extras);
-                    containerView.getWebView().loadWebUrl(loadingUrl);
-                    if (containerView.getWebManager() != null) {
-                        containerView.getWebManager().setNativeWebListener(OtplessViewImpl.this);
-                    }
-                }
-            });
+            String firstLoadingUrl = getFirstLoadingUrl("https://otpless.com/mobile/index.html", extras);
+            if (uri == null) {
+                containerView.getWebView().loadWebUrl(firstLoadingUrl);
+            } else {
+                reloadToVerifyCode(containerView.getWebView(), uri, firstLoadingUrl);
+            }
         } else if (uri == null) {
-            final OtplessContainerView containerView = wContainer.get();
-            if (containerView == null || containerView.getWebView() == null) return;
             containerView.getWebView().loadWebUrl(baseUrl);
         } else {
-            final OtplessContainerView containerView = wContainer.get();
-            if (containerView == null || containerView.getWebView() == null) return;
             reloadToVerifyCode(containerView.getWebView(), uri, baseUrl);
         }
     }
@@ -453,14 +421,6 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
 
     @Override
     public void onConnectionChange(NetworkStatusData statusData) {
-        final OtplessContainerView containerView = wContainer.get();
-        if (containerView == null) return;
-        activity.runOnUiThread(() -> {
-            // send the event call
-            if (!statusData.isEnabled() && this.eventCallback != null) {
-                this.eventCallback.onInternetError();
-            }
-        });
     }
 
     @Override

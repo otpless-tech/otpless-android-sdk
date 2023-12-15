@@ -12,8 +12,6 @@ import java.util.HashSet;
 public class OtplessManager {
 
     private static OtplessManager sInstance = null;
-    private boolean mHasPageLoaderEnabled = true;
-
     private final ActivityLifeManager lifeManager = new ActivityLifeManager();
     private final HashSet<OtplessViewImpl> providedViewSet = new HashSet<>();
 
@@ -54,14 +52,6 @@ public class OtplessManager {
         providedViewSet.add(view);
         view.viewRemovalNotifier = this.viewRemovalNotifier;
         return view;
-    }
-
-    public void setPageLoaderVisible(final boolean isVisible) {
-        this.mHasPageLoaderEnabled = isVisible;
-    }
-
-    public boolean isToShowPageLoader() {
-        return this.mHasPageLoaderEnabled;
     }
 
     public void disableViewScrapping() {

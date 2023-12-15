@@ -101,9 +101,6 @@ public class NativeWebManager implements OtplessWebListener {
             if (!deeplinkUrl.getScheme().equals("https")) {
                 data.put("channel", channel);
             }
-            if (nativeWebListener != null) {
-                nativeWebListener.onOtplessEvent(new OtplessEventData(OtplessEventCode.BUTTON_CLICK, data));
-            }
             //endregion
         } catch (Exception exception) {
             exception.printStackTrace();
@@ -289,5 +286,9 @@ public class NativeWebManager implements OtplessWebListener {
         } else {
             mWebView.callWebJs("onPhoneNumberSelectionError", data.getSecond());
         }
+    }
+
+    public NativeWebListener getNativeWebListener() {
+        return nativeWebListener;
     }
 }

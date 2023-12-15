@@ -33,11 +33,59 @@
 
     </FrameLayout>
 
-    <com.otpless.views.OtplessLoaderView
-        android:id="@+id/otpless_loader_view"
+    <FrameLayout
+        android:id="@+id/otpless_loader_container_fl"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:background="@color/semi_transparent_gray"/>
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/otpless_close_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            android:paddingHorizontal="8dp"
+            android:text="@string/otpless_close"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:visibility="gone" />
+
+        <ProgressBar
+            android:id="@+id/otpless_progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/otpless_default_loader"
+            android:visibility="visible" />
+
+        <TextView
+            android:id="@+id/otpless_info_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginBottom="150dp"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:visibility="gone"
+            tools:text="Connection error: The Internet connection appears to be offline." />
+
+        <Button
+            android:id="@+id/otpless_retry_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:layout_marginBottom="80dp"
+            android:backgroundTint="@color/otpless_primary"
+            android:text="@string/otpless_retry"
+            android:textColor="@color/black"
+            android:visibility="gone" />
+    </FrameLayout>
 
 </FrameLayout>

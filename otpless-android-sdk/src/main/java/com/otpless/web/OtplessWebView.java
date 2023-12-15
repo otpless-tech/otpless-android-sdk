@@ -94,7 +94,8 @@ public class OtplessWebView extends WebView {
     public void loadWebUrl(String url) {
         if (url == null) return;
         mLoadingUrl = url;
-        changeLoadingStatus(LoadingStatus.InProgress, null);
+        changeLoadingStatus(LoadingStatus.InProgress);
+        clearCache(true);
         loadUrl(url);
     }
 
@@ -141,7 +142,7 @@ public class OtplessWebView extends WebView {
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             super.onPageStarted(view, url, favicon);
             if ("about:blank".equals(url)) return;
-            changeLoadingStatus(LoadingStatus.Started, null);
+            changeLoadingStatus(LoadingStatus.Started);
         }
 
         @Override
@@ -149,7 +150,7 @@ public class OtplessWebView extends WebView {
             super.onPageFinished(view, url);
             if ("about:blank".equals(url)) return;
             if (mLoadingState != LoadingStatus.Failed) {
-                changeLoadingStatus(LoadingStatus.Success, null);
+                changeLoadingStatus(LoadingStatus.Success);
                 injectJavaScript();
             } else { // failed case
                 loadUrl("about:blank");
@@ -169,19 +170,33 @@ public class OtplessWebView extends WebView {
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
             super.onReceivedError(view, errorCode, description, failingUrl);
             if (failingUrl != null && failingUrl.equals(mLoadingUrl)) {
-                final String errorMessage = "Connection error: " + description;
-                changeLoadingStatus(LoadingStatus.Failed, errorMessage);
+                String errorMessage;
+                switch (errorCode) {
+                    case WebViewClient.ERROR_HOST_LOOKUP:
+                        errorMessage = "Connection error: " + "No Internet";
+                        break;
+                    case WebViewClient.ERROR_TIMEOUT:
+                        errorMessage = "Connection error: " + "Taking too long to connect";
+                        break;
+                    default:
+                        errorMessage = "Connection error";
+                }
+                changeLoadingStatus(LoadingStatus.Failed, errorMessage, errorCode, description);
             }
         }
     }
 
-    private void changeLoadingStatus(LoadingStatus loadingStatus, String message) {
+    private void changeLoadingStatus(LoadingStatus loadingStatus, String message, int errorCode, String description) {
         this.mLoadingState = loadingStatus;
         if (this.pageLoadStatusCallback != null) {
             this.pageLoadStatusCallback.onPageStatusChange(
-                    new LoadingStatusData(loadingStatus, message)
+                    new LoadingStatusData(loadingStatus, message, errorCode, description)
             );
         }
+    }
+
+    private void changeLoadingStatus(LoadingStatus loadingStatus) {
+        this.changeLoadingStatus(loadingStatus, null, 0, null);
     }
 }
 
