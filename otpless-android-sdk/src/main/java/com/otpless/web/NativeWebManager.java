@@ -16,6 +16,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
+import com.google.android.gms.auth.api.identity.Identity;
 import com.otpless.BuildConfig;
 import com.otpless.dto.Triple;
 import com.otpless.dto.Tuple;
@@ -273,11 +275,31 @@ public class NativeWebManager implements OtplessWebListener {
     @Override
     public void phoneNumberSelection() {
         mActivity.runOnUiThread(() -> {
-            final Tuple<Boolean, IntentSender.SendIntentException> result = Utility.openPhoneNumberSelection(mActivity);
-            if (!result.getFirst()) {
-                mWebView.callWebJs("onPhoneNumberSelectionError", result.getSecond().getMessage());
+            if (nativeWebListener != null && nativeWebListener.getPhoneNumberHintLauncher() != null) {
+                final GetPhoneNumberHintIntentRequest request = GetPhoneNumberHintIntentRequest.builder().build();
+                Identity.getSignInClient(this.mActivity)
+                        .getPhoneNumberHintIntent(request)
+                        .addOnSuccessListener(result -> {
+                            try {
+                                nativeWebListener.getPhoneNumberHintLauncher().launch(result.getIntentSender());
+                            } catch (Exception e) {
+                                fallbackPhoneNumberSelection();
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            fallbackPhoneNumberSelection();
+                        });
+                return;
             }
+            fallbackPhoneNumberSelection();
         });
+    }
+
+    private void fallbackPhoneNumberSelection() {
+        final Tuple<Boolean, IntentSender.SendIntentException> result = Utility.openPhoneNumberSelection(mActivity);
+        if (!result.getFirst()) {
+            mWebView.callWebJs("onPhoneNumberSelectionError", result.getSecond().getMessage());
+        }
     }
 
     public void onPhoneNumberSelectionResult(final Tuple<String, Exception> data) {

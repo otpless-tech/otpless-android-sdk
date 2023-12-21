@@ -142,7 +142,7 @@ public class WebJsInterface {
                     }
                     this.mListener.otpAutoRead(otpRead);
                     break;
-                case 17:
+                case 18:
                     this.mListener.phoneNumberSelection();
                     break;
             }

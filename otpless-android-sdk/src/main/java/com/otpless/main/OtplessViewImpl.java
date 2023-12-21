@@ -2,6 +2,7 @@ package com.otpless.main;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.util.Log;
@@ -12,15 +13,18 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
+import androidx.activity.ComponentActivity;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
+import com.google.android.gms.auth.api.identity.Identity;
 import com.otpless.R;
 import com.otpless.dto.OtplessRequest;
 import com.otpless.dto.OtplessResponse;
 import com.otpless.dto.Triple;
 import com.otpless.dto.Tuple;
-import com.otpless.network.ApiCallback;
-import com.otpless.network.ApiManager;
 import com.otpless.network.NetworkStatusData;
 import com.otpless.network.OnConnectionChangeListener;
 import com.otpless.network.OtplessNetworkManager;
@@ -69,8 +73,33 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
 
     OtplessViewRemovalNotifier viewRemovalNotifier = null;
 
+    private ActivityResultLauncher phoneNumberHintIntentResultLauncher = null;
+
     OtplessViewImpl(final Activity activity) {
         this.activity = activity;
+        // try and register phone number intent launcher
+        if (activity instanceof ComponentActivity) {
+            try {
+                phoneNumberHintIntentResultLauncher =
+                        ((ComponentActivity) activity).registerForActivityResult(
+                                new ActivityResultContracts.StartActivityForResult(), result -> {
+                                    if (wContainer.get() != null && wContainer.get().getWebManager() != null) {
+                                        final NativeWebManager manager = wContainer.get().getWebManager();
+                                        try {
+                                            String phoneNumber = Identity.getSignInClient(activity).getPhoneNumberFromIntent(result.getData());
+                                            manager.onPhoneNumberSelectionResult(
+                                                    new Tuple<>(phoneNumber, null)
+                                            );
+                                        } catch (Exception exception) {
+                                            manager.onPhoneNumberSelectionResult(
+                                                    new Tuple<>(null, exception)
+                                            );
+                                        }
+                                    }
+                                });
+            } catch (Throwable ignore) {
+            }
+        }
     }
 
     Activity getActivity() {
@@ -437,6 +466,11 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     public void onOtplessEvent(OtplessEventData event) {
         if (this.eventCallback == null) return;
         this.eventCallback.onOtplessEvent(event);
+    }
+
+    @Override
+    public @Nullable ActivityResultLauncher getPhoneNumberHintLauncher() {
+        return this.phoneNumberHintIntentResultLauncher;
     }
 
     @Override
