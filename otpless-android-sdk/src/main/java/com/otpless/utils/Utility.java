@@ -1,28 +1,19 @@
 package com.otpless.utils;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.content.pm.SigningInfo;
 import android.net.Uri;
 import android.os.Build;
-import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
 
-import com.google.android.gms.auth.api.credentials.Credential;
-import com.google.android.gms.auth.api.credentials.Credentials;
-import com.google.android.gms.auth.api.credentials.CredentialsClient;
-import com.google.android.gms.auth.api.credentials.CredentialsOptions;
-import com.google.android.gms.auth.api.credentials.HintRequest;
 import com.otpless.BuildConfig;
 import com.otpless.dto.Triple;
 import com.otpless.dto.Tuple;
@@ -65,7 +56,6 @@ public class Utility {
             new Tuple<>("Signal", SIGNAL_PACKAGE_NAME),
             new Tuple<>("Botim", BOTIM_PACKAGE_NAME)
     );
-    public static final int PHONE_SELECTION_REQUEST_CODE = 99876;
 
     public static void addContextInfo(final Context context) {
         final Context applicationContext = context.getApplicationContext();
@@ -255,33 +245,6 @@ public class Utility {
                 .build();
 
         tabIntent.launchUrl(activity, uri);
-    }
-
-    public static Tuple<Boolean, IntentSender.SendIntentException> openPhoneNumberSelection(final Activity activity) {
-        final HintRequest request = new HintRequest.Builder()
-                .setPhoneNumberIdentifierSupported(true)
-                .build();
-        final CredentialsOptions options = new CredentialsOptions.Builder()
-                .forceEnableSaveDialog()
-                .build();
-        final CredentialsClient client = Credentials.getClient(activity, options);
-        final PendingIntent intent = client.getHintPickerIntent(request);
-        try {
-            activity.startIntentSenderForResult(intent.getIntentSender(), PHONE_SELECTION_REQUEST_CODE, null, 0, 0, 0);
-            return new Tuple<>(true, null);
-        } catch (IntentSender.SendIntentException exception) {
-            return new Tuple<>(false, exception);
-        }
-    }
-
-    public static Tuple<String, Exception> parsePhoneNumberSelectionIntent(@NonNull final Intent intent) {
-        final Object obj = intent.getParcelableExtra(Credential.EXTRA_KEY);
-        if (obj instanceof Credential) {
-            final Credential credential = (Credential) obj;
-            final String phoneNumber = credential.getId();
-            return new Tuple<>(phoneNumber, null);
-        }
-        return new Tuple<>(null, new Exception("Parsing Error: No credential data provided in intent"));
     }
 
     public static List<Triple<String, String, Boolean>> getMessagingInstalledAppStatus(@NonNull final PackageManager packageManager) {

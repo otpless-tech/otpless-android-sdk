@@ -66,6 +66,17 @@ public class OtplessManager {
         }
 
         @Override
+        public void onActivityPostCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
+            Application.ActivityLifecycleCallbacks.super.onActivityPostCreated(activity, savedInstanceState);
+            for (OtplessViewImpl view : providedViewSet) {
+                if (view.getActivity() == activity) {
+                    view.registerPhoneHintForResult();
+                    break;
+                }
+            }
+        }
+
+        @Override
         public void onActivityStarted(@NonNull Activity activity) {
 
         }

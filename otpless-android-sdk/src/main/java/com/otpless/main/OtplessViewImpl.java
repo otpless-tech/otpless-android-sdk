@@ -2,7 +2,6 @@ package com.otpless.main;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.util.Log;
@@ -15,6 +14,7 @@ import android.widget.FrameLayout;
 
 import androidx.activity.ComponentActivity;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -73,33 +73,10 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
 
     OtplessViewRemovalNotifier viewRemovalNotifier = null;
 
-    private ActivityResultLauncher phoneNumberHintIntentResultLauncher = null;
+    private ActivityResultLauncher<IntentSenderRequest> phoneNumberHintIntentResultLauncher = null;
 
     OtplessViewImpl(final Activity activity) {
         this.activity = activity;
-        // try and register phone number intent launcher
-        if (activity instanceof ComponentActivity) {
-            try {
-                phoneNumberHintIntentResultLauncher =
-                        ((ComponentActivity) activity).registerForActivityResult(
-                                new ActivityResultContracts.StartActivityForResult(), result -> {
-                                    if (wContainer.get() != null && wContainer.get().getWebManager() != null) {
-                                        final NativeWebManager manager = wContainer.get().getWebManager();
-                                        try {
-                                            String phoneNumber = Identity.getSignInClient(activity).getPhoneNumberFromIntent(result.getData());
-                                            manager.onPhoneNumberSelectionResult(
-                                                    new Tuple<>(phoneNumber, null)
-                                            );
-                                        } catch (Exception exception) {
-                                            manager.onPhoneNumberSelectionResult(
-                                                    new Tuple<>(null, exception)
-                                            );
-                                        }
-                                    }
-                                });
-            } catch (Throwable ignore) {
-            }
-        }
     }
 
     Activity getActivity() {
@@ -469,7 +446,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     }
 
     @Override
-    public @Nullable ActivityResultLauncher getPhoneNumberHintLauncher() {
+    public @Nullable ActivityResultLauncher<IntentSenderRequest> getPhoneNumberHintLauncher() {
         return this.phoneNumberHintIntentResultLauncher;
     }
 
@@ -614,15 +591,6 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, final Intent intent) {
-        final OtplessContainerView containerView = wContainer.get();
-        if (containerView == null || containerView.getWebManager() == null || containerView.getWebView() == null) return;
-        if (requestCode != Utility.PHONE_SELECTION_REQUEST_CODE || resultCode != Activity.RESULT_OK || intent == null) return;
-        final Tuple<String, Exception> parseData = Utility.parsePhoneNumberSelectionIntent(intent);
-        containerView.getWebManager().onPhoneNumberSelectionResult(parseData);
-    }
-
-    @Override
     public void setLoaderVisibility(boolean isVisible) {
         this.isLoaderVisible = isVisible;
     }
@@ -630,5 +598,31 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     @Override
     public void setRetryVisibility(boolean isVisible) {
         this.isRetryVisible = isVisible;
+    }
+
+    void registerPhoneHintForResult() {
+        if (phoneNumberHintIntentResultLauncher != null) return;
+        if (activity instanceof ComponentActivity) {
+            try {
+                phoneNumberHintIntentResultLauncher =
+                        ((ComponentActivity) activity).registerForActivityResult(
+                                new ActivityResultContracts.StartIntentSenderForResult(), result -> {
+                                    if (wContainer.get() != null && wContainer.get().getWebManager() != null) {
+                                        final NativeWebManager manager = wContainer.get().getWebManager();
+                                        try {
+                                            String phoneNumber = Identity.getSignInClient(activity).getPhoneNumberFromIntent(result.getData());
+                                            manager.onPhoneNumberSelectionResult(
+                                                    new Tuple<>(phoneNumber, null)
+                                            );
+                                        } catch (Exception exception) {
+                                            manager.onPhoneNumberSelectionResult(
+                                                    new Tuple<>(null, exception)
+                                            );
+                                        }
+                                    }
+                                });
+            } catch (Throwable ignore) {
+            }
+        }
     }
 }

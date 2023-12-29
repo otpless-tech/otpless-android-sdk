@@ -3,16 +3,15 @@ package com.otpless.web;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.ViewGroup;
 
+import androidx.activity.result.IntentSenderRequest;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -22,8 +21,6 @@ import com.otpless.BuildConfig;
 import com.otpless.dto.Triple;
 import com.otpless.dto.Tuple;
 import com.otpless.main.NativeWebListener;
-import com.otpless.main.OtplessEventCode;
-import com.otpless.main.OtplessEventData;
 import com.otpless.main.WebActivityContract;
 import com.otpless.network.ApiCallback;
 import com.otpless.network.ApiManager;
@@ -281,32 +278,30 @@ public class NativeWebManager implements OtplessWebListener {
                         .getPhoneNumberHintIntent(request)
                         .addOnSuccessListener(result -> {
                             try {
-                                nativeWebListener.getPhoneNumberHintLauncher().launch(result.getIntentSender());
+                                final IntentSenderRequest senderRequest = new IntentSenderRequest.Builder(result.getIntentSender()).build();
+                                nativeWebListener.getPhoneNumberHintLauncher().launch(senderRequest);
                             } catch (Exception e) {
-                                fallbackPhoneNumberSelection();
+                                onPhoneNumberSelectionResult(new Tuple<>(null, e));
                             }
                         })
                         .addOnFailureListener(e -> {
-                            fallbackPhoneNumberSelection();
+                            onPhoneNumberSelectionResult(new Tuple<>(null, e));
                         });
                 return;
             }
-            fallbackPhoneNumberSelection();
+            onPhoneNumberSelectionResult(new Tuple<>(null, new Exception("register callback is not added")));
         });
-    }
-
-    private void fallbackPhoneNumberSelection() {
-        final Tuple<Boolean, IntentSender.SendIntentException> result = Utility.openPhoneNumberSelection(mActivity);
-        if (!result.getFirst()) {
-            mWebView.callWebJs("onPhoneNumberSelectionError", result.getSecond().getMessage());
-        }
     }
 
     public void onPhoneNumberSelectionResult(final Tuple<String, Exception> data) {
         if (data.getSecond() == null) {
             mWebView.callWebJs("onPhoneNumberSelectionSuccess", data.getFirst());
         } else {
-            mWebView.callWebJs("onPhoneNumberSelectionError", data.getSecond());
+            String reason = data.getSecond().getMessage();
+            if (reason == null) {
+                reason = "Failed with exception with no reason.";
+            }
+            mWebView.callWebJs("onPhoneNumberSelectionError", reason);
         }
     }
 
