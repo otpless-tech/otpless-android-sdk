@@ -44,7 +44,7 @@ signing {
 }
 
 group = "io.github.otpless-tech"
-version = "2.2.0"
+version = "2.2.1"
 
 uploadArchives {
     repositories {
