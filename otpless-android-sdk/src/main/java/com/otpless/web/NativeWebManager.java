@@ -37,6 +37,7 @@ import java.util.Map;
 public class NativeWebManager implements OtplessWebListener {
 
     private static final String OtplessPreferenceStore = "otpless_shared_pref_store";
+    private static final int OTPLESS_PHONE_HINT_REQUEST = 9767355;
 
     @NonNull
     private final Activity mActivity;
@@ -272,24 +273,29 @@ public class NativeWebManager implements OtplessWebListener {
     @Override
     public void phoneNumberSelection() {
         mActivity.runOnUiThread(() -> {
-            if (nativeWebListener != null && nativeWebListener.getPhoneNumberHintLauncher() != null) {
-                final GetPhoneNumberHintIntentRequest request = GetPhoneNumberHintIntentRequest.builder().build();
-                Identity.getSignInClient(this.mActivity)
-                        .getPhoneNumberHintIntent(request)
-                        .addOnSuccessListener(result -> {
-                            try {
+            final GetPhoneNumberHintIntentRequest request = GetPhoneNumberHintIntentRequest.builder().build();
+            Identity.getSignInClient(this.mActivity)
+                    .getPhoneNumberHintIntent(request)
+                    .addOnSuccessListener(result -> {
+                        if (nativeWebListener == null) return;
+                        try {
+                            if (nativeWebListener.getPhoneNumberHintLauncher() != null) {
                                 final IntentSenderRequest senderRequest = new IntentSenderRequest.Builder(result.getIntentSender()).build();
                                 nativeWebListener.getPhoneNumberHintLauncher().launch(senderRequest);
-                            } catch (Exception e) {
-                                onPhoneNumberSelectionResult(new Tuple<>(null, e));
+                            } else {
+                                mActivity.startIntentSenderForResult(
+                                        result.getIntentSender(), OTPLESS_PHONE_HINT_REQUEST, null, 0, 0, 0
+                                );
                             }
-                        })
-                        .addOnFailureListener(e -> {
+                        } catch (Exception e) {
+                            e.printStackTrace();
                             onPhoneNumberSelectionResult(new Tuple<>(null, e));
-                        });
-                return;
-            }
-            onPhoneNumberSelectionResult(new Tuple<>(null, new Exception("register callback is not added")));
+                        }
+
+                    })
+                    .addOnFailureListener(e -> {
+                        onPhoneNumberSelectionResult(new Tuple<>(null, e));
+                    });
         });
     }
 
@@ -307,5 +313,22 @@ public class NativeWebManager implements OtplessWebListener {
 
     public NativeWebListener getNativeWebListener() {
         return nativeWebListener;
+    }
+
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        if (requestCode == OTPLESS_PHONE_HINT_REQUEST) {
+            if (resultCode == Activity.RESULT_OK) {
+                if (data != null) {
+                    final String phoneNumber = data.getStringExtra("phone_number_hint_result");
+                    if (phoneNumber != null) {
+                        onPhoneNumberSelectionResult(new Tuple<>(phoneNumber, null));
+                        return;
+                    }
+                    onPhoneNumberSelectionResult(new Tuple<>(null, new Exception("No phone number data found in intent")));
+                }
+            } else {
+                onPhoneNumberSelectionResult(new Tuple<>(null, new Exception("User cancelled the hint selection")));
+            }
+        }
     }
 }
