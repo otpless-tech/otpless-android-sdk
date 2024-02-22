@@ -254,4 +254,15 @@ public class Utility {
         }
         return result;
     }
+
+    public static void debugLog(final String message) {
+        Log.d("OtplessSDK", message);
+    }
+
+    public static void debugLog(final Throwable error) {
+        if (error.getMessage() != null) {
+            Log.d("OtplessSDK", error.getMessage());
+        }
+        error.printStackTrace();
+    }
 }

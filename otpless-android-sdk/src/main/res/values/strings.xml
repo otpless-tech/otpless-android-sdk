@@ -4,4 +4,7 @@
     <string name="otpless_retry">Retry</string>
     <string name="otpless_close">Close</string>
     <string name="otpless_loading">Loading…</string>
+    <string name="otpless_biometric_prompt_title" translatable="false">Biometric Authentication</string>
+    <string name="otpless_biometric_prompt_subtitle" translatable="false">Authenticate using your biometric credential</string>
+    <string name="otpless_biometric_prompt_negative" translatable="false">Cancel</string>
 </resources>
