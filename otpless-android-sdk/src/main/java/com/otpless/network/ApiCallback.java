@@ -3,5 +3,5 @@ package com.otpless.network;
 public interface ApiCallback<T> {
     void onSuccess(final T data);
 
-    void onError(final Exception exception);
+    void onError(final Throwable exception);
 }

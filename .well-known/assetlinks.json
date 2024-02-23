@@ -1,0 +1,25 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "web",
+      "site": "https://webauthn.otpless.app"
+    }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.digvijayanubhav.app",
+      "sha256_cert_fingerprints": [
+        "E1:8C:BC:03:74:75:A7:DA:5B:0B:97:96:54:49:81:08:17:A3:9C:74:F6:AF:97:91:7A:F8:48:B9:7F:A9:DB:72"
+      ]
+    }
+  }
+]

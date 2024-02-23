@@ -145,6 +145,16 @@ public class WebJsInterface {
                 case 18:
                     this.mListener.phoneNumberSelection();
                     break;
+                case 26:
+                    final JSONObject registerWebAuthnRequest = getJson(jsonObject, "request");
+                    if (registerWebAuthnRequest == null) return;
+                    this.mListener.initWebAuthnRegistration(registerWebAuthnRequest);
+                    break;
+                case 27:
+                    final JSONObject signInWebAuthnRequest = getJson(jsonObject, "request");
+                    if (signInWebAuthnRequest == null) return;
+                    this.mListener.initWebAuthnSignin(signInWebAuthnRequest);
+                    break;
             }
         } catch (JSONException e) {
             e.printStackTrace();

@@ -24,6 +24,7 @@ import com.otpless.R;
 import com.otpless.main.OtplessEventCode;
 import com.otpless.main.OtplessEventData;
 import com.otpless.main.OtplessViewContract;
+import com.otpless.main.OtplessWebAuthnManager;
 import com.otpless.main.WebActivityContract;
 import com.otpless.utils.Utility;
 import com.otpless.web.LoadingStatus;
@@ -44,8 +45,6 @@ public class OtplessContainerView extends FrameLayout implements WebActivityCont
 
     public boolean isToShowLoader = true;
     public boolean isToShowRetry = true;
-    @Nullable
-    private JSONObject mColorConfig;
 
     //region otpless loader properties
     private TextView mInfoTv, mCloseTv;
@@ -218,6 +217,14 @@ public class OtplessContainerView extends FrameLayout implements WebActivityCont
     }
 
     @Override
+    public OtplessWebAuthnManager getWebAuthnManager() {
+        if (this.viewContract != null) {
+            return this.viewContract.getWebAuthnManager();
+        }
+        return null;
+    }
+
+    @Override
     public void closeView() {
         if (this.viewContract != null) {
             this.viewContract.closeView();
@@ -238,8 +245,8 @@ public class OtplessContainerView extends FrameLayout implements WebActivityCont
     public void setUiConfiguration(final JSONObject extras) {
         if (extras == null) return;
         try {
-            mColorConfig = extras.getJSONObject("params");
-            ColorUtils.parseColor(this.mColorConfig.optString("primaryColor"), (primaryColor) -> {
+            JSONObject colorConfig = extras.getJSONObject("params");
+            ColorUtils.parseColor(colorConfig.optString("primaryColor"), (primaryColor) -> {
                 //region ==== creating color state list
                 int[][] states = new int[][]{
                         new int[]{android.R.attr.state_enabled}, // enabled
@@ -260,22 +267,22 @@ public class OtplessContainerView extends FrameLayout implements WebActivityCont
                 }
             });
             // parse close button text color
-            ColorUtils.parseColor(this.mColorConfig.optString("closeButtonColor"), (closeButtonColor) -> {
+            ColorUtils.parseColor(colorConfig.optString("closeButtonColor"), (closeButtonColor) -> {
                 this.mCloseTv.setTextColor(closeButtonColor);
             });
             // parse loader color and set to progress bar
-            ColorUtils.parseColor(this.mColorConfig.optString("loaderColor"), (loaderColor) -> {
+            ColorUtils.parseColor(colorConfig.optString("loaderColor"), (loaderColor) -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     mOtplessProgress.setIndeterminateTintList(ColorStateList.valueOf(loaderColor));
                 }
             });
             // parse text color and set it info text and retry button text
-            ColorUtils.parseColor(this.mColorConfig.optString("textColor"), (textColor) -> {
+            ColorUtils.parseColor(colorConfig.optString("textColor"), (textColor) -> {
                 this.mInfoTv.setTextColor(textColor);
                 this.mRetryButton.setTextColor(textColor);
             });
             // checking parsing for alpha for loader background
-            final String alphaString = this.mColorConfig.optString("loaderAlpha");
+            final String alphaString = colorConfig.optString("loaderAlpha");
             if (!alphaString.isEmpty()) {
                 try {
                     final float alpha = Float.parseFloat(alphaString);

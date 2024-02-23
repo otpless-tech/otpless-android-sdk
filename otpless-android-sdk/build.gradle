@@ -15,6 +15,12 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "OTPLESS_VERSION_NAME", "\"" + versionName + "\"")
+        resValue 'string', 'host', 'https://otpless.com'
+        resValue 'string', 'asset_statements', """
+           [{
+             "include": "https://otpless.com/.well-known/assetlinks.json"
+           }]
+        """
     }
 
     buildTypes {
@@ -40,6 +46,16 @@ dependencies {
     implementation "androidx.browser:browser:1.6.0"
     implementation 'com.google.android.gms:play-services-auth:20.7.0'
     implementation "com.google.android.gms:play-services-auth-api-phone:18.0.1"
+
+    // okhttp dependency
+    def okhttp_version = '4.9.2'
+    def gsonVersion = "2.10.1"
+    def retrofitVersion = "2.9.0"
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.google.code.gson:gson:$gsonVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
 }
 
 afterEvaluate {

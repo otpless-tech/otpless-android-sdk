@@ -36,4 +36,10 @@ public interface OtplessWebListener extends WebLoaderCallback {
 
     //key 18
     void phoneNumberSelection();
+
+    //key 26
+    void initWebAuthnRegistration(final JSONObject request);
+
+    //key 27
+    void initWebAuthnSignin(final JSONObject request);
 }

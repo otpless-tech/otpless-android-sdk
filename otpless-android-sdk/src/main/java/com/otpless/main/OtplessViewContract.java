@@ -7,4 +7,6 @@ public interface OtplessViewContract {
     default void onVerificationResult(final int resultCode, final JSONObject jsonObject) {}
 
     JSONObject getExtraParams();
+
+    OtplessWebAuthnManager getWebAuthnManager();
 }

@@ -19,4 +19,9 @@
         <package android:name="org.thoughtcrime.securesms"/>
         <package android:name="im.thebot.messenger"/>
     </queries>
+    <application>
+        <meta-data
+            android:name="asset_statements"
+            android:resource="@string/asset_statements" />
+    </application>
 </manifest>

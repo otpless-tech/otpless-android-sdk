@@ -160,7 +160,7 @@ public class Utility {
             }
 
             @Override
-            public void onError(Exception exception) {
+            public void onError(Throwable exception) {
                 exception.printStackTrace();
             }
         });
@@ -253,5 +253,18 @@ public class Utility {
             result.add(new Triple<>(each.getFirst(), each.getSecond(), Utility.isAppInstalled(packageManager, each.getSecond())));
         }
         return result;
+    }
+
+    public static void debugLog(final String message) {
+        if (BuildConfig.DEBUG) {
+            Log.d("OTPLESS", message);
+        }
+    }
+
+    public static void debugLog(final Throwable throwable) {
+        if (BuildConfig.DEBUG) {
+            Log.d("OTPLESS", throwable.getMessage());
+            throwable.printStackTrace();
+        }
     }
 }
