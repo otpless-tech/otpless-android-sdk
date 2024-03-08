@@ -1,7 +1,9 @@
 package com.otpless.main;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.util.Log;
@@ -21,6 +23,8 @@ import androidx.annotation.Nullable;
 
 import com.google.android.gms.auth.api.identity.Identity;
 import com.otpless.R;
+import com.otpless.dto.HeadlessRequest;
+import com.otpless.dto.HeadlessResponse;
 import com.otpless.dto.OtplessRequest;
 import com.otpless.dto.OtplessResponse;
 import com.otpless.dto.Triple;
@@ -48,9 +52,9 @@ import java.util.Queue;
 final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConnectionChangeListener, NativeWebListener {
 
     private static final String VIEW_TAG_NAME = "OtplessView";
-
+    private static final String BASE_LOADING_URL = "https://otpless.com";
     private final Activity activity;
-    private JSONObject extras;
+    private OtplessRequest mOtplessRequest;
 
     private WeakReference<OtplessContainerView> wContainer = new WeakReference<>(null);
     private OtplessUserDetailCallback detailCallback;
@@ -69,63 +73,87 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     private boolean isLoaderVisible = true;
     private boolean isRetryVisible = true;
     private boolean isContainerViewInvisible = false;
+    private boolean isHeadless = false;
+    private boolean isOneTapEnabled = true;
+    private HeadlessRequest headlessRequest;
 
+    private HeadlessResponseCallback headlessResponseCallback;
     private final Queue<ViewGroup> helpQueue = new LinkedList<>();
-
     OtplessViewRemovalNotifier viewRemovalNotifier = null;
-
     private ActivityResultLauncher<IntentSenderRequest> phoneNumberHintIntentResultLauncher = null;
-
     OtplessViewImpl(final Activity activity) {
         this.activity = activity;
     }
-
     Activity getActivity() {
         return this.activity;
     }
 
     @Override
-    public void startOtpless(JSONObject params) {
-        this.extras = params;
-        this.isLoginPageEnabled = false;
-        addViewIfNotAdded();
-        loadWebView(null, null);
-    }
-
-    @Override
-    public void startOtpless(OtplessUserDetailCallback callback) {
-        this.detailCallback = callback;
-        this.startOtpless();
-    }
-
-    @Override
-    public void startOtpless(JSONObject params, OtplessUserDetailCallback callback) {
-        this.detailCallback = callback;
-        this.extras = params;
-        this.isLoginPageEnabled = false;
-        addViewIfNotAdded();
-        loadWebView(null, null);
-    }
-
-    @Override
     public void startOtpless(@NonNull final OtplessRequest request, final OtplessUserDetailCallback callback) {
-        this.extras = request.toJsonObj();
+        // request and callback setting
+        mOtplessRequest = request;
         this.detailCallback = callback;
-        this.startOtpless();
+        // configuration setting
+        this.isLoginPageEnabled = false;
+        this.isHeadless = false;
+        // loading and adding view
+        addViewIfNotAdded();
+        loadWebView(null, null);
     }
 
     @Override
-    public void startOtpless() {
+    public void startHeadless(@NonNull final HeadlessRequest request, final HeadlessResponseCallback callback) {
+        // configuration setting
+        this.isHeadless = true;
         this.isLoginPageEnabled = false;
+        // request and callback setting
+        this.headlessRequest = request;
+        this.headlessResponseCallback = callback;
+        // check if view is all ready added then call the web js method
+        final OtplessContainerView containerView = wContainer.get();
+        if (containerView.getWebView() != null && containerView.getWebView().getLoadedUrl() != null) {
+            containerView.getWebManager().sendHeadlessRequest();
+            return;
+        }
+        // add view and load url
         addViewIfNotAdded();
         loadWebView(null, null);
+    }
+
+    private Uri.Builder createHeadlessUrlBuilder(final String appId) {
+        final Uri.Builder builder = Uri.parse(
+                getFirstLoadingUrl(null)
+        ).buildUpon();
+        builder.appendPath("appid");
+        builder.appendPath(appId);
+        builder.appendQueryParameter("isHeadless", String.valueOf(true));
+        return builder;
     }
 
     private void loadWebView(final String baseUrl, Uri uri) {
         final OtplessContainerView containerView = wContainer.get();
         if (containerView == null || containerView.getWebView() == null) return;
+        if (this.isHeadless) {
+            final Uri.Builder builder = createHeadlessUrlBuilder(this.headlessRequest.getAppId());
+            if (uri != null) {
+                String code = uri.getQueryParameter("code");
+                this.headlessRequest.setCode(code);
+                // check if url is already loaded call the javascript directly
+                if (containerView.getWebView().getLoadedUrl() != null) {
+                    containerView.getWebManager().sendHeadlessRequest();
+                    return;
+                }
+            }
+            containerView.getWebView().loadWebUrl(builder.build().toString());
+            return;
+        }
         if (baseUrl == null) {
-            String firstLoadingUrl = getFirstLoadingUrl("https://otpless.com/mobile/index.html", extras);
+            Uri.Builder builder =Uri.parse(
+                    getFirstLoadingUrl(mOtplessRequest.toJsonObj())
+            ).buildUpon();
+            builder.appendPath("appid");
+            builder.appendPath(this.mOtplessRequest.getAppId());
+            final String firstLoadingUrl = builder.build().toString();
             if (uri == null) {
                 containerView.getWebView().loadWebUrl(firstLoadingUrl);
             } else {
@@ -138,10 +166,10 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         }
     }
 
-    private String getFirstLoadingUrl(final String url, final JSONObject extraParams) {
+    private String getFirstLoadingUrl(final JSONObject extraParams) {
         final String packageName = this.activity.getPackageName();
         String loginUrl = packageName + ".otpless://otpless";
-        final Uri.Builder urlToLoad = Uri.parse(url).buildUpon();
+        final Uri.Builder urlToLoad = Uri.parse(OtplessViewImpl.BASE_LOADING_URL).buildUpon();
         // check for additional json params while loading
         if (extraParams != null) {
             try {
@@ -170,7 +198,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         //check other chatting apps
         final PackageManager pm = activity.getPackageManager();
         final List<Triple<String, String, Boolean>> messagingApps = Utility.getMessagingInstalledAppStatus(pm);
-        for (final Triple<String, String, Boolean> installStatus: messagingApps) {
+        for (final Triple<String, String, Boolean> installStatus : messagingApps) {
             urlToLoad.appendQueryParameter("has" + installStatus.getFirst(), String.valueOf(installStatus.getThird()));
         }
         if (isLoginPageEnabled) {
@@ -182,27 +210,28 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     }
 
     @Override
-    public void setCallback(final OtplessUserDetailCallback callback, final JSONObject extra) {
-        this.setCallback(callback, extra, false);
-    }
-
-    @Override
-    public void setCallback(OtplessUserDetailCallback callback, JSONObject extra, boolean isLoginPage) {
-        this.detailCallback = callback;
-        this.extras = extra;
-        this.isLoginPageEnabled = isLoginPage;
-    }
-
-    @Override
-    public void setCallback(final OtplessUserDetailCallback callback, final boolean isLoginPage) {
-        this.setCallback(callback, null, isLoginPage);
-    }
-
-    @Override
     public void setCallback(@NonNull final OtplessRequest request, final OtplessUserDetailCallback callback ,final boolean isLoginPage) {
-        this.extras = request.toJsonObj();
+        mOtplessRequest = request;
         this.detailCallback = callback;
+        // setting configuration
         this.isLoginPageEnabled = isLoginPage;
+        this.isHeadless = false;
+    }
+
+    @Override
+    public void setHeadlessCallback(@NonNull final HeadlessRequest request, final HeadlessResponseCallback callback) {
+        // setting configuration
+        this.isHeadless = true;
+        this.isLoginPageEnabled = false;
+        // setting request and callback
+        this.headlessRequest = request;
+        this.headlessResponseCallback = callback;
+        if (activity.getIntent() == null) return;
+        Uri uri = activity.getIntent().getData();
+        // check for headless and onetap special case
+        if (uri == null && this.isOneTapEnabled) {
+            handleHeadlessAndOnetapSpecialCase();
+        }
     }
 
     @Override
@@ -245,7 +274,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
 
     @Override
     public JSONObject getExtraParams() {
-        return this.extras;
+        return this.headlessRequest.makeJson();
     }
 
     @Override
@@ -255,6 +284,13 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         if (manager == null) return false;
         final OtplessWebView webView = wContainer.get().getWebView();
         if (webView == null) return false;
+        if (this.isHeadless) {
+            final HeadlessResponse response = new HeadlessResponse(
+                    this.headlessRequest.getChannel().getChannelName(), null, "User cancelled");
+            this.headlessResponseCallback.onHeadlessResponse(response);
+            removeView();
+            return true;
+        }
         if (this.eventCallback != null && this.backSubscription && this.isLoginPageEnabled) {
             if (manager.getBackSubscription()) {
                 webView.callWebJs("onHardBackPressed");
@@ -273,11 +309,31 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         return true;
     }
 
+    private void handleHeadlessAndOnetapSpecialCase() {
+        // if one tap is enabled load the url here
+        this.isLoginPageEnabled = false;
+        addViewIfNotAdded();
+        final OtplessContainerView containerView = wContainer.get();
+        if (containerView == null || containerView.getWebView() == null) return;
+        final Uri.Builder builder = createHeadlessUrlBuilder(this.headlessRequest.getAppId());
+        final SharedPreferences pref = activity.getPreferences(Context.MODE_PRIVATE);
+        final String plov = pref.getString("plov", "");
+        if (!plov.isEmpty()) {
+            builder.appendQueryParameter("plov", plov);
+        }
+        containerView.getWebView().loadWebUrl(builder.build().toString());
+    }
+
     @Override
     public boolean verifyIntent(Intent intent) {
         Uri uri = intent.getData();
         if (uri == null) return false;
         if (!"otpless".equals(uri.getHost())) return false;
+        // request type solution for future use
+        final String requestType = uri.getQueryParameter("requestType");
+        if ("headless".equals(requestType)) {
+            this.isHeadless = true;
+        }
         // check if passed deeplink is having uri query param then open that is chrome custom tab
         final String otplessCode = uri.getQueryParameter("uri");
         if (Utility.isValid(otplessCode)) {
@@ -328,7 +384,15 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         }
         // check if view inflated is already present or not
         View _container = parent.findViewWithTag(VIEW_TAG_NAME);
-        if (_container != null) return;
+        if (_container != null) {
+            if (this.isHeadless) {
+                ((OtplessContainerView)_container).enableHeadlessConfig();
+            } else {
+                ((OtplessContainerView)_container).disableHeadlessConfig();
+                ((OtplessContainerView)_container).setUiConfiguration(mOtplessRequest.toJsonObj());
+            }
+            return;
+        }
         // add the view
         final OtplessContainerView containerView = new OtplessContainerView(activity);
         containerView.setTag(VIEW_TAG_NAME);
@@ -340,7 +404,11 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         }
         containerView.isToShowLoader = this.isLoaderVisible;
         containerView.isToShowRetry = this.isRetryVisible;
-        containerView.setUiConfiguration(extras);
+        if (this.isHeadless) {
+            containerView.enableHeadlessConfig();
+        } else {
+            containerView.setUiConfiguration(mOtplessRequest.toJsonObj());
+        }
         parent.addView(containerView);
         wContainer = new WeakReference<>(containerView);
         OtplessNetworkManager.getInstance().addListeners(activity, this);
@@ -541,7 +609,8 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
             // make button invisible after first callback
             fBtn.setVisibility(View.INVISIBLE);
         }
-        startOtpless();
+        addViewIfNotAdded();
+        loadWebView(null, null);
     }
 
     private void removeFabFromDecor() {
@@ -570,31 +639,13 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     }
 
     @Override
-    public void showOtplessLoginPage(JSONObject extra, OtplessUserDetailCallback callback) {
-        this.setCallback(callback, extra, true);
-        addViewIfNotAdded();
-        loadWebView(null, null);
-    }
-
-    @Override
-    public void showOtplessLoginPage(OtplessUserDetailCallback callback) {
-        this.setCallback(callback, null, true);
-        addViewIfNotAdded();
-        loadWebView(null, null);
-    }
-
-    @Override
     public void showOtplessLoginPage(@NonNull final OtplessRequest request, OtplessUserDetailCallback callback) {
+        // setting configuration
         this.isLoginPageEnabled = true;
+        this.isHeadless = false;
+        // setting request and callback
         this.detailCallback = callback;
-        this.extras = request.toJsonObj();
-        addViewIfNotAdded();
-        loadWebView(null, null);
-    }
-
-    @Override
-    public void showOtplessLoginPage() {
-        this.isLoginPageEnabled = true;
+        this.mOtplessRequest = request;
         addViewIfNotAdded();
         loadWebView(null, null);
     }
@@ -642,5 +693,20 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
             otplessContainerView.getWebManager()
                     .onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    @Override
+    public void onHeadlessResult(HeadlessResponse response, boolean closeView) {
+        if (this.headlessResponseCallback != null) {
+            this.headlessResponseCallback.onHeadlessResponse(response);
+        }
+        if (closeView) {
+            removeView();
+        }
+    }
+
+    @Override
+    public void enableOneTap(final boolean isEnable) {
+        this.isOneTapEnabled = isEnable;
     }
 }

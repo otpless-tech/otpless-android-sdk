@@ -18,9 +18,11 @@ import androidx.annotation.Nullable;
 import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.otpless.BuildConfig;
+import com.otpless.dto.HeadlessResponse;
 import com.otpless.dto.Triple;
 import com.otpless.dto.Tuple;
 import com.otpless.main.NativeWebListener;
+import com.otpless.main.OtplessTruIdManager;
 import com.otpless.main.WebActivityContract;
 import com.otpless.network.ApiCallback;
 import com.otpless.network.ApiManager;
@@ -299,6 +301,35 @@ public class NativeWebManager implements OtplessWebListener {
         });
     }
 
+    // key 20
+    @Override
+    public void sendHeadlessRequest() {
+        Log.d("Otpless", "send headless request called");
+        final JSONObject extras = contract.getExtraParams();
+        if (extras == null) return;
+        callHeadlessRequestToWeb(extras);
+    }
+
+    public void callHeadlessRequestToWeb(JSONObject json) {
+        mWebView.callWebJs("headlessRequest", json.toString());
+    }
+
+    // key 21
+    @Override
+    public void sendHeadlessResponse(@NonNull JSONObject response, boolean closeView) {
+        HeadlessResponse headlessResponse;
+        final String responseType = response.optString("responseType");
+        final String error = response.optString("errorMessage");
+        final JSONObject resp = response.optJSONObject("response");
+        // success case
+        if (error.isEmpty()) {
+            headlessResponse = new HeadlessResponse(responseType, resp, null);
+        } else {
+            headlessResponse = new HeadlessResponse(responseType, null, error);
+        }
+        mActivity.runOnUiThread(() -> this.contract.onHeadlessResult(headlessResponse, closeView));
+    }
+
     public void onPhoneNumberSelectionResult(final Tuple<String, Exception> data) {
         if (data.getSecond() == null) {
             mWebView.callWebJs("onPhoneNumberSelectionSuccess", data.getFirst());
@@ -330,5 +361,24 @@ public class NativeWebManager implements OtplessWebListener {
                 onPhoneNumberSelectionResult(new Tuple<>(null, new Exception("User cancelled the hint selection")));
             }
         }
+    }
+
+    @Override
+    public void openTruIdSdk(@NonNull final String url, @NonNull String accessToken, boolean isDebug) {
+        final JSONObject response;
+        if (accessToken.isEmpty()) {
+            response = OtplessTruIdManager.openWithDataCellular(
+                    mActivity.getApplicationContext(), url, isDebug
+            );
+        } else {
+            response = OtplessTruIdManager.openWithDataCellularAndAccessToken(
+                    mActivity.getApplicationContext(), url, accessToken, isDebug
+            );
+        }
+        final String responseString = response.toString();
+        if (BuildConfig.DEBUG) {
+            Log.d("Otpless", responseString);
+        }
+        mWebView.callWebJs("onTruIdSdkResponse", responseString);
     }
 }

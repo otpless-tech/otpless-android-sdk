@@ -20,6 +20,13 @@ public class OtplessRequest {
     @NonNull
     private String locale = "";
 
+    @NonNull
+    private final String appId;
+
+    public OtplessRequest(@NonNull String appId) {
+        this.appId = appId;
+    }
+
     private HashMap<String, String> mExtras = new HashMap<>();
 
     public OtplessRequest setCid(@NonNull String cid) {
@@ -66,5 +73,10 @@ public class OtplessRequest {
         } catch (JSONException ignore) {
         }
         return extra;
+    }
+
+    @NonNull
+    public String getAppId() {
+        return appId;
     }
 }

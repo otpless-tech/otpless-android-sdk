@@ -7,6 +7,34 @@
     android:background="#CCCCCC"
     tools:context=".MainActivity">
 
+    <EditText
+        android:id="@+id/input_text_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:hint="Enter mobile or email"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/show_login_btn" />
+
+    <EditText
+        android:id="@+id/otp_et"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:hint="Enter OTP"
+        android:inputType="number"
+        android:maxLength="6"
+        android:maxLines="1"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/input_text_layout" />
+
     <TextView
         android:id="@+id/info"
         android:layout_width="match_parent"
@@ -23,24 +51,91 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/otpless_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="200dp"
-        android:text="WhatsApp Login"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/sign_in_complete"
+        android:id="@+id/show_login_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sign In Completed"
-        android:layout_marginTop="32dp"
-        app:layout_constraintEnd_toEndOf="@+id/otpless_btn"
-        app:layout_constraintStart_toStartOf="@+id/otpless_btn"
-        app:layout_constraintTop_toBottomOf="@+id/otpless_btn" />
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:text="Show Login Page"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/info" />
+
+    <Button
+        android:id="@+id/show_floater_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:text="Show Floater"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/info" />
+
+
+    <Button
+        android:id="@+id/headless_sdk_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:text="Start Headless SDK"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+    <RadioGroup
+        android:id="@+id/channel_type_rg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/otp_et">
+
+        <RadioButton
+            android:id="@+id/whatsapp_rb"
+            android:layout_width="wrap_content"
+            android:checked="false"
+            android:layout_height="wrap_content"
+            android:text="Whatsapp" />
+
+        <RadioButton
+            android:id="@+id/gmail_rb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gmail" />
+
+        <RadioButton
+            android:id="@+id/twitter_rb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Twitter" />
+
+        <RadioButton
+            android:id="@+id/slack_rb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Slack" />
+
+        <RadioButton
+            android:id="@+id/facebook_rb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Facebook" />
+
+        <RadioButton
+            android:id="@+id/linkedin_rb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Linkedin" />
+
+        <RadioButton
+            android:id="@+id/microsoft_rb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Microsoft" />
+
+    </RadioGroup>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -148,6 +149,7 @@ public class OtplessWebView extends WebView {
         @Override
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
+            Log.d("Otpless", "loaded url is :" + url);
             if ("about:blank".equals(url)) return;
             if (mLoadingState != LoadingStatus.Failed) {
                 changeLoadingStatus(LoadingStatus.Success);

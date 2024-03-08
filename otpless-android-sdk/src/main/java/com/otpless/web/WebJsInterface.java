@@ -1,9 +1,12 @@
 package com.otpless.web;
 
+import android.util.Log;
 import android.webkit.JavascriptInterface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.otpless.BuildConfig;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -68,7 +71,6 @@ public class WebJsInterface {
             final JSONObject jsonObject = new JSONObject(jsObjStr);
             final Integer actionCode = getInt(jsonObject, "key");
             if (actionCode == null) return;
-
             switch (actionCode) {
                 // to show loader
                 case 1:
@@ -145,6 +147,30 @@ public class WebJsInterface {
                 case 18:
                     this.mListener.phoneNumberSelection();
                     break;
+                case 20:
+                    this.mListener.sendHeadlessRequest();
+                    break;
+                case 21:
+                    final String jsonString = getString(jsonObject, "response");
+                    if (jsonString.isEmpty()) return;
+                    final JSONObject response = new JSONObject(jsonString);
+                    Boolean closeView = getBoolean(jsonObject, "closeView");
+                    if (closeView == null) {
+                        closeView = false;
+                    }
+                    this.mListener.sendHeadlessResponse(response, closeView);
+                    break;
+                case 42: {
+                    final String url = getString(jsonObject, "url");
+                    if (url.isEmpty()) return;
+                    final String accessToken = getString(jsonObject, "accessToken");
+                    Boolean isDebug = getBoolean(jsonObject, "isDebug");
+                    if (isDebug == null) {
+                        isDebug = false;
+                    }
+                    this.mListener.openTruIdSdk(url, accessToken, isDebug);
+                    break;
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();

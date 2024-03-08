@@ -4,36 +4,16 @@ import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
+import com.otpless.dto.HeadlessRequest;
 import com.otpless.dto.OtplessRequest;
 import com.otpless.views.FabButtonAlignment;
 import com.otpless.views.OtplessUserDetailCallback;
 
-import org.json.JSONObject;
-
 public interface OtplessView {
     /// methods to start otpless
-    @Deprecated
-    void startOtpless(final JSONObject params);
-
-    void startOtpless(final OtplessUserDetailCallback callback);
-
-    /// method to start otpless with with json parameters
-    @Deprecated
-    void startOtpless(final JSONObject params, final OtplessUserDetailCallback callback);
-
     void startOtpless(@NonNull final OtplessRequest request, final OtplessUserDetailCallback callback);
 
-    /// methods to start otpless
-    void startOtpless();
-
     /// explicitly setting the callback
-    @Deprecated
-    void setCallback(final OtplessUserDetailCallback callback, final JSONObject extra);
-
-    void setCallback(final OtplessUserDetailCallback callback, final JSONObject extra, final boolean isLoginPage);
-
-    void setCallback(final OtplessUserDetailCallback callback, final boolean isLoginPage);
-
     void setCallback(@NonNull final OtplessRequest request, final OtplessUserDetailCallback callback, final boolean isLoginPage);
 
     /// explicitly closing the view
@@ -64,21 +44,21 @@ public interface OtplessView {
     void setFabText(final String text);
 
     /// to show otpless login page with extra and callback
-    void showOtplessLoginPage(final JSONObject extra, OtplessUserDetailCallback callback);
-
     void showOtplessLoginPage(@NonNull final OtplessRequest request, OtplessUserDetailCallback callback);
 
-    /// to show otpless login page with callback
-    void showOtplessLoginPage(OtplessUserDetailCallback callback);
+    default void setLoaderVisibility(final boolean isVisible) {
+    }
 
-    // to show otpless login page if callback is already set
-    void showOtplessLoginPage();
+    default void setRetryVisibility(final boolean isVisible) {
+    }
 
-    default void setLoaderVisibility(final boolean isVisible) {}
-
-    default void setRetryVisibility(final boolean isVisible) {}
+    void startHeadless(@NonNull final HeadlessRequest request, final HeadlessResponseCallback callback);
 
     void hideContainerView();
 
     default void onActivityResult(final int requestCode, final int resultCode, final Intent data) {}
+    void setHeadlessCallback(@NonNull final HeadlessRequest request, final HeadlessResponseCallback callback);
+
+    default void enableOneTap(final boolean isEnable) {
+    }
 }
