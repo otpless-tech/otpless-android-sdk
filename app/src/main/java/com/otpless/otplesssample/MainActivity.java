@@ -7,6 +7,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.otpless.dto.OtplessRequest;
 import com.otpless.dto.OtplessResponse;
 import com.otpless.main.OtplessManager;
 import com.otpless.main.OtplessView;
@@ -22,13 +23,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         // copy this code in onCreate of your Login Activity
         otplessView = OtplessManager.getInstance().getOtplessView(this);
-//        otplessView.showOtplessLoginPage(this::onOtplessCallback);
-        otplessView.setCallback(this::onOtplessCallback, null, true);
+        OtplessRequest request = new OtplessRequest("870OD5RME1UBYVDJPKL3");
+        otplessView.setCallback(request, this::onOtplessCallback);
         findViewById(R.id.otpless_btn).setOnClickListener(v -> {
-            otplessView.showOtplessLoginPage(this::onOtplessCallback);
-        });
-        findViewById(R.id.sign_in_complete).setOnClickListener(v -> {
-            otplessView.onSignInCompleted();
+            otplessView.showOtplessLoginPage(request, this::onOtplessCallback);
         });
         otplessView.verifyIntent(getIntent());
     }

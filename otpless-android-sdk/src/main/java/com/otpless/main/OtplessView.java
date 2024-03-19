@@ -11,30 +11,8 @@ import com.otpless.views.OtplessUserDetailCallback;
 import org.json.JSONObject;
 
 public interface OtplessView {
-    /// methods to start otpless
-    @Deprecated
-    void startOtpless(final JSONObject params);
-
-    void startOtpless(final OtplessUserDetailCallback callback);
-
-    /// method to start otpless with with json parameters
-    @Deprecated
-    void startOtpless(final JSONObject params, final OtplessUserDetailCallback callback);
-
-    void startOtpless(@NonNull final OtplessRequest request, final OtplessUserDetailCallback callback);
-
-    /// methods to start otpless
-    void startOtpless();
-
     /// explicitly setting the callback
-    @Deprecated
-    void setCallback(final OtplessUserDetailCallback callback, final JSONObject extra);
-
-    void setCallback(final OtplessUserDetailCallback callback, final JSONObject extra, final boolean isLoginPage);
-
-    void setCallback(final OtplessUserDetailCallback callback, final boolean isLoginPage);
-
-    void setCallback(@NonNull final OtplessRequest request, final OtplessUserDetailCallback callback, final boolean isLoginPage);
+    void setCallback(@NonNull final OtplessRequest request, final OtplessUserDetailCallback callback);
 
     /// explicitly closing the view
     void closeView();
@@ -63,16 +41,8 @@ public interface OtplessView {
     /// to change the text of sign in fab button
     void setFabText(final String text);
 
-    /// to show otpless login page with extra and callback
-    void showOtplessLoginPage(final JSONObject extra, OtplessUserDetailCallback callback);
-
+    /// to show otpless login page
     void showOtplessLoginPage(@NonNull final OtplessRequest request, OtplessUserDetailCallback callback);
-
-    /// to show otpless login page with callback
-    void showOtplessLoginPage(OtplessUserDetailCallback callback);
-
-    // to show otpless login page if callback is already set
-    void showOtplessLoginPage();
 
     default void setLoaderVisibility(final boolean isVisible) {}
 

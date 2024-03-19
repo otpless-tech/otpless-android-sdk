@@ -50,7 +50,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     private static final String VIEW_TAG_NAME = "OtplessView";
 
     private final Activity activity;
-    private JSONObject extras;
+    private OtplessRequest mOtplessRequest;
 
     private WeakReference<OtplessContainerView> wContainer = new WeakReference<>(null);
     private OtplessUserDetailCallback detailCallback;
@@ -59,16 +59,17 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     private int mBottomMargin = 24;
     private int mSideMargin = 16;
     private String mFabText = "Sign in";
-    private boolean mShowOtplessFab = true;
+    private boolean mShowOtplessFab = false;
     private WeakReference<Button> wFabButton = new WeakReference<>(null);
     private static final int ButtonWidth = 120;
     private static final int ButtonHeight = 40;
 
-    private boolean isLoginPageEnabled = false;
     private boolean backSubscription = false;
     private boolean isLoaderVisible = true;
     private boolean isRetryVisible = true;
     private boolean isContainerViewInvisible = false;
+    private static final String BASE_LOADING_URL = "https://otpless.com";
+
 
     private final Queue<ViewGroup> helpQueue = new LinkedList<>();
 
@@ -84,39 +85,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         return this.activity;
     }
 
-    @Override
-    public void startOtpless(JSONObject params) {
-        this.extras = params;
-        this.isLoginPageEnabled = false;
-        addViewIfNotAdded();
-        loadWebView(null, null);
-    }
-
-    @Override
-    public void startOtpless(OtplessUserDetailCallback callback) {
-        this.detailCallback = callback;
-        this.startOtpless();
-    }
-
-    @Override
-    public void startOtpless(JSONObject params, OtplessUserDetailCallback callback) {
-        this.detailCallback = callback;
-        this.extras = params;
-        this.isLoginPageEnabled = false;
-        addViewIfNotAdded();
-        loadWebView(null, null);
-    }
-
-    @Override
-    public void startOtpless(@NonNull final OtplessRequest request, final OtplessUserDetailCallback callback) {
-        this.extras = request.toJsonObj();
-        this.detailCallback = callback;
-        this.startOtpless();
-    }
-
-    @Override
-    public void startOtpless() {
-        this.isLoginPageEnabled = false;
+    private void startOtpless() {
         addViewIfNotAdded();
         loadWebView(null, null);
     }
@@ -125,7 +94,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         final OtplessContainerView containerView = wContainer.get();
         if (containerView == null || containerView.getWebView() == null) return;
         if (baseUrl == null) {
-            String firstLoadingUrl = getFirstLoadingUrl("https://otpless.com/mobile/index.html", extras);
+            String firstLoadingUrl = getFirstLoadingUrl();
             if (uri == null) {
                 containerView.getWebView().loadWebUrl(firstLoadingUrl);
             } else {
@@ -138,30 +107,31 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         }
     }
 
-    private String getFirstLoadingUrl(final String url, final JSONObject extraParams) {
+    private String getFirstLoadingUrl() {
         final String packageName = this.activity.getPackageName();
         String loginUrl = packageName + ".otpless://otpless";
-        final Uri.Builder urlToLoad = Uri.parse(url).buildUpon();
+        final Uri.Builder urlToLoad = Uri.parse(OtplessViewImpl.BASE_LOADING_URL).buildUpon();
+        urlToLoad.appendPath("appid");
+        urlToLoad.appendPath(this.mOtplessRequest.getAppId());
         // check for additional json params while loading
-        if (extraParams != null) {
-            try {
-                String methodName = extraParams.optString("method").toLowerCase();
-                if (methodName.equals("get")) {
-                    // add the params in url
-                    final JSONObject params = extraParams.getJSONObject("params");
-                    for (Iterator<String> it = params.keys(); it.hasNext(); ) {
-                        String key = it.next();
-                        final String value = params.optString(key);
-                        if (value.isEmpty()) continue;
-                        if ("login_uri".equals(key)) {
-                            loginUrl = value + ".otpless://otpless";
-                            continue;
-                        }
-                        urlToLoad.appendQueryParameter(key, value);
+        final JSONObject extraParams = mOtplessRequest.toJsonObj();
+        try {
+            String methodName = extraParams.optString("method").toLowerCase();
+            if (methodName.equals("get")) {
+                // add the params in url
+                final JSONObject params = extraParams.getJSONObject("params");
+                for (Iterator<String> it = params.keys(); it.hasNext(); ) {
+                    String key = it.next();
+                    final String value = params.optString(key);
+                    if (value.isEmpty()) continue;
+                    if ("login_uri".equals(key)) {
+                        loginUrl = value + ".otpless://otpless";
+                        continue;
                     }
+                    urlToLoad.appendQueryParameter(key, value);
                 }
-            } catch (JSONException ignore) {
             }
+        } catch (JSONException ignore) {
         }
         // adding loading url and package name, add login uri at last
         urlToLoad.appendQueryParameter("package", packageName);
@@ -170,39 +140,19 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         //check other chatting apps
         final PackageManager pm = activity.getPackageManager();
         final List<Triple<String, String, Boolean>> messagingApps = Utility.getMessagingInstalledAppStatus(pm);
-        for (final Triple<String, String, Boolean> installStatus: messagingApps) {
+        for (final Triple<String, String, Boolean> installStatus : messagingApps) {
             urlToLoad.appendQueryParameter("has" + installStatus.getFirst(), String.valueOf(installStatus.getThird()));
         }
-        if (isLoginPageEnabled) {
-            urlToLoad.appendQueryParameter("lp", String.valueOf(true));
-        }
+        urlToLoad.appendQueryParameter("lp", String.valueOf(true));
         urlToLoad.appendQueryParameter("login_uri", loginUrl);
         urlToLoad.appendQueryParameter("nbbs", String.valueOf(this.backSubscription));
         return urlToLoad.build().toString();
     }
 
     @Override
-    public void setCallback(final OtplessUserDetailCallback callback, final JSONObject extra) {
-        this.setCallback(callback, extra, false);
-    }
-
-    @Override
-    public void setCallback(OtplessUserDetailCallback callback, JSONObject extra, boolean isLoginPage) {
+    public void setCallback(@NonNull final OtplessRequest request, final OtplessUserDetailCallback callback) {
+        this.mOtplessRequest = request;
         this.detailCallback = callback;
-        this.extras = extra;
-        this.isLoginPageEnabled = isLoginPage;
-    }
-
-    @Override
-    public void setCallback(final OtplessUserDetailCallback callback, final boolean isLoginPage) {
-        this.setCallback(callback, null, isLoginPage);
-    }
-
-    @Override
-    public void setCallback(@NonNull final OtplessRequest request, final OtplessUserDetailCallback callback ,final boolean isLoginPage) {
-        this.extras = request.toJsonObj();
-        this.detailCallback = callback;
-        this.isLoginPageEnabled = isLoginPage;
     }
 
     @Override
@@ -214,7 +164,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     public void onVerificationResult(int resultCode, JSONObject jsonObject) {
         // if login page is not enable and show button is enabled
         // show sign in button
-        if (!isLoginPageEnabled && mShowOtplessFab) {
+        if (mShowOtplessFab) {
             // check if button is already added
             final Button btn = wFabButton.get();
             if (btn == null) {
@@ -245,7 +195,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
 
     @Override
     public JSONObject getExtraParams() {
-        return this.extras;
+        return this.mOtplessRequest.toJsonObj();
     }
 
     @Override
@@ -255,7 +205,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         if (manager == null) return false;
         final OtplessWebView webView = wContainer.get().getWebView();
         if (webView == null) return false;
-        if (this.eventCallback != null && this.backSubscription && this.isLoginPageEnabled) {
+        if (this.eventCallback != null && this.backSubscription) {
             if (manager.getBackSubscription()) {
                 webView.callWebJs("onHardBackPressed");
             }
@@ -340,7 +290,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         }
         containerView.isToShowLoader = this.isLoaderVisible;
         containerView.isToShowRetry = this.isRetryVisible;
-        containerView.setUiConfiguration(extras);
+        containerView.setUiConfiguration(mOtplessRequest.toJsonObj());
         parent.addView(containerView);
         wContainer = new WeakReference<>(containerView);
         OtplessNetworkManager.getInstance().addListeners(activity, this);
@@ -570,31 +520,9 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     }
 
     @Override
-    public void showOtplessLoginPage(JSONObject extra, OtplessUserDetailCallback callback) {
-        this.setCallback(callback, extra, true);
-        addViewIfNotAdded();
-        loadWebView(null, null);
-    }
-
-    @Override
-    public void showOtplessLoginPage(OtplessUserDetailCallback callback) {
-        this.setCallback(callback, null, true);
-        addViewIfNotAdded();
-        loadWebView(null, null);
-    }
-
-    @Override
     public void showOtplessLoginPage(@NonNull final OtplessRequest request, OtplessUserDetailCallback callback) {
-        this.isLoginPageEnabled = true;
         this.detailCallback = callback;
-        this.extras = request.toJsonObj();
-        addViewIfNotAdded();
-        loadWebView(null, null);
-    }
-
-    @Override
-    public void showOtplessLoginPage() {
-        this.isLoginPageEnabled = true;
+        this.mOtplessRequest = request;
         addViewIfNotAdded();
         loadWebView(null, null);
     }

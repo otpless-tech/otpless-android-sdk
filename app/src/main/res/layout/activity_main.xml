@@ -33,14 +33,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/sign_in_complete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sign In Completed"
-        android:layout_marginTop="32dp"
-        app:layout_constraintEnd_toEndOf="@+id/otpless_btn"
-        app:layout_constraintStart_toStartOf="@+id/otpless_btn"
-        app:layout_constraintTop_toBottomOf="@+id/otpless_btn" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

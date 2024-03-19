@@ -3,7 +3,7 @@ apply plugin: 'signing'
 
 
 def PUBLISH_ARTIFACT_ID = "otpless-android-sdk"
-def PUBLISH_DESCRIPTION = "Bug fix: class casting exception on searching view."
+def PUBLISH_DESCRIPTION = "Api v2 release"
 
 LinkedHashMap<String, String> getOssrhCredentials() {
     def home = System.getenv("HOME")
@@ -44,7 +44,7 @@ signing {
 }
 
 group = "io.github.otpless-tech"
-version = "2.2.3"
+version = "2.2.4"
 
 uploadArchives {
     repositories {

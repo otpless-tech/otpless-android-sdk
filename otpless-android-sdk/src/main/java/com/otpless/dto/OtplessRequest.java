@@ -12,6 +12,7 @@ import java.util.Map;
 
 public class OtplessRequest {
 
+    @NonNull final String appId;
     @NonNull
     private String cid = "";
     @NonNull
@@ -20,7 +21,11 @@ public class OtplessRequest {
     @NonNull
     private String locale = "";
 
-    private HashMap<String, String> mExtras = new HashMap<>();
+    private final HashMap<String, String> mExtras = new HashMap<>();
+
+    public OtplessRequest(@NonNull final String appId) {
+        this.appId = appId;
+    }
 
     public OtplessRequest setCid(@NonNull String cid) {
         this.cid = cid;
@@ -42,6 +47,7 @@ public class OtplessRequest {
         return this;
     }
 
+    @NonNull
     public JSONObject toJsonObj() {
         final JSONObject extra = new JSONObject();
         try {
@@ -66,5 +72,10 @@ public class OtplessRequest {
         } catch (JSONException ignore) {
         }
         return extra;
+    }
+
+    @NonNull
+    public String getAppId() {
+        return appId;
     }
 }
