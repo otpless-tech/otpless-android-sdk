@@ -30,15 +30,19 @@ public interface OtplessView {
     void setBackBackButtonSubscription(final boolean backSubscription);
 
     /// to configure the visibility of otpless fab button
+    @Deprecated
     void showOtplessFab(boolean isToShow);
 
     /// to set the position of otpless fab button
+    @Deprecated
     void setFabConfig(final FabButtonAlignment alignment, final int sideMargin, final int bottomMargin);
 
     /// removes fab button if added on login screens window
+    @Deprecated
     void onSignInCompleted();
 
     /// to change the text of sign in fab button
+    @Deprecated
     void setFabText(final String text);
 
     /// to show otpless login page

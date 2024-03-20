@@ -143,7 +143,6 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         for (final Triple<String, String, Boolean> installStatus : messagingApps) {
             urlToLoad.appendQueryParameter("has" + installStatus.getFirst(), String.valueOf(installStatus.getThird()));
         }
-        urlToLoad.appendQueryParameter("lp", String.valueOf(true));
         urlToLoad.appendQueryParameter("login_uri", loginUrl);
         urlToLoad.appendQueryParameter("nbbs", String.valueOf(this.backSubscription));
         return urlToLoad.build().toString();

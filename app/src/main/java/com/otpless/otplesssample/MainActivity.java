@@ -23,7 +23,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         // copy this code in onCreate of your Login Activity
         otplessView = OtplessManager.getInstance().getOtplessView(this);
-        OtplessRequest request = new OtplessRequest("870OD5RME1UBYVDJPKL3");
+        OtplessRequest request = new OtplessRequest("YOUR_APP_ID")
+                .setCid("YOUR_CID");
         otplessView.setCallback(request, this::onOtplessCallback);
         findViewById(R.id.otpless_btn).setOnClickListener(v -> {
             otplessView.showOtplessLoginPage(request, this::onOtplessCallback);
