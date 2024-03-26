@@ -1,7 +1,9 @@
 package com.otpless.main;
 
 import android.app.Activity;
+import static android.content.Context.MODE_PRIVATE;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.util.Log;
@@ -43,7 +45,9 @@ import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Queue;
+import java.util.UUID;
 
 final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConnectionChangeListener, NativeWebListener {
 
@@ -70,6 +74,9 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     private boolean isContainerViewInvisible = false;
     private static final String BASE_LOADING_URL = "https://otpless.com";
 
+    @NonNull String installId = "";
+    @NonNull String sessionId = "";
+    private static final String INSTALL_ID_KEY = "otpless_inid";
 
     private final Queue<ViewGroup> helpQueue = new LinkedList<>();
 
@@ -79,6 +86,14 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
 
     OtplessViewImpl(final Activity activity) {
         this.activity = activity;
+        final SharedPreferences preferences = activity.getPreferences(MODE_PRIVATE);
+        final String inid = preferences.getString(INSTALL_ID_KEY, "");
+        if (Utility.isValid(inid)) {
+            this.installId = inid;
+        } else {
+            this.installId = UUID.randomUUID().toString() + "-" + System.currentTimeMillis();
+        }
+        sessionId = UUID.randomUUID().toString() + "-" + System.currentTimeMillis();
     }
 
     Activity getActivity() {
@@ -108,8 +123,6 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     }
 
     private String getFirstLoadingUrl() {
-        final String packageName = this.activity.getPackageName();
-        String loginUrl = packageName + ".otpless://otpless";
         final Uri.Builder urlToLoad = Uri.parse(OtplessViewImpl.BASE_LOADING_URL).buildUpon();
         urlToLoad.appendPath("appid");
         urlToLoad.appendPath(this.mOtplessRequest.getAppId());
@@ -124,16 +137,13 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
                     String key = it.next();
                     final String value = params.optString(key);
                     if (value.isEmpty()) continue;
-                    if ("login_uri".equals(key)) {
-                        loginUrl = value + ".otpless://otpless";
-                        continue;
-                    }
                     urlToLoad.appendQueryParameter(key, value);
                 }
             }
         } catch (JSONException ignore) {
         }
-        // adding loading url and package name, add login uri at last
+        // adding package name
+        final String packageName = this.activity.getPackageName();
         urlToLoad.appendQueryParameter("package", packageName);
         urlToLoad.appendQueryParameter("hasWhatsapp", String.valueOf(Utility.isWhatsAppInstalled(activity)));
         urlToLoad.appendQueryParameter("hasOtplessApp", String.valueOf(Utility.isOtplessAppInstalled(activity)));
@@ -143,8 +153,11 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         for (final Triple<String, String, Boolean> installStatus : messagingApps) {
             urlToLoad.appendQueryParameter("has" + installStatus.getFirst(), String.valueOf(installStatus.getThird()));
         }
+        final String loginUrl = this.mOtplessRequest.getAppId().toLowerCase(Locale.US) + ".otpless://otpless";
         urlToLoad.appendQueryParameter("login_uri", loginUrl);
         urlToLoad.appendQueryParameter("nbbs", String.valueOf(this.backSubscription));
+        urlToLoad.appendQueryParameter("inid", this.installId);
+        urlToLoad.appendQueryParameter("tsid", this.sessionId);
         return urlToLoad.build().toString();
     }
 
@@ -396,6 +409,18 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     public void onOtplessEvent(OtplessEventData event) {
         if (this.eventCallback == null) return;
         this.eventCallback.onOtplessEvent(event);
+    }
+
+    @NonNull
+    @Override
+    public String getInstallationId() {
+        return this.installId;
+    }
+
+    @Override
+    @NonNull
+    public String getSessionId() {
+        return this.sessionId;
     }
 
     @Override

@@ -14,8 +14,6 @@ public class OtplessRequest {
 
     @NonNull final String appId;
     @NonNull
-    private String cid = "";
-    @NonNull
     private String uxmode = "";
 
     @NonNull
@@ -25,11 +23,6 @@ public class OtplessRequest {
 
     public OtplessRequest(@NonNull final String appId) {
         this.appId = appId;
-    }
-
-    public OtplessRequest setCid(@NonNull String cid) {
-        this.cid = cid;
-        return this;
     }
 
     public OtplessRequest setUxmode(@NonNull String uxmode) {
@@ -54,9 +47,6 @@ public class OtplessRequest {
             extra.put("method", "get");
             //region adding data in params
             final JSONObject params = new JSONObject();
-            if (Utility.isValid(cid)) {
-                params.put("cid", cid);
-            }
             if (Utility.isValid(uxmode)) {
                 params.put("uxmode", uxmode);
             }

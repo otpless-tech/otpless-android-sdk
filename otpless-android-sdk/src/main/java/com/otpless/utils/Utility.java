@@ -17,6 +17,7 @@ import androidx.browser.customtabs.CustomTabsIntent;
 import com.otpless.BuildConfig;
 import com.otpless.dto.Triple;
 import com.otpless.dto.Tuple;
+import com.otpless.main.OtplessRandomIdGenerator;
 import com.otpless.network.ApiCallback;
 import com.otpless.network.ApiManager;
 
@@ -57,7 +58,7 @@ public class Utility {
             new Tuple<>("Botim", BOTIM_PACKAGE_NAME)
     );
 
-    public static void addContextInfo(final Context context) {
+    public static void addContextInfo(final Context context, @NonNull OtplessRandomIdGenerator generator) {
         final Context applicationContext = context.getApplicationContext();
         mAdditionalAppInfo.put("manufacturer", Build.MANUFACTURER);
         mAdditionalAppInfo.put("androidVersion", String.valueOf(Build.VERSION.SDK_INT));
@@ -81,6 +82,8 @@ public class Utility {
         for (final Triple<String, String, Boolean> installStatus : messagingApps) {
             mAdditionalAppInfo.put("has" + installStatus.getFirst(), String.valueOf(installStatus.getThird()));
         }
+        mAdditionalAppInfo.put("inid", generator.getInstallationId());
+        mAdditionalAppInfo.put("tsid", generator.getSessionId());
     }
 
     public static boolean isAppInstalled(final PackageManager packageManager, final String packageName) {
@@ -129,8 +132,6 @@ public class Utility {
     @NonNull
     private static String mAppSign = "";
     private static final String HASHING_ALGO = "SHA-256";
-    private static final int HASH_BYTE_SIZE = 9;
-    private static final int HASH_BASE64_SIZE = 11;
 
     /**
      * use to push web events

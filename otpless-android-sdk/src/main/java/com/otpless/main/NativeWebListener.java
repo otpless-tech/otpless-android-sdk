@@ -6,7 +6,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.annotation.Nullable;
 
-public interface NativeWebListener {
+public interface NativeWebListener extends OtplessRandomIdGenerator {
     void onOtplessEvent(final OtplessEventData event);
 
     @Nullable
