@@ -4,5 +4,5 @@ import androidx.annotation.NonNull;
 
 public interface OtplessRandomIdGenerator {
     @NonNull String getInstallationId();
-    @NonNull String getSessionId();
+    @NonNull String getTrackingSessionId();
 }

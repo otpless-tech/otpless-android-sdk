@@ -83,7 +83,7 @@ public class Utility {
             mAdditionalAppInfo.put("has" + installStatus.getFirst(), String.valueOf(installStatus.getThird()));
         }
         mAdditionalAppInfo.put("inid", generator.getInstallationId());
-        mAdditionalAppInfo.put("tsid", generator.getSessionId());
+        mAdditionalAppInfo.put("tsid", generator.getTrackingSessionId());
     }
 
     public static boolean isAppInstalled(final PackageManager packageManager, final String packageName) {

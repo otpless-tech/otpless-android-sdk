@@ -75,7 +75,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
     private static final String BASE_LOADING_URL = "https://otpless.com";
 
     @NonNull String installId = "";
-    @NonNull String sessionId = "";
+    @NonNull String trackingSessionId = "";
     private static final String INSTALL_ID_KEY = "otpless_inid";
 
     private final Queue<ViewGroup> helpQueue = new LinkedList<>();
@@ -93,7 +93,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         } else {
             this.installId = UUID.randomUUID().toString() + "-" + System.currentTimeMillis();
         }
-        sessionId = UUID.randomUUID().toString() + "-" + System.currentTimeMillis();
+        trackingSessionId = UUID.randomUUID().toString() + "-" + System.currentTimeMillis();
     }
 
     Activity getActivity() {
@@ -157,7 +157,7 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
         urlToLoad.appendQueryParameter("login_uri", loginUrl);
         urlToLoad.appendQueryParameter("nbbs", String.valueOf(this.backSubscription));
         urlToLoad.appendQueryParameter("inid", this.installId);
-        urlToLoad.appendQueryParameter("tsid", this.sessionId);
+        urlToLoad.appendQueryParameter("tsid", this.trackingSessionId);
         return urlToLoad.build().toString();
     }
 
@@ -419,8 +419,8 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
 
     @Override
     @NonNull
-    public String getSessionId() {
-        return this.sessionId;
+    public String getTrackingSessionId() {
+        return this.trackingSessionId;
     }
 
     @Override
