@@ -92,6 +92,9 @@ final class OtplessViewImpl implements OtplessView, OtplessViewContract, OnConne
             this.installId = inid;
         } else {
             this.installId = UUID.randomUUID().toString() + "-" + System.currentTimeMillis();
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString(INSTALL_ID_KEY, this.installId);
+            editor.apply();
         }
         trackingSessionId = UUID.randomUUID().toString() + "-" + System.currentTimeMillis();
     }
